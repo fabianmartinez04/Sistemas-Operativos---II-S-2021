@@ -31,6 +31,32 @@ Cell *labyrinth_init(int rows, int column) {
 
 int main() 
 {
+
+    //Read File
+    FILE *filePointer;
+    char ch;
+
+    //Name of the file
+    filePointer = fopen("lab1.txt", "r");
+
+    //validate if the file exists 
+    if (filePointer == NULL)
+    {
+        printf("File is not available \n");
+    }
+    else
+    {
+        //get character by character from file
+        while ((ch = fgetc(filePointer)) != EOF)
+        {
+            printf("%c\n", ch);
+        }
+    }
+
+    //close the file
+    fclose(filePointer);
+
+
     Labyrinth game;
     
     int r = 4, c = 4; //Taking number of Rows and Columns
