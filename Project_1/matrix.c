@@ -35,6 +35,9 @@ int main()
     //Read File
     FILE *filePointer;
     char ch;
+    char firstLine[100];
+    char *numbers;
+    int r, c;
 
     //Name of the file
     filePointer = fopen("lab1.txt", "r");
@@ -46,6 +49,20 @@ int main()
     }
     else
     {
+
+        fgets (firstLine, 100, filePointer);
+        numbers = strtok(firstLine, " ");
+        
+        if(numbers){
+            //printf("Fila%s\n", rows);
+            r = atoi(numbers); //Taking number of Rows
+        }
+        numbers = strtok(NULL, " ");
+
+        if(numbers)
+            //printf("Columnas%s\n", rows);
+            c = atoi(numbers); //Taking number of cols
+    
         //get character by character from file
         while ((ch = fgetc(filePointer)) != EOF)
         {
@@ -56,10 +73,9 @@ int main()
     //close the file
     fclose(filePointer);
 
-
+    
     Labyrinth game;
     
-    int r = 4, c = 4; //Taking number of Rows and Columns
     game.cell = labyrinth_init(r,c);
     // test
     for (int i = 0; i < r * c; i++)
