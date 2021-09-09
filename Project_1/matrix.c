@@ -74,7 +74,7 @@ int main()
         
         while ((ch = fgetc(filePointer)) != EOF)
         {
-            //printf("%d\n",i);
+            //decide is if wall or exit
             if (ch == '*'){
                 game.cell[i].isWall = 1;
                 
@@ -82,6 +82,7 @@ int main()
             else if(ch == '/'){
                 game.cell[i].exit = 1;
             }
+            //validate just this chars
             if (ch == '*' ||  ch == '/' ||  ch == ' ') { 
 
                 i++;
