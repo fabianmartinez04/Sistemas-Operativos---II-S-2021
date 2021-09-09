@@ -38,6 +38,11 @@ int main()
     char firstLine[100];
     char *numbers;
     int r, c;
+    int i = 0; //counter while char
+
+    //start labyrinth
+    Labyrinth game;
+    
 
     //Name of the file
     filePointer = fopen("lab1.txt", "r");
@@ -62,29 +67,36 @@ int main()
         if(numbers)
             //printf("Columnas%s\n", rows);
             c = atoi(numbers); //Taking number of cols
-    
+
+        game.cell = labyrinth_init(r,c);
+
         //get character by character from file
+        
         while ((ch = fgetc(filePointer)) != EOF)
         {
-            printf("%c\n", ch);
+            //printf("%d\n",i);
+            if (ch == '*'){
+                game.cell[i].isWall = 1;
+                
+            }
+            else if(ch == '/'){
+                game.cell[i].exit = 1;
+            }
+            if (ch == '*' ||  ch == '/' ||  ch == ' ') { 
+
+                i++;
+
+            }
+
         }
     }
 
     //close the file
     fclose(filePointer);
 
-    
-    Labyrinth game;
-    
-    game.cell = labyrinth_init(r,c);
     // test
     for (int i = 0; i < r * c; i++)
     {   
-        if (i % 2 == 0) {
-            game.cell[i].isWall = 1;
-        } else {
-            game.cell[i].isWall = 0;
-        }
         printf("%d ", game.cell[i].isWall);
         if ((i + 1) % c == 0)
         {
