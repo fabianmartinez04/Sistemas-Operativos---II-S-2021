@@ -1,10 +1,10 @@
 #ifndef MATRIX_H
-#define MATRI_H
+#define MATRIX_H
 
 // includes
+#include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 
 // struct: cell
@@ -25,9 +25,9 @@ typedef struct{
 
 
 //create dynamically allocating memory for each cell
-Cell *labyrinth_init(int rows, int olumns);
+Cell *labyrinth_init(int rows, int columns);
 
-
+// set each wall and exit in the matrix
 void readLabyrith(FILE *filePointer, Labyrinth game);
 
 // get numbers number from file

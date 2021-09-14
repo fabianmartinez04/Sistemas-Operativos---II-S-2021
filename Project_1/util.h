@@ -4,6 +4,7 @@
 //includes
 #include <pthread.h> // thread library
 
+
 // struct: Step
 // save each step of the thread or fork in the labyrith
 typedef struct Step
@@ -21,9 +22,13 @@ typedef struct {
 
 // struct: Thread
 // save all steps that do each thread in the matrix
-typedef struct {
-    pthread_t *thread_id;
-    Steps *steps;
+typedef struct Thread{
+    // int id;
+    pthread_t *currentThread;
+    Steps *moves;
+    struct Thread *next;
 } Thread;
+
+Step *getLastStep(Thread *thread);
 
 #endif /*UTIL_H*/
