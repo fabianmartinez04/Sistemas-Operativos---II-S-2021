@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "reader.h": "c",
+        "util.h": "c",
+        "matrix.h": "c"
+    }
+}

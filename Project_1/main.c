@@ -5,7 +5,8 @@
 #include <string.h>
 #include <pthread.h>  // thread library
 
-#include "reader.h"
+#include "matrix.h"
+#include "util.h"
 
 
 int main() 
