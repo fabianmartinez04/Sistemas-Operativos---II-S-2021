@@ -9,12 +9,17 @@
 #include "matrix.h"
 #include "util.h"
 
+void checkDirection(int row, int column, int direction);
+void *runThread(void *t);
+void threadsInit();
+void threads_join();
+
 // global variables
 
 //start labyrinth
 Labyrinth game;
 // List of thread
-Thread *threads;
+Thread *threads = NULL;
 // mutex init
 pthread_mutex_t lock;
 // numbers of rows and columns of the matrix
@@ -29,26 +34,122 @@ enum
     RIGHT = 3
 };
 
-// thread initialization
-void runThread(int direction, Thread *thread)
+
+// REVISAR PROBLEMA CON LA CREACIÓN DEL NUEVOS HILOS
+// loop up for available direction to create new thread
+void checkDirection(int row, int column, int direction)
 {
+    // check up
+    if (direction != UP && row != 0)
+    {
+        if (!game.cell[(row - 1) * rowsN + column].up && !game.cell[(row - 1) * rowsN + column].isWall)
+        {
+            // create a new thread (row,colum, UP)
+            Thread *t = createNewThread(row,column, UP);
+            addElementAtEnd(threads, t);
+            pthread_create((t->currentThread), NULL, runThread, t);
+        }
+    }
+    if (direction != DOWN && row != rowsN - 1)
+    {
+        if (!game.cell[(row + 1) * rowsN + column].down && !game.cell[(row + 1) * rowsN + column].isWall)
+        {
+            // create a new thread (row,colum, DOWN)
+            Thread *t = createNewThread(row,column,DOWN);
+            addElementAtEnd(threads, t);
+            pthread_create((t->currentThread), NULL, runThread, t);
+        }
+    }
+    if (direction != LEFT && column != 0)
+    {
+        if (!game.cell[(row)*rowsN + column - 1].left && !game.cell[(row)*rowsN + column - 1].isWall)
+        {
+            // create a new thread (row,colum, LEFT)
+            Thread *t = createNewThread(row,column, LEFT);
+            addElementAtEnd(threads, t);
+            pthread_create((t->currentThread), NULL, runThread, t);   
+        }
+    }
+    if (direction != RIGHT && column != columnsN - 1)
+    {
+        if (!game.cell[(row)*rowsN + column + 1].right && !game.cell[(row)*rowsN + column + 1].isWall)
+        {
+            // create a new thread (row,colum, RIGHT)
+            Thread *t = createNewThread(row,column, RIGHT);
+            addElementAtEnd(threads, t);
+            pthread_create((t->currentThread), NULL, runThread, t);
+        }
+    }
+}
+
+// join all threads
+void threads_join() {
+    Thread *aux = threads;
+    while (aux != NULL)
+    {
+        pthread_join(*(aux->currentThread), NULL);
+        aux = aux->next;
+    };
+};
+
+// create first thread
+void threadsInit(){
+    // check if the right cell is available
+    if (!game.cell[1].isWall) {
+        // create a new thread (0,0, RIGHT);
+        threads->steps->row = 0;
+        threads->steps->column = 0;
+        threads->steps->next = NULL;
+        threads->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
+        threads->next = NULL;
+        threads->direction = RIGHT;
+        pthread_create((threads->currentThread), NULL, runThread, threads);
+    }
+    // check if the down cell is available
+    if (!game.cell[1*rowsN].isWall) {
+        // create a new thread (0,0, DOWN);
+        Thread *newItem = malloc(sizeof(pthread_t));
+        newItem->steps->row = 0;
+        newItem->steps->column = 0;
+        newItem->steps->next = NULL;
+        newItem->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
+        newItem->next = NULL;
+        newItem->direction = DOWN;
+        // if a list of thread have element
+        if (threads == NULL) {
+            threads = newItem;
+        } else { // thread list is empty
+            addElementAtEnd(threads,newItem);
+        }
+        pthread_create(newItem->currentThread, NULL, runThread, (void*) newItem);
+    }
+}
+
+// thread initialization
+void *runThread(void *t)
+{
+    Thread *thread = (Thread*)t;
     bool exit = 0;
     // move
     while (!exit)
     {
         Step *lastStep = getLastStep(thread);
         Step *next = malloc(sizeof(Step));
-        next->column = lastStep->column;
-        next->row = lastStep->row;
+        // initialize values of the new step
+        *next = (Step){
+            .row = lastStep->row,
+            .column = lastStep->column,
+            .next = NULL
+        };
+        // lock the shared resource
+        pthread_mutex_lock(&lock);
         if (game.cell[lastStep->row * rowsN + columnsN].exit)
         {
             exit = 1;
         }
         else
         {
-            // lock the shared resource
-            pthread_mutex_lock(&lock);
-            switch (direction)
+            switch (thread->direction)
             {
             case UP:
                 if (lastStep->row == 0)
@@ -66,7 +167,7 @@ void runThread(int direction, Thread *thread)
                 {
                     exit = 1;
                 }
-                checkDirection(next->row,next->column,direction);
+                checkDirection(next->row,next->column,thread->direction);
                 break;
             case DOWN:
                 // get cell down of the last step: (row+1)*rowsN + column
@@ -76,7 +177,7 @@ void runThread(int direction, Thread *thread)
                 }
                 else if (!game.cell[(lastStep->row + 1) * rowsN + lastStep->column].down || !game.cell[(lastStep->row + 1) * rowsN + lastStep->column].isWall)
                 {
-                    game.cell[(lastStep->row + 1) * rowsN + lastStep->column].up = 1;
+                    game.cell[(lastStep->row + 1) * rowsN + lastStep->column].down = 1;
                     next->row = lastStep->row + 1;
                     lastStep->next = next;
                 }
@@ -84,12 +185,13 @@ void runThread(int direction, Thread *thread)
                 {
                     exit = 1;
                 }
-                checkDirection(next->row,next->column,direction);
+                checkDirection(next->row,next->column,thread->direction);
                 break;
             case LEFT:
                 // get cell left of the last step: (row)*rowsN + column - 1
                 if (!game.cell[lastStep->row * rowsN + lastStep->column - 1].left || !game.cell[lastStep->row * rowsN + lastStep->column - 1].isWall)
                 {
+                    game.cell[lastStep->row * rowsN + lastStep->column - 1].left = 1;
                     next->column = lastStep->column - 1;
                     lastStep->next = next;
                 }
@@ -97,12 +199,13 @@ void runThread(int direction, Thread *thread)
                 {
                     exit = 1;
                 }
-                checkDirection(next->row,next->column,direction);
+                checkDirection(next->row,next->column,thread->direction);
                 break;
             case RIGHT:
                 // get cell right of the last step: (row)*rowsN + column + 1
                 if (!game.cell[lastStep->row * rowsN + lastStep->column + 1].right || !game.cell[lastStep->row * rowsN + lastStep->column + 1].isWall)
                 {
+                    game.cell[lastStep->row * rowsN + lastStep->column + 1].right = 1;
                     next->column = lastStep->column + 1;
                     lastStep->next = next;
                 }
@@ -110,7 +213,7 @@ void runThread(int direction, Thread *thread)
                 {
                     exit = 1;
                 }
-                checkDirection(next->row,next->column,direction);
+                checkDirection(next->row,next->column,thread->direction);
                 break;
             }
             // unlock shared resource
@@ -122,56 +225,7 @@ void runThread(int direction, Thread *thread)
             free(next);
         }
     }
-};
-
-// create first thread
-void threadsInit(/*firstThread*/){
-    // check if the right cell is available
-    if (!game.cell[1].isWall) {
-        // create a new thread (0,0, RIGHT);
-        Thread *aux = malloc(sizeof(Thread));
-        aux->moves->firstStep = (0,0);
-        aux->moves->firstStep->next = NULL;
-
-    }
-    // check if the down cell is available
-    if (!game.cell[1*rowsN].isWall) {
-        // create a new thread (0,0, DOWN);
-    }
-};
-
-// loop up for available direction to create new thread
-void checkDirection(int row, int column, int direction)
-{
-    // check up
-    if (direction != UP && row != 0)
-    {
-        if (!game.cell[(row - 1) * rowsN + column].up || !game.cell[(row - 1) * rowsN + column].isWall)
-        {
-            // create a new thread (row,colum, UP)
-        }
-    }
-    if (direction != DOWN && row != rowsN - 1)
-    {
-        if (!game.cell[(row + 1) * rowsN + column].down || !game.cell[(row + 1) * rowsN + column].isWall)
-        {
-            // create a new thread (row,colum, DOWN)
-        }
-    }
-    if (direction != LEFT && column != 0)
-    {
-        if (!game.cell[(row)*rowsN + column - 1].left || !game.cell[(row)*rowsN + column - 1].isWall)
-        {
-            // create a new thread (row,colum, LEFT)
-        }
-    }
-    if (direction != RIGHT && column != columnsN - 1)
-    {
-        if (!game.cell[(row)*rowsN + column + 1].right || !game.cell[(row)*rowsN + column + 1].isWall)
-        {
-            // create a new thread (row,colum, RIGHT)
-        }
-    }
+    pthread_exit(&game);
 }
 
 int main()
@@ -212,14 +266,9 @@ int main()
     //close the file
     fclose(filePointer);
 
-    for (int i = 0; i < rowsN * columnsN; i++)
-    {
-        printf("%d ", game.cell[i].isWall);
-        if ((i + 1) % columnsN == 0)
-        {
-            printf("\n");
-        }
-    }
+    threadsInit();
+
+    threads_join();
 
     // set free matrix cell memory
     free(game.cell);
