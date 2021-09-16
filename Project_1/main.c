@@ -13,10 +13,12 @@
 
 //start labyrinth
 Labyrinth game;
-// numbers of rows and columns of the matrix
-int rowsN, columnsN;
 // List of thread
 Thread *threads;
+// mutex init
+pthread_mutex_t lock;
+// numbers of rows and columns of the matrix
+int rowsN, columnsN;
 
 // direction that it can take a thread or fork
 enum
@@ -44,6 +46,8 @@ void runThread(int direction, Thread *thread)
         }
         else
         {
+            // lock the shared resource
+            pthread_mutex_lock(&lock);
             switch (direction)
             {
             case UP:
@@ -52,8 +56,6 @@ void runThread(int direction, Thread *thread)
                     exit = 1;
                 }
                 // get cell up of the last step: (row-1)*rowsN + column
-                /*semaphore implementation*/
-                // mutex.h
                 else if (!game.cell[(lastStep->row - 1) * rowsN + lastStep->column].up || !game.cell[(lastStep->row - 1) * rowsN + lastStep->column].isWall)
                 {
                     game.cell[(lastStep->row - 1) * rowsN + lastStep->column].up = 1;
@@ -68,7 +70,6 @@ void runThread(int direction, Thread *thread)
                 break;
             case DOWN:
                 // get cell down of the last step: (row+1)*rowsN + column
-                /*semaphore implementation*/
                 if (lastStep->row == columnsN - 1)
                 {
                     exit = 1;
@@ -86,7 +87,6 @@ void runThread(int direction, Thread *thread)
                 checkDirection(next->row,next->column,direction);
                 break;
             case LEFT:
-                /*semaphore implementation*/
                 // get cell left of the last step: (row)*rowsN + column - 1
                 if (!game.cell[lastStep->row * rowsN + lastStep->column - 1].left || !game.cell[lastStep->row * rowsN + lastStep->column - 1].isWall)
                 {
@@ -100,7 +100,6 @@ void runThread(int direction, Thread *thread)
                 checkDirection(next->row,next->column,direction);
                 break;
             case RIGHT:
-                /*semaphore implementation*/
                 // get cell right of the last step: (row)*rowsN + column + 1
                 if (!game.cell[lastStep->row * rowsN + lastStep->column + 1].right || !game.cell[lastStep->row * rowsN + lastStep->column + 1].isWall)
                 {
@@ -114,6 +113,8 @@ void runThread(int direction, Thread *thread)
                 checkDirection(next->row,next->column,direction);
                 break;
             }
+            // unlock shared resource
+            pthread_mutex_unlock(&lock);
         }
         if (exit == 1)
         {
@@ -128,6 +129,10 @@ void threadsInit(/*firstThread*/){
     // check if the right cell is available
     if (!game.cell[1].isWall) {
         // create a new thread (0,0, RIGHT);
+        Thread *aux = malloc(sizeof(Thread));
+        aux->moves->firstStep = (0,0);
+        aux->moves->firstStep->next = NULL;
+
     }
     // check if the down cell is available
     if (!game.cell[1*rowsN].isWall) {
