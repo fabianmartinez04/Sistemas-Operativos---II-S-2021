@@ -8,7 +8,7 @@ Cell *labyrinth_init(int rows, int columns) {
 };
 
 // set each wall and exit from file
-void readLabyrith(FILE *filePointer, Labyrinth game) {
+void readLabyrith(FILE *filePointer, Labyrinth *game) {
     char ch;
     int i = 0;
     //get character by character from file
@@ -16,11 +16,11 @@ void readLabyrith(FILE *filePointer, Labyrinth game) {
     {
         //decide is if wall or exit
         if (ch == '*'){
-            game.cell[i].isWall = 1;
+            game->cell[i].isWall = 1;
         }
         //exit cell
         else if(ch == '/'){
-            game.cell[i].exit = 1;
+            game->cell[i].exit = 1;
         }
         //validate just this chars
         if (ch == '*' ||  ch == '/' ||  ch == ' ') { 

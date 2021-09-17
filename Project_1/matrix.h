@@ -28,7 +28,7 @@ typedef struct{
 Cell *labyrinth_init(int rows, int columns);
 
 // set each wall and exit in the matrix
-void readLabyrith(FILE *filePointer, Labyrinth game);
+void readLabyrith(FILE *filePointer, Labyrinth *game);
 
 // get numbers number from file
 int getRowsNumber(char *numbers);
