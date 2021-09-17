@@ -16,7 +16,7 @@ void addElementAtEnd(Thread *list, Thread *item) {
     // get the fisrt element of the list
     Thread *aux = list;
     while(aux->next != NULL) {
-        aux = list->next;
+        aux = aux->next;
     }
     aux->next = item;
 }
