@@ -17,19 +17,37 @@ typedef struct Step
 
 // struct: Thread
 // save all steps that do each thread in the matrix
-typedef struct Thread{
-    // int id;
+typedef struct Thread
+{
     pthread_t *currentThread;
     Step *steps;
     int direction;
     struct Thread *next;
 } Thread;
 
-Step *getLastStep(Thread *thread);
 
-void addElementAtEnd(Thread *list, Thread *item);
+typedef struct Fork {
+    pid_t pid;
+    int direction;
+    Step *steps;
+    struct Fork *next;
+} Fork;
+
+Step *getLastStepThread(Thread *thread);
+
+void addThreadAtEnd(Thread *list, Thread *item);
 
 Thread *createNewThread(int row, int column, int direction);
 
+// get fork by pid_t
+Fork *getFork(Fork *list, pid_t pid);
 
+// add fork at the end of the list
+void addForkAtEnd(Fork *list, Fork *item);
+
+// create new fork
+Fork *createNewFork(int row, int column, int direction);
+
+// get last step fork
+Step *getLastStepFork(Fork *fork);
 #endif /*UTIL_H*/

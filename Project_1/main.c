@@ -7,15 +7,26 @@
 #include <pthread.h> // thread library
 #include <time.h>
 #include <sys/mman.h> // shared memory
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
 
 #include "matrix.h"
 #include "util.h"
 
+// thread functions
 void checkDirection(int row, int column, int direction);
 void *runThread(void *t);
 void threadsInit();
 void threads_join();
 void exitCell(int row, int column);
+
+// forks functions
+void ForksInit();
+void runForks();
+void checkDirectionFork(int row, int column, int direction);
 
 // global variables
 
@@ -23,6 +34,9 @@ void exitCell(int row, int column);
 Labyrinth *game;
 // List of thread
 Thread *threads = NULL;
+// List of Forks
+Fork *forks = NULL;
+
 // mutex init
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 // numbers of rows and columns of the matrix
@@ -38,7 +52,7 @@ enum
 };
 
 
-// loop up for available direction to create new thread
+// look up for available direction to create new thread
 void checkDirection(int row, int column, int direction)
 {
     // check above
@@ -54,7 +68,7 @@ void checkDirection(int row, int column, int direction)
             game->cell[row * rowsN + column].up = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addElementAtEnd(threads, t);
+            addThreadAtEnd(threads, t);
             pthread_create((t->currentThread), NULL, runThread, t);
 
         }
@@ -73,7 +87,7 @@ void checkDirection(int row, int column, int direction)
             game->cell[row * rowsN + column].down = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addElementAtEnd(threads, t);
+            addThreadAtEnd(threads, t);
             pthread_create((t->currentThread), NULL, runThread, t);
         }
     }
@@ -91,7 +105,7 @@ void checkDirection(int row, int column, int direction)
             game->cell[row * rowsN + column].left = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addElementAtEnd(threads, t);
+            addThreadAtEnd(threads, t);
             pthread_create((t->currentThread), NULL, runThread, t);   
         }
     }
@@ -109,7 +123,7 @@ void checkDirection(int row, int column, int direction)
             game->cell[row * rowsN + column].right = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addElementAtEnd(threads, t);
+            addThreadAtEnd(threads, t);
             pthread_create((t->currentThread), NULL, runThread, t);
         }
     }
@@ -130,9 +144,11 @@ void threadsInit(){
     // check if the right cell is available
     if (!game->cell[1].isWall) {
         // create a new thread (0,0, RIGHT);
-        threads->steps->row = 0;
-        threads->steps->column = 0;
-        threads->steps->next = NULL;
+        Step *s = malloc(sizeof(Step));
+        s->row = 0;
+        s->column = 0;
+        s->next = NULL;
+        threads->steps = s;
         threads->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
         threads->next = NULL;
         threads->direction = RIGHT;
@@ -142,9 +158,11 @@ void threadsInit(){
     if (!game->cell[1*rowsN].isWall) {
         // create a new thread (0,0, DOWN);
         Thread *newItem = malloc(sizeof(pthread_t));
-        newItem->steps->row = 0;
-        newItem->steps->column = 0;
-        newItem->steps->next = NULL;
+        Step *s = malloc(sizeof(Step));
+        s->row = 0;
+        s->column = 0;
+        s->next = NULL;
+        newItem->steps = s;
         newItem->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
         newItem->next = NULL;
         newItem->direction = DOWN;
@@ -152,7 +170,7 @@ void threadsInit(){
         if (threads == NULL) {
             threads = newItem;
         } else { // thread list is empty
-            addElementAtEnd(threads,newItem);
+            addThreadAtEnd(threads,newItem);
         }
         pthread_create(newItem->currentThread, NULL, runThread, (void*) newItem);
     }
@@ -166,7 +184,7 @@ void *runThread(void *t)
     // move
     while (!exit)
     {
-        Step *lastStep = getLastStep(thread);
+        Step *lastStep = getLastStepThread(thread);
         Step *next = malloc(sizeof(Step));
         // initialize values of the new step
         *next = (Step){
@@ -280,18 +298,278 @@ void exitCell(int row, int column) {
     }
 }
 
+
+// FORKS FUNCTIONS 
+
+// create first forks
+void ForksInit(){
+    // check if the right cell is available
+    if (!game->cell[1].isWall) {
+        // create a new fork (0,0, RIGHT);
+        Step *s = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        s->row = 0;
+        s->column = 0;
+        s->next = NULL;
+        forks->steps = s;
+        forks->pid = getpid(), 
+        forks->next = NULL;
+        forks->direction = RIGHT;
+    }
+    // check if the down cell is available
+    if (!game->cell[1*rowsN].isWall) {
+        // create a new fork (0,0, DOWN);
+        Fork *newItem = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        Step *s = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        s->row = 0;
+        s->column = 0;
+        s->next = NULL;
+        newItem->steps = s;
+        newItem->pid = getpid(),
+        newItem->next = NULL;
+        newItem->direction = DOWN;
+        // if a list of thread have element
+        if (forks == NULL) {
+            forks = newItem;
+            runForks();
+        } else { // forks list is no empty
+            pid_t c_pid = fork();
+            if (c_pid == 0) {
+                newItem->pid = getpid();
+                addForkAtEnd(forks,newItem);
+                runForks();
+                kill(getpid(), SIGKILL);
+            }
+        }
+        
+    }
+}
+
+// fork functions to evalute the labyrith
+void runForks()
+{
+    Fork *f = getFork(forks, getpid());
+    bool exit = 0;
+    // move
+    while (!exit)
+    {
+        Step *lastStep = getLastStepFork(f);
+        Step *next = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        // initialize values of the new step
+        *next = (Step){
+            .row = lastStep->row,
+            .column = lastStep->column,
+            .next = NULL
+        };
+        // lock the shared resource
+        pthread_mutex_lock(&lock);
+        if (game->cell[lastStep->row * rowsN + lastStep->column].exit)
+        {
+            exit = 1;
+            // lock the shared resource
+            pthread_mutex_unlock(&lock);
+        }
+        else
+        {
+            switch (f->direction)
+            {
+            case UP:
+                // check if a cell is in the first row
+                if (lastStep->row == 0)
+                {
+                    exit = 1;
+                }
+                // get cell up of the last step: (row-1)*rowsN + column
+                else if (!game->cell[(lastStep->row - 1) * rowsN + lastStep->column].up && !game->cell[(lastStep->row - 1) * rowsN + lastStep->column].isWall)
+                {
+                    game->cell[(lastStep->row - 1) * rowsN + lastStep->column].up = 1;
+                    next->row = lastStep->row - 1;
+                    lastStep->next = next;
+                    
+                }
+                else
+                {
+                    exit = 1;
+                }
+                break;
+            case DOWN:
+                // check if a cell is in the last row
+                if (lastStep->row == rowsN - 1)
+                {
+                    exit = 1;
+                }
+                // get cell down of the last step: (row+1)*rowsN + column
+                else if (!game->cell[(lastStep->row + 1) * rowsN + lastStep->column].down && !game->cell[(lastStep->row + 1) * rowsN + lastStep->column].isWall)
+                {
+                    game->cell[(lastStep->row + 1) * rowsN + lastStep->column].down = 1;
+                    next->row = lastStep->row + 1;
+                    lastStep->next = next;
+                }
+                else
+                {
+                    exit = 1;
+                }
+                break;
+            case LEFT:
+                // check if a cell is in the first column
+                if (lastStep->column == 0)
+                {
+                    exit = 1;
+                }
+                // get cell left of the last step: (row)*rowsN + column - 1
+                else if (!game->cell[lastStep->row * rowsN + lastStep->column - 1].left && !game->cell[lastStep->row * rowsN + lastStep->column - 1].isWall)
+                {
+                    game->cell[lastStep->row * rowsN + lastStep->column - 1].left = 1;
+                    next->column = lastStep->column - 1;
+                    lastStep->next = next;
+                }
+                else
+                {
+                    exit = 1;
+                }
+                break;
+            case RIGHT:
+                // check if a cell is in the first column
+                if (lastStep->column == columnsN - 1)
+                {
+                    exit = 1;
+                }
+                // get cell right of the last step: (row)*rowsN + column + 1
+                else if (!game->cell[lastStep->row * rowsN + lastStep->column + 1].right && !game->cell[lastStep->row * rowsN + lastStep->column + 1].isWall)
+                {
+                    game->cell[lastStep->row * rowsN + lastStep->column + 1].right = 1;
+                    next->column = lastStep->column + 1;
+                    lastStep->next = next;
+                }
+                else
+                {
+                    exit = 1;
+                }
+                break;
+            }
+            exitCell(next->row,next->column);
+            // lock the shared resource
+            pthread_mutex_unlock(&lock);
+            checkDirectionFork(next->row,next->column,f->direction);
+        }
+        if (exit == 1)
+        {
+            // set free memory of the last sept
+            munmap(next, sizeof(next));
+        }
+    }
+    wait(NULL);
+    //kill(getpid(), SIGKILL);
+}
+
+// look up for available direction to create new fork
+void checkDirectionFork(int row, int column, int direction)
+{
+    // check above
+    if (direction != UP && row != 0 && direction != DOWN)
+    {
+        if (!game->cell[(row - 1) * rowsN + column].up && 
+        !game->cell[row * rowsN + column].up &&
+        !game->cell[(row - 1) * rowsN + column].isWall)
+        {
+            // create a new fork (row,colum, UP)
+            Fork *f = createNewFork(row,column, UP);
+            pthread_mutex_lock(&lock);
+            game->cell[row * rowsN + column].up = 1;
+            // unlock the shared resource
+            pthread_mutex_unlock(&lock);
+            addForkAtEnd(forks, f);
+            // new fork
+            pid_t pid = fork();
+            if (pid == 0){
+                f->pid = getpid();
+                runForks();
+            }
+        }
+    }
+    // check below
+    if (direction != DOWN && row != rowsN - 1 && direction != UP)
+    {
+        if (!game->cell[(row + 1) * rowsN + column].down && 
+        !game->cell[row* rowsN + column].down && 
+        !game->cell[(row + 1) * rowsN + column].isWall)
+        {
+            // create a new thread (row,colum, DOWN)
+            Fork *f = createNewFork(row,column, DOWN);
+            // lock the shared resource
+            pthread_mutex_lock(&lock);
+            game->cell[row * rowsN + column].down = 1;
+            // unlock the shared resource
+            pthread_mutex_unlock(&lock);
+            addForkAtEnd(forks, f);
+            // new fork
+            pid_t pid = fork();
+            if (pid == 0){
+                f->pid = getpid();
+                runForks();
+            }
+
+        }
+    }
+    // check left
+    if (direction != LEFT && column != 0 && direction != RIGHT)
+    {
+        if (!game->cell[row*rowsN + column - 1].left && 
+        !game->cell[row*rowsN + column].left && 
+        !game->cell[row*rowsN + column - 1].isWall)
+        {
+            // create a new thread (row,colum, LEFT)
+            Fork *f = createNewFork(row,column, LEFT);
+            // lock the shared resource
+            pthread_mutex_lock(&lock);
+            game->cell[row * rowsN + column].left = 1;
+            // unlock the shared resource
+            pthread_mutex_unlock(&lock);
+            addForkAtEnd(forks, f);
+            // new fork
+            pid_t pid = fork();
+            if (pid == 0){
+                f->pid = getpid();
+                runForks();
+            }
+        }
+    }
+    // check right
+    if (direction != RIGHT && column != columnsN - 1 && direction != LEFT)
+    {
+        if (!game->cell[row*rowsN + column + 1].right && 
+        !game->cell[row*rowsN + column].right &&
+         !game->cell[row*rowsN + column + 1].isWall)
+        {
+            // create a new thread (row,colum, RIGHT)
+            Fork *f = createNewFork(row,column, RIGHT);
+            // lock the shared resource
+            pthread_mutex_lock(&lock);
+            game->cell[row * rowsN + column].right = 1;
+            // unlock the shared resource
+            pthread_mutex_unlock(&lock);
+            addForkAtEnd(forks, f);
+            // new fork
+            pid_t pid = fork();
+            if (pid == 0){
+                f->pid = getpid();
+                runForks();
+            }
+        }
+    }
+}
+
 int main()
 {
-
-    game = malloc(sizeof(Labyrinth));
+    // set memory to game labyrith
+    game = mmap(NULL, sizeof(Labyrinth), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     char filename[20] = "lab1.txt";
     //Read File
     FILE *filePointer;
     char firstLine[100];
     char *numbers;
-
     // to store the execution time of code
-    double time_spent = 0.0;
+    double threadTime = 0.0;
+    double forkTime = 0.0;
 
     /*
     printf("File name: ");
@@ -335,25 +613,58 @@ int main()
  
     // calculate elapsed time by finding difference (end - begin) and
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+    threadTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
-    printf("The elapsed time is %f seconds \n", time_spent);
+    printf("\nThe elapsed time is %f seconds \n", threadTime);
     
-
     // forks execution
-    game = mmap(NULL, sizeof(Labyrinth), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     // initialise mutex so it works properly in shared memory
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
     pthread_mutex_init(&lock, &attr);
 
+    // set false all direction in each cell
+    // rowsN * columnsN = total cell that were created
+    setDefualtCellState(game, rowsN * columnsN);
+
+    begin = clock();
+
+    // method what execute forks
+    ForksInit();
+
+    end = clock();
+ 
+    // calculate elapsed time by finding difference (end - begin) and
+    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+    forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
+ 
+    
+    printf("First pid: %d\n", forks->pid);
+    printf("Father pid: %d\n", getpid());
+    if (forks->pid == getpid()) {
+        printf("\nThe elapsed time is %f seconds \n", forkTime);
+            Fork *iter = forks;
+        while (iter != NULL) 
+        {
+            printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
+            Step *auxStep = iter->steps;
+            while (auxStep != NULL)
+            {
+                printf("(%d,%d)", auxStep->row, auxStep->column);
+                auxStep = auxStep->next;
+            }
+            printf("\n\n");
+            iter = iter->next;        
+        }
+    }
+
+    
 
     // set free matrix cell memory
-    free(game->cell);
-    free(game);
+    munmap(game->cell, sizeof(game->cell));
     // set free threads
-
+    munmap(game, sizeof(game));
     return 0;
 }
 

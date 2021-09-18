@@ -36,4 +36,7 @@ int getRowsNumber(char *numbers);
 //column number from file
 int getColumnsNumber(char *numbers);
 
+// set default state in each cell direction 
+void setDefualtCellState(Labyrinth *game, int lenght);
+
 #endif /*MATRIX_H*/

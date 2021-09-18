@@ -1,10 +1,11 @@
 #include "matrix.h"
 
 #include <string.h>
+#include <sys/mman.h> // shared memory
 
 //Dynamically allocating memory
 Cell *labyrinth_init(int rows, int columns) {
-    return calloc(rows * columns, sizeof(Cell)); 
+    return mmap(NULL, rows * columns * sizeof(Cell), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 };
 
 // set each wall and exit from file
@@ -46,4 +47,15 @@ int getColumnsNumber(char *numbers) {
         return atoi(numbers); //Taking number of cols
     }
     return 0;
+}
+
+// set default state in each cell direction 
+void setDefualtCellState(Labyrinth *game, int lenght) {
+    for (int i = 0; i < lenght; i++)
+    {
+        game->cell[i].up = 0;
+        game->cell[i].down = 0;
+        game->cell[i].right = 0;
+        game->cell[i].left = 0;
+    }
 }
