@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 
 #include "matrix.h"
@@ -294,7 +295,7 @@ void *runThread(void *t)
 void exitCell(int row, int column) {
     if (game->cell[row * rowsN + column].exit) {
 
-        printf("Exit, row: %d, column: %d", row,column);
+        printf("Exit, row: %d, column: %d", row, column);
     }
 }
 
@@ -306,6 +307,7 @@ void ForksInit(){
     // check if the right cell is available
     if (!game->cell[1].isWall) {
         // create a new fork (0,0, RIGHT);
+        forks = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
         Step *s = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
         s->row = 0;
         s->column = 0;
@@ -331,16 +333,17 @@ void ForksInit(){
         if (forks == NULL) {
             forks = newItem;
             runForks();
+            wait(NULL);
         } else { // forks list is no empty
             pid_t c_pid = fork();
             if (c_pid == 0) {
                 newItem->pid = getpid();
                 addForkAtEnd(forks,newItem);
                 runForks();
-                kill(getpid(), SIGKILL);
+            } else {
+                wait(NULL);
             }
         }
-        
     }
 }
 
@@ -348,9 +351,9 @@ void ForksInit(){
 void runForks()
 {
     Fork *f = getFork(forks, getpid());
-    bool exit = 0;
+    bool end = 0;
     // move
-    while (!exit)
+    while (!end)
     {
         Step *lastStep = getLastStepFork(f);
         Step *next = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -364,7 +367,7 @@ void runForks()
         pthread_mutex_lock(&lock);
         if (game->cell[lastStep->row * rowsN + lastStep->column].exit)
         {
-            exit = 1;
+            end = 1;
             // lock the shared resource
             pthread_mutex_unlock(&lock);
         }
@@ -376,7 +379,7 @@ void runForks()
                 // check if a cell is in the first row
                 if (lastStep->row == 0)
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 // get cell up of the last step: (row-1)*rowsN + column
                 else if (!game->cell[(lastStep->row - 1) * rowsN + lastStep->column].up && !game->cell[(lastStep->row - 1) * rowsN + lastStep->column].isWall)
@@ -388,14 +391,14 @@ void runForks()
                 }
                 else
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 break;
             case DOWN:
                 // check if a cell is in the last row
                 if (lastStep->row == rowsN - 1)
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 // get cell down of the last step: (row+1)*rowsN + column
                 else if (!game->cell[(lastStep->row + 1) * rowsN + lastStep->column].down && !game->cell[(lastStep->row + 1) * rowsN + lastStep->column].isWall)
@@ -406,14 +409,14 @@ void runForks()
                 }
                 else
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 break;
             case LEFT:
                 // check if a cell is in the first column
                 if (lastStep->column == 0)
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 // get cell left of the last step: (row)*rowsN + column - 1
                 else if (!game->cell[lastStep->row * rowsN + lastStep->column - 1].left && !game->cell[lastStep->row * rowsN + lastStep->column - 1].isWall)
@@ -424,14 +427,14 @@ void runForks()
                 }
                 else
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 break;
             case RIGHT:
                 // check if a cell is in the first column
                 if (lastStep->column == columnsN - 1)
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 // get cell right of the last step: (row)*rowsN + column + 1
                 else if (!game->cell[lastStep->row * rowsN + lastStep->column + 1].right && !game->cell[lastStep->row * rowsN + lastStep->column + 1].isWall)
@@ -442,23 +445,22 @@ void runForks()
                 }
                 else
                 {
-                    exit = 1;
+                    end = 1;
                 }
                 break;
             }
+            //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
             exitCell(next->row,next->column);
-            // lock the shared resource
+            // unlock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirectionFork(next->row,next->column,f->direction);
         }
-        if (exit == 1)
+        if (end == 1)
         {
             // set free memory of the last sept
-            munmap(next, sizeof(next));
+            munmap(next, sizeof(Step));
         }
     }
-    wait(NULL);
-    //kill(getpid(), SIGKILL);
 }
 
 // look up for available direction to create new fork
@@ -483,6 +485,9 @@ void checkDirectionFork(int row, int column, int direction)
             if (pid == 0){
                 f->pid = getpid();
                 runForks();
+            } else {
+                // wait for child execute
+                wait(NULL);
             }
         }
     }
@@ -507,7 +512,10 @@ void checkDirectionFork(int row, int column, int direction)
                 f->pid = getpid();
                 runForks();
             }
-
+            else {
+                // wait for child execute
+                wait(NULL);
+            }
         }
     }
     // check left
@@ -530,6 +538,9 @@ void checkDirectionFork(int row, int column, int direction)
             if (pid == 0){
                 f->pid = getpid();
                 runForks();
+            } else {
+                // wait for child execute
+                wait(NULL);
             }
         }
     }
@@ -553,6 +564,9 @@ void checkDirectionFork(int row, int column, int direction)
             if (pid == 0){
                 f->pid = getpid();
                 runForks();
+            } else {
+                // wait for child execute
+                wait(NULL);
             }
         }
     }
@@ -570,6 +584,9 @@ int main()
     // to store the execution time of code
     double threadTime = 0.0;
     double forkTime = 0.0;
+    // clocks
+    clock_t begin;
+    clock_t end;
 
     /*
     printf("File name: ");
@@ -603,13 +620,13 @@ int main()
  
 
     // thread execution
-    clock_t begin = clock();
+    begin = clock();
 
     threadsInit();
     
     threads_join();
 
-    clock_t end = clock();
+    end = clock();
  
     // calculate elapsed time by finding difference (end - begin) and
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
@@ -634,37 +651,39 @@ int main()
     ForksInit();
 
     end = clock();
- 
+    
     // calculate elapsed time by finding difference (end - begin) and
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
     forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
-    
-    printf("First pid: %d\n", forks->pid);
-    printf("Father pid: %d\n", getpid());
+    if (getpid == 0) {
+        exit(0);
+    }
+    // segmentation sault - Sahred Memory created by child forks can't be access from mean fork
     if (forks->pid == getpid()) {
         printf("\nThe elapsed time is %f seconds \n", forkTime);
-            Fork *iter = forks;
+        Fork *iter = forks;
         while (iter != NULL) 
         {
             printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
             Step *auxStep = iter->steps;
             while (auxStep != NULL)
             {
-                printf("(%d,%d)", auxStep->row, auxStep->column);
+                printf("(%d,%d)->", auxStep->row, auxStep->column);
                 auxStep = auxStep->next;
             }
             printf("\n\n");
             iter = iter->next;        
         }
+        printf("\n\n\n");
     }
 
     
 
     // set free matrix cell memory
-    munmap(game->cell, sizeof(game->cell));
+    //munmap(game->cell, sizeof(game->cell));
     // set free threads
-    munmap(game, sizeof(game));
+    //munmap(game, sizeof(game));
     return 0;
 }
 

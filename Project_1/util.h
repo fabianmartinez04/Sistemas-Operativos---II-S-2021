@@ -25,7 +25,8 @@ typedef struct Thread
     struct Thread *next;
 } Thread;
 
-
+// struct: Fork
+// contain all information of the fork
 typedef struct Fork {
     pid_t pid;
     int direction;
