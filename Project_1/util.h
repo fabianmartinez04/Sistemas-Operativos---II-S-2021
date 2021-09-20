@@ -51,4 +51,9 @@ Fork *createNewFork(int row, int column, int direction);
 
 // get last step fork
 Step *getLastStepFork(Fork *fork);
+
+// read fork steps from file
+Fork *readForkSteps();
+
+
 #endif /*UTIL_H*/

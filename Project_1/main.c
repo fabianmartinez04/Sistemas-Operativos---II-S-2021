@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <sys/file.h>
 
 
 #include "matrix.h"
@@ -22,12 +23,15 @@ void checkDirection(int row, int column, int direction);
 void *runThread(void *t);
 void threadsInit();
 void threads_join();
-void exitCell(int row, int column);
+void exitCell(int row, int column, char *type, int id);
 
 // forks functions
 void ForksInit();
 void runForks();
 void checkDirectionFork(int row, int column, int direction);
+
+// write fork steps
+void writeForkStep(Fork *fork);
 
 // global variables
 
@@ -52,6 +56,39 @@ enum
     RIGHT = 3
 };
 
+void writeForkStep(Fork *fork) {
+    int status = -1;
+    char data[20];
+    while (status != 0)
+    {
+        FILE* f = fopen("steps.txt", "a");
+        int fd = fileno(f);
+        // flock should return zero on success
+        status = flock(fd, LOCK_EX);
+        if (status == 0) {
+            pthread_mutex_lock(&lock);
+            sprintf(data, "%d %d ", fork->pid, fork->direction);
+            fputs(data, f);
+            Step *iter = fork->steps;
+            while (iter != NULL)
+            {
+                char c[10];
+                sprintf(data, "%d %d ", iter->row, iter->column);
+                fputs(data, f);
+                iter = iter->next;
+            }
+            
+            pthread_mutex_unlock(&lock);
+            fputs("\n", f);
+            flock(fd, LOCK_EX);
+            fclose(f);
+            break;
+        } else {
+            fclose(f);
+        }    
+    }
+    
+}
 
 // look up for available direction to create new thread
 void checkDirection(int row, int column, int direction)
@@ -279,31 +316,33 @@ void *runThread(void *t)
                 }
                 break;
             }
-            exitCell(next->row,next->column);
+            exitCell(next->row,next->column, "Thread", 0);
             // lock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirection(next->row,next->column,thread->direction);
         }
         if (exit == 1)
         {
+            printf("Thread : %d finish\n", 0);
             // set free memory of the last sept
             free(next);
         }
     }
 }
 
-void exitCell(int row, int column) {
+void exitCell(int row, int column, char *type, int id) {
     if (game->cell[row * rowsN + column].exit) {
 
-        printf("Exit, row: %d, column: %d", row, column);
+        printf("%s : %d found the exit, row: %d, column: %d\n", type, id, row, column);
     }
 }
-
 
 // FORKS FUNCTIONS 
 
 // create first forks
 void ForksInit(){
+    int status = 0;
+    pid_t wpid;
     // check if the right cell is available
     if (!game->cell[1].isWall) {
         // create a new fork (0,0, RIGHT);
@@ -329,21 +368,25 @@ void ForksInit(){
         newItem->pid = getpid(),
         newItem->next = NULL;
         newItem->direction = DOWN;
-        // if a list of thread have element
+        // if a list of thread is no empty
         if (forks == NULL) {
             forks = newItem;
-            runForks();
-            wait(NULL);
+            pid_t c_pid = fork();
+            if (c_pid == 0) {
+                forks->pid = getpid();
+                runForks();
+                exit(0);
+            }
         } else { // forks list is no empty
             pid_t c_pid = fork();
             if (c_pid == 0) {
                 newItem->pid = getpid();
                 addForkAtEnd(forks,newItem);
                 runForks();
-            } else {
-                wait(NULL);
+                exit(0);
             }
         }
+        while ((wpid = wait(&status)) > 0);
     }
 }
 
@@ -450,13 +493,17 @@ void runForks()
                 break;
             }
             //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
-            exitCell(next->row,next->column);
+            exitCell(next->row,next->column, "Fork", getpid());
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirectionFork(next->row,next->column,f->direction);
         }
         if (end == 1)
         {
+            if (getpid != 0) {
+                writeForkStep(f);
+            }
+            printf("Fork : %d finish\n", getpid());
             // set free memory of the last sept
             munmap(next, sizeof(Step));
         }
@@ -587,12 +634,12 @@ int main()
     // clocks
     clock_t begin;
     clock_t end;
-
+    
     /*
     printf("File name: ");
     scanf("%s", filename);
     */
-
+    
     //Name of the file
     filePointer = fopen(filename, "r");
 
@@ -655,13 +702,11 @@ int main()
     // calculate elapsed time by finding difference (end - begin) and
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
     forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
- 
-    if (getpid == 0) {
-        exit(0);
-    }
+
+    printf("\nThe elapsed time is %f seconds \n", forkTime);
     // segmentation sault - Sahred Memory created by child forks can't be access from mean fork
-    if (forks->pid == getpid()) {
-        printf("\nThe elapsed time is %f seconds \n", forkTime);
+    /*if (forks->pid == getpid()) {
+        
         Fork *iter = forks;
         while (iter != NULL) 
         {
@@ -676,7 +721,7 @@ int main()
             iter = iter->next;        
         }
         printf("\n\n\n");
-    }
+    }*/
 
     
 
@@ -684,16 +729,13 @@ int main()
     //munmap(game->cell, sizeof(game->cell));
     // set free threads
     //munmap(game, sizeof(game));
+
+    Fork *forksList = readForkSteps();
     return 0;
 }
 
 // test
 // print labyrith in console
-/*for (int i = 0; i < rowsN * columnsN; i++)
-    {   
-        printf("%d ", game.cell[i].isWall);
-        if ((i + 1) % columnsN == 0)
-        {
-            printf("\n");
+/*for (int i = 0; i < rowsN * colum 
         }
     }*/
