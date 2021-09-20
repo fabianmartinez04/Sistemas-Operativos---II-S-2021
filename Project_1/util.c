@@ -1,7 +1,9 @@
 #include "util.h"
 
-#include <sys/mman.h> // shared memory
 #include <unistd.h>
+#include <sys/mman.h> // shared memory
+# define MREMAP_MAYMOVE 1
+# define MREMAP_FIXED   2
 
 Step *getLastStepThread(Thread *thread) {
     // get the first step of the linked list;
@@ -43,46 +45,42 @@ Thread *createNewThread(int row, int column, int direction) {
 
 
 // get fork by pid_t
-Fork *getFork(Fork *list, pid_t pid) {
-    Fork *aux = list;
-    while (aux != NULL)
+Fork *getFork(Fork *list, pid_t pid, int forkLenght) {
+    int i = 0;
+    while (i < forkLenght)
     {
-        if (aux->pid == pid) {
-            return aux;
+        if (list[i].pid == pid) {
+            return &list[i];
         }
-        aux = aux->next;
+        i++;
     }
     return NULL;
 }
 
+/*
 // add fork at the end of the list
-void addForkAtEnd(Fork *list, Fork *item) {
-    // get the fisrt element of the list
-    Fork *aux = list;
-    while(aux->next != NULL) {
-        aux = aux->next;
-    }
-    aux->next = item;
-}
+void addForkAtEnd(Fork *list[], Fork *item, int lenght) {
+    mremap(list, lenght * sizeof(Fork), (lenght + 1) * sizeof(Fork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    list[lenght] = item;
+}*/
 
 // create new fork
-Fork *createNewFork(int row, int column, int direction) {
-    Fork *newItem = mmap(NULL, sizeof(Fork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    Step *firstStep = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    *firstStep = (Step){
+void createNewFork(int row, int column, int direction, Fork *list, int lenght) {
+
+    void *temp = mremap(list, lenght * sizeof(Fork), (lenght + 1) * sizeof(Fork), MREMAP_MAYMOVE | MREMAP_FIXED);
+    list = temp;
+    list[lenght].steps[0] = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    *list[lenght].steps[0] = (StepFork){
         .row = row,
-        .column = column,
-        .next = NULL
+        .column = column
     };
-    *newItem = (Fork){
+    list[lenght] = (Fork){
         .pid =  -1,
-        .steps = firstStep,
-        .direction = direction,
-        .next = NULL
+        .direction = direction
     };
-    return newItem;
 }
 
+/*
 // get last step fork
 Step *getLastStepFork(Fork *fork) {
     // get the first step of the linked list;
@@ -92,4 +90,4 @@ Step *getLastStepFork(Fork *fork) {
         aux = aux->next;
     }
     return aux;
-}
+}*/

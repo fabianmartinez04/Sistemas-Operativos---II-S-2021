@@ -17,6 +17,9 @@
 #include "matrix.h"
 #include "util.h"
 
+# define MREMAP_MAYMOVE 1
+# define MREMAP_FIXED   2
+
 // thread functions
 void checkDirection(int row, int column, int direction);
 void *runThread(void *t);
@@ -37,6 +40,7 @@ Labyrinth *game;
 Thread *threads = NULL;
 // List of Forks
 Fork *forks = NULL;
+int forkLenght = 0;
 
 // mutex init
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -307,38 +311,36 @@ void ForksInit(){
     // check if the right cell is available
     if (!game->cell[1].isWall) {
         // create a new fork (0,0, RIGHT);
-        forks = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        Step *s = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        s->row = 0;
-        s->column = 0;
-        s->next = NULL;
-        forks->steps = s;
-        forks->pid = getpid(), 
-        forks->next = NULL;
-        forks->direction = RIGHT;
+        forks = mmap(NULL, sizeof(Fork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        forks[forkLenght].steps[0] = mmap(NULL, sizeof(StepFork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        forks[forkLenght].steps[0]->row = 0;
+        forks[forkLenght].steps[0]->column = 0;
+        forks[forkLenght].pid = getpid(), 
+        forks[forkLenght].direction = RIGHT;
+        forkLenght++;
     }
     // check if the down cell is available
     if (!game->cell[1*rowsN].isWall) {
         // create a new fork (0,0, DOWN);
-        Fork *newItem = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        Step *s = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        s->row = 0;
-        s->column = 0;
-        s->next = NULL;
-        newItem->steps = s;
-        newItem->pid = getpid(),
-        newItem->next = NULL;
-        newItem->direction = DOWN;
-        // if a list of thread have element
-        if (forks == NULL) {
-            forks = newItem;
+        if (forkLenght == 0) {
+            forks = mmap(NULL, sizeof(Fork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        } else {
+            mremap(forks, forkLenght * sizeof(Fork), (forkLenght + 1) * sizeof(Fork), MREMAP_MAYMOVE | MREMAP_FIXED);
+        }
+        forks[forkLenght].steps[0] = mmap(NULL, sizeof(StepFork), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        forks[forkLenght].steps[0]->row = 0;
+        forks[forkLenght].steps[0]->column = 0;
+        forks->pid = getpid(), 
+        forks[forkLenght].direction = DOWN;
+        forkLenght++;
+        // if a list of fork have element
+        if (forkLenght == 1) {
             runForks();
             wait(NULL);
-        } else { // forks list is no empty
+        } else { // forks list is empty
             pid_t c_pid = fork();
             if (c_pid == 0) {
-                newItem->pid = getpid();
-                addForkAtEnd(forks,newItem);
+                forks[forkLenght-1].pid = getpid();
                 runForks();
             } else {
                 wait(NULL);
@@ -350,18 +352,19 @@ void ForksInit(){
 // fork functions to evalute the labyrith
 void runForks()
 {
-    Fork *f = getFork(forks, getpid());
+    Fork *f = getFork(forks, getpid(), forkLenght);
     bool end = 0;
     // move
     while (!end)
     {
-        Step *lastStep = getLastStepFork(f);
-        Step *next = mmap(NULL, sizeof(Step), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+        StepFork *lastStep = f->steps[f->stepN-1];
+        void *temp;
+        temp = mremap(f->steps, f->stepN * sizeof(StepFork), (f->stepN +1)* sizeof(StepFork), MREMAP_MAYMOVE);
+        f->steps[0]  = temp;
         // initialize values of the new step
-        *next = (Step){
+        *f->steps[f->stepN] = (StepFork){
             .row = lastStep->row,
             .column = lastStep->column,
-            .next = NULL
         };
         // lock the shared resource
         pthread_mutex_lock(&lock);
@@ -385,9 +388,7 @@ void runForks()
                 else if (!game->cell[(lastStep->row - 1) * rowsN + lastStep->column].up && !game->cell[(lastStep->row - 1) * rowsN + lastStep->column].isWall)
                 {
                     game->cell[(lastStep->row - 1) * rowsN + lastStep->column].up = 1;
-                    next->row = lastStep->row - 1;
-                    lastStep->next = next;
-                    
+                    f->steps[f->stepN]->row = lastStep->row - 1;
                 }
                 else
                 {
@@ -404,8 +405,7 @@ void runForks()
                 else if (!game->cell[(lastStep->row + 1) * rowsN + lastStep->column].down && !game->cell[(lastStep->row + 1) * rowsN + lastStep->column].isWall)
                 {
                     game->cell[(lastStep->row + 1) * rowsN + lastStep->column].down = 1;
-                    next->row = lastStep->row + 1;
-                    lastStep->next = next;
+                    f->steps[f->stepN]->row = lastStep->row + 1;
                 }
                 else
                 {
@@ -422,8 +422,7 @@ void runForks()
                 else if (!game->cell[lastStep->row * rowsN + lastStep->column - 1].left && !game->cell[lastStep->row * rowsN + lastStep->column - 1].isWall)
                 {
                     game->cell[lastStep->row * rowsN + lastStep->column - 1].left = 1;
-                    next->column = lastStep->column - 1;
-                    lastStep->next = next;
+                    f->steps[f->stepN]->column = lastStep->column - 1;
                 }
                 else
                 {
@@ -440,8 +439,7 @@ void runForks()
                 else if (!game->cell[lastStep->row * rowsN + lastStep->column + 1].right && !game->cell[lastStep->row * rowsN + lastStep->column + 1].isWall)
                 {
                     game->cell[lastStep->row * rowsN + lastStep->column + 1].right = 1;
-                    next->column = lastStep->column + 1;
-                    lastStep->next = next;
+                    f->steps[f->stepN]->column = lastStep->column + 1;
                 }
                 else
                 {
@@ -449,16 +447,18 @@ void runForks()
                 }
                 break;
             }
-            printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
-            exitCell(next->row,next->column);
+            //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
+            exitCell(f->steps[f->stepN]->row,f->steps[f->stepN]->column);
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            checkDirectionFork(next->row,next->column,f->direction);
+            checkDirectionFork(f->steps[f->stepN]->row,f->steps[f->stepN]->column,f->direction);
         }
         if (end == 1)
         {
             // set free memory of the last sept
-            munmap(next, sizeof(Step));
+            mremap(f->steps, (f->stepN +1) * sizeof(StepFork), (f->stepN)* sizeof(StepFork), MREMAP_MAYMOVE | MREMAP_FIXED);
+        } else {
+            f->stepN++;
         }
     }
 }
@@ -474,16 +474,17 @@ void checkDirectionFork(int row, int column, int direction)
         !game->cell[(row - 1) * rowsN + column].isWall)
         {
             // create a new fork (row,colum, UP)
-            Fork *f = createNewFork(row,column, UP);
+            createNewFork(row,column, UP, forks, forkLenght);
+            forkLenght++;
             pthread_mutex_lock(&lock);
             game->cell[row * rowsN + column].up = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addForkAtEnd(forks, f);
+            //addForkAtEnd(forks, f);
             // new fork
             pid_t pid = fork();
             if (pid == 0){
-                f->pid = getpid();
+                forks[forkLenght-1].pid = getpid();
                 runForks();
             } else {
                 // wait for child execute
@@ -499,17 +500,18 @@ void checkDirectionFork(int row, int column, int direction)
         !game->cell[(row + 1) * rowsN + column].isWall)
         {
             // create a new thread (row,colum, DOWN)
-            Fork *f = createNewFork(row,column, DOWN);
+            createNewFork(row,column, DOWN, forks, forkLenght);
+            forkLenght++;
             // lock the shared resource
             pthread_mutex_lock(&lock);
             game->cell[row * rowsN + column].down = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addForkAtEnd(forks, f);
+            //addForkAtEnd(forks, f);
             // new fork
             pid_t pid = fork();
             if (pid == 0){
-                f->pid = getpid();
+                forks[forkLenght-1].pid = getpid();
                 runForks();
             }
             else {
@@ -526,17 +528,18 @@ void checkDirectionFork(int row, int column, int direction)
         !game->cell[row*rowsN + column - 1].isWall)
         {
             // create a new thread (row,colum, LEFT)
-            Fork *f = createNewFork(row,column, LEFT);
+            createNewFork(row,column, LEFT, forks, forkLenght);
+            forkLenght++;
             // lock the shared resource
             pthread_mutex_lock(&lock);
             game->cell[row * rowsN + column].left = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addForkAtEnd(forks, f);
+            //addForkAtEnd(forks, f);
             // new fork
             pid_t pid = fork();
             if (pid == 0){
-                f->pid = getpid();
+                forks[forkLenght-1].pid = getpid();
                 runForks();
             } else {
                 // wait for child execute
@@ -552,17 +555,18 @@ void checkDirectionFork(int row, int column, int direction)
          !game->cell[row*rowsN + column + 1].isWall)
         {
             // create a new thread (row,colum, RIGHT)
-            Fork *f = createNewFork(row,column, RIGHT);
+            createNewFork(row,column, RIGHT, forks, forkLenght);
+            forkLenght++;
             // lock the shared resource
             pthread_mutex_lock(&lock);
             game->cell[row * rowsN + column].right = 1;
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
-            addForkAtEnd(forks, f);
+            //addForkAtEnd(forks, f);
             // new fork
             pid_t pid = fork();
             if (pid == 0){
-                f->pid = getpid();
+                forks[forkLenght-1].pid = getpid();
                 runForks();
             } else {
                 // wait for child execute
@@ -660,20 +664,16 @@ int main()
         exit(0);
     }
     // segmentation sault - Sahred Memory created by child forks can't be access from mean fork
-    if (forks->pid == getpid()) {
+    if (forks[0].pid == getpid()) {
         printf("\nThe elapsed time is %f seconds \n", forkTime);
-        Fork *iter = forks;
-        while (iter != NULL) 
+        for (int i = 0; i < forkLenght; i++)
         {
-            printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
-            Step *auxStep = iter->steps;
-            while (auxStep != NULL)
+            printf("Fork pid: %d, direction: %d\n", forks[i].pid, forks[i].direction);
+            for(int j = 0; j < forks[i].stepN; j++)
             {
-                printf("(%d,%d)->", auxStep->row, auxStep->column);
-                auxStep = auxStep->next;
+                printf("(%d,%d)->", forks[i].steps[j]->row, forks[i].steps[j]->column);
             }
-            printf("\n\n");
-            iter = iter->next;        
+            printf("\n\n");       
         }
         printf("\n\n\n");
     }

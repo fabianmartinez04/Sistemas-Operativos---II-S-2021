@@ -25,13 +25,21 @@ typedef struct Thread
     struct Thread *next;
 } Thread;
 
+
+// struct Step of the fork
+typedef struct
+{
+    int row;
+    int column;
+}StepFork;
+
 // struct: Fork
 // contain all information of the fork
 typedef struct Fork {
     pid_t pid;
     int direction;
-    Step *steps;
-    struct Fork *next;
+    int stepN;
+    StepFork *steps[];
 } Fork;
 
 Step *getLastStepThread(Thread *thread);
@@ -41,14 +49,14 @@ void addThreadAtEnd(Thread *list, Thread *item);
 Thread *createNewThread(int row, int column, int direction);
 
 // get fork by pid_t
-Fork *getFork(Fork *list, pid_t pid);
+Fork *getFork(Fork *list, pid_t pid, int forkLenght);
 
 // add fork at the end of the list
-void addForkAtEnd(Fork *list, Fork *item);
+//void addForkAtEnd(Fork *list[], Fork *item, int lenght);
 
 // create new fork
-Fork *createNewFork(int row, int column, int direction);
+void createNewFork(int row, int column, int direction, Fork *list, int lenght);
 
 // get last step fork
-Step *getLastStepFork(Fork *fork);
+//Step *getLastStepFork(Fork *fork);
 #endif /*UTIL_H*/
