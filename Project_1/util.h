@@ -36,6 +36,8 @@ typedef struct Fork {
 
 Step *getLastStepThread(Thread *thread);
 
+Step *getStepAtEnd(Step *steps);
+
 void addThreadAtEnd(Thread *list, Thread *item);
 
 Thread *createNewThread(int row, int column, int direction);

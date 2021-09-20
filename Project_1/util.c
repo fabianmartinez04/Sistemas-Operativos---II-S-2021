@@ -14,6 +14,15 @@ Step *getLastStepThread(Thread *thread) {
 };
 
 
+Step *getStepAtEnd(Step *steps) {
+    Step *iter = steps;
+    while (iter != NULL)
+    {
+        iter = iter->next;
+    }
+    return iter;
+}
+
 void addThreadAtEnd(Thread *list, Thread *item) {
     // get the fisrt element of the list
     Thread *aux = list;

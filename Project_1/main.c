@@ -12,6 +12,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <sys/file.h>
 
 
 #include "matrix.h"
@@ -28,6 +29,13 @@ void exitCell(int row, int column);
 void ForksInit();
 void runForks();
 void checkDirectionFork(int row, int column, int direction);
+void writeForkStep(Fork *fork);
+
+// print thread function
+void printTread();
+int *checkForThreadToStart(int row, int column, int *threadToPrint);
+Step *getNextStep(int *threadToPrint, int row, int column);
+
 
 // global variables
 
@@ -51,6 +59,40 @@ enum
     LEFT = 2,
     RIGHT = 3
 };
+
+void writeForkStep(Fork *fork) {
+    int status = -1;
+    char data[20];
+    while (status != 0)
+    {
+        FILE* f = fopen("Forkstep.txt", "a");
+        int fd = fileno(f);
+        // flock should return zero on success
+        status = flock(fd, LOCK_EX);
+        if (status == 0) {
+            pthread_mutex_lock(&lock);
+            sprintf(data, "%d %d ", fork->pid, fork->direction);
+            fputs(data, f);
+            Step *iter = fork->steps;
+            while (iter != NULL)
+            {
+                char c[10];
+                sprintf(data, "%d %d ", iter->row, iter->column);
+                fputs(data, f);
+                iter = iter->next;
+            }
+            
+            pthread_mutex_unlock(&lock);
+            fputs("\n", f);
+            flock(fd, LOCK_EX);
+            fclose(f);
+            break;
+        } else {
+            fclose(f);
+        }    
+    }
+    
+}
 
 
 // look up for available direction to create new thread
@@ -340,6 +382,7 @@ void ForksInit(){
                 newItem->pid = getpid();
                 addForkAtEnd(forks,newItem);
                 runForks();
+                exit(0);
             } else {
                 wait(NULL);
             }
@@ -351,6 +394,7 @@ void ForksInit(){
 void runForks()
 {
     Fork *f = getFork(forks, getpid());
+
     bool end = 0;
     // move
     while (!end)
@@ -448,8 +492,7 @@ void runForks()
                     end = 1;
                 }
                 break;
-            }
-            printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
+            }    
             exitCell(next->row,next->column);
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
@@ -457,7 +500,10 @@ void runForks()
         }
         if (end == 1)
         {
-            // set free memory of the last sept
+            if (getpid() != 0) {
+                // set free memory of the last sept
+                writeForkStep(f);
+            }
             munmap(next, sizeof(Step));
         }
     }
@@ -572,6 +618,83 @@ void checkDirectionFork(int row, int column, int direction)
     }
 }
 
+// printThread
+void printTread(double ttime) {
+    int *threadToPrint = malloc(sizeof(int));
+    threadToPrint[0] = 0;
+    Step *stepToPrint = threads->steps;
+    printf("\n");
+    while (stepToPrint != NULL) {
+        printf("THREAD EXECUTION\n\n");
+        Step *iterStep = stepToPrint;
+        for (int i = 0; i < rowsN * columnsN; i++)
+        {
+            if (game->cell[i].isWall) printf("*");
+            else printf(" ");
+            // get the row and column in the list of cell
+            if ((int)i/rowsN == iterStep->row && i%columnsN == iterStep->column) {
+                printf("+");
+                if (iterStep->next != NULL) iterStep = iterStep->next;
+            } else {
+                printf(" ");
+            }
+            if (((i + 1) % columnsN == 0)) printf("\n");
+        }
+        printf("\nThread time: %f\n", ttime);
+        sleep(1);
+        //threadToPrint = checkForThreadToStart(iterStep->row,iterStep->column, threadToPrint);
+        //stepToPrint = getNextStep(threadToPrint, iterStep->row, iterStep->column);
+        system("clear");
+    }
+    
+}
+
+int *checkForThreadToStart(int row, int column, int *threadToPrint) {
+    int *newThreads = threadToPrint;
+    int lenght = sizeof(threadToPrint);
+    Thread *iter = threads;
+    int count = 1;
+    while (iter != NULL)
+    {
+        if (iter->steps->row == row, iter->steps->column == column) {
+            newThreads = (int *) realloc(newThreads, lenght+1);
+            newThreads[lenght] = count;
+        }
+        iter = iter->next;
+        count++;
+    }
+    return newThreads;
+}
+
+Step *getNextStep(int *threadToPrint, int row, int column) {
+    Step *newSteps = NULL;
+    Thread *iter = threads;
+    int count = 1;
+    int index = 0;
+    int lenght = 1;
+    while (iter != NULL)
+    {
+        if (threadToPrint[index] == count) {
+            if (newSteps == NULL) {
+                newSteps = malloc(sizeof(Step));
+                newSteps->row = iter->steps->row;
+                newSteps->column = iter->steps->column;
+
+            } else {
+                Step *last = getStepAtEnd(newSteps);
+                last->next = malloc(sizeof(Step));
+                last->next->row = iter->steps->row;
+                last->next->column = iter->steps->column;
+            }
+            iter->steps = iter->steps->next;
+            index++;
+        }
+        iter = iter->next;
+        count++;
+    }
+    return newSteps;
+}
+
 int main()
 {
     // set memory to game labyrith
@@ -632,7 +755,7 @@ int main()
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
     threadTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
-    printf("\nThe elapsed time is %f seconds \n", threadTime);
+    //printTread(threadTime);
     
     // forks execution
     // initialise mutex so it works properly in shared memory
@@ -651,16 +774,18 @@ int main()
     ForksInit();
 
     end = clock();
-    
-    // calculate elapsed time by finding difference (end - begin) and
-    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
-    forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
-    if (getpid == 0) {
+    
+ 
+    if (getpid == 0 || forks->pid != getpid()) {
         exit(0);
     }
     // segmentation sault - Sahred Memory created by child forks can't be access from mean fork
-    if (forks->pid == getpid()) {
+    /*if (forks->pid == getpid()) {
+        
+        // calculate elapsed time by finding difference (end - begin) and
+        // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+        forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
         printf("\nThe elapsed time is %f seconds \n", forkTime);
         Fork *iter = forks;
         while (iter != NULL) 
@@ -676,7 +801,7 @@ int main()
             iter = iter->next;        
         }
         printf("\n\n\n");
-    }
+    }*/
 
     
 
