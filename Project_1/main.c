@@ -449,7 +449,7 @@ void runForks()
                 }
                 break;
             }
-            //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
+            printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
             exitCell(next->row,next->column);
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
