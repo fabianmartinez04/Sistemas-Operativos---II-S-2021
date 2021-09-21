@@ -36,7 +36,7 @@ void writeForkStep(Fork *fork);
 
 // print thread
 void printTread(double ttime);
-void printFork(double ttime, Fork *forkList);
+void printFork(long ttime, Fork *forkList);
 int *updatePrintThread(int n);
 int *updatePrintFork(int n, Fork *forkList);
 
@@ -634,45 +634,6 @@ void checkDirectionFork(int row, int column, int direction)
 
 
 // printThread
-/*void printTread(double ttime) {
-    int *stepsMatrix = NULL;
-    bool printFinish = 0;
-    Step *lastSteps = malloc(sizeof(Step));
-    *lastSteps = (Step){
-        .column = 0,
-        .row = 0,
-        .next = NULL
-    };
-    // 
-    stepsMatrix = updateMatrixStep(lastSteps);
-    lastSteps = getLastStepInit();
-    printf("\n");
-    while (!printFinish) {
-        printf("THREAD EXECUTION\n\n");
-        for (int i = 0; i < rowsN * columnsN; i++)
-        {
-            
-            // get the row and column in the list of cell
-            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
-            else if (game->cell[i].isWall) printf("*");
-            else if (stepsMatrix[i] == -1) printf(" ");
-            if (game->cell[i].exit) printf("/");
-            if (((i + 1) % columnsN == 0)) printf("\n");
-        }
-        printf("\nThread time: %f\n", ttime);
-        lastSteps = checkForThreadToStart(lastSteps);
-        stepsMatrix = updateMatrixStep(lastSteps);
-        if (lastSteps == NULL)printFinish=1;
-        else {
-            sleep(1);
-            system("clear");
-        }
-        
-    }
-    
-}*/
-
-// printThread
 void printTread(double ttime) {
     int n = 1;
     int *stepsMatrix = NULL;
@@ -686,9 +647,9 @@ void printTread(double ttime) {
             
             // get the row and column in the list of cell
             if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            else if (game->cell[i].exit) printf("/");
             else if (game->cell[i].isWall) printf("*");
             else if (stepsMatrix[i] == -1) printf(" ");
-            if (game->cell[i].exit) printf("/");
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
         printf("\nThread time: %f\n", ttime);
@@ -731,7 +692,7 @@ int *updatePrintThread(int n) {
 }
 
 
-void printFork(double ttime, Fork *forkList) {
+void printFork(long ttime, Fork *forkList) {
     int n = 1;
     int *stepsMatrix = NULL;
     bool printFinish = 0;
@@ -744,12 +705,12 @@ void printFork(double ttime, Fork *forkList) {
             
             // get the row and column in the list of cell
             if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            else if (game->cell[i].exit) printf("/");
             else if (game->cell[i].isWall) printf("*");
             else if (stepsMatrix[i] == -1) printf(" ");
-            if (game->cell[i].exit) printf("/");
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
-        printf("\nFork time: %f\n", ttime);
+        printf("\nFork time: %ld\n", ttime);
         n = n + 4;
         stepsMatrix = updatePrintFork(n, forkList);
         if (stepsMatrix == NULL)printFinish=1;
@@ -786,95 +747,6 @@ int *updatePrintFork(int n, Fork *forkList) {
     return matrix;
 }
 
-/*int *updateMatrixStep(Step *lastSteps) {
-    int *matrix = malloc(rowsN * columnsN * sizeof(int));
-    for (int i = 0; i < rowsN * columnsN; i++)
-    {
-        matrix[i] = -1;
-    }
-    
-    Thread *iter = threads;
-    while (iter != NULL)
-    {
-        Step *iterS = lastSteps;
-        while (iterS != NULL)
-        {
-            if (iter->steps->row == iterS->row && iter->steps->column == iterS->column && !iter->printed) {
-                Step *stepIter = iter->steps;
-                while (stepIter != NULL)
-                {
-                    matrix[stepIter->row * rowsN + stepIter->column] = iter->direction;
-                    stepIter = stepIter->next;
-                }
-            }
-            iterS = iterS->next;
-        }
-        iter = iter->next;
-    }
-    return matrix;
-}*/
-
-/*Step *checkForThreadToStart(Step *lastSteps) {
-    Step *list = NULL;
-    Step *current = NULL;  
-    Thread *iter = threads;
-    while (iter != NULL)
-    {
-        Step *iterS = lastSteps;
-        while (iterS != NULL)
-        {
-            if (iter->steps->row == iterS->row && iter->steps->column == iterS->column && !iter->printed) {
-                Step *stepIter = getLastStepThread(iter);
-                Step *newStep = malloc(sizeof(Step));
-                *newStep = (Step){
-                    .column = stepIter->column,
-                    .row = stepIter->row,
-                    .next = NULL
-                };
-                
-                if (list == NULL) {
-                    list = newStep;
-                    current = newStep;   
-                } else {
-                    current->next = newStep;
-                }
-                iter->printed = 1;
-            }
-            iterS = iterS->next;
-        }
-        iter = iter->next;
-    }
-    return list;
-}*/
-
-/*Step *getLastStepInit() {
-    Step *list = NULL;
-    Step *current = NULL;  
-    Thread *iter = threads;
-    while (iter != NULL)
-    {
-        if (iter->steps->row == 0 && iter->steps->column == 0 && !iter->printed) {
-            Step *stepIter = getLastStepThread(iter);
-            Step *newStep = malloc(sizeof(Step));
-            *newStep = (Step){
-                .column = stepIter->column,
-                .row = stepIter->row,
-                .next = NULL
-            };
-            
-            if (list == NULL) {
-                list = newStep;
-                current = newStep;   
-            } else {
-                current->next = newStep;
-            }
-        }
-        iter = iter->next;
-    }
-    return list;
-}*/
-
-
 
 int main()
 {
@@ -887,7 +759,7 @@ int main()
     char *numbers;
     // to store the execution time of code
     double threadTime = 0.0;
-    double forkTime = 0.0;
+    long forkTime;
     // clocks
     clock_t begin;
     clock_t end;
@@ -953,21 +825,26 @@ int main()
     // set false all direction in each cell
     // rowsN * columnsN = total cell that were created
     setDefualtCellState(game, rowsN * columnsN);
+    // clean steps file
+    filePointer = fopen("steps.txt", "w");
+    fputs("",filePointer);
+    fclose(filePointer);
+
     // tim fork execution
     gettimeofday(&forkBegin, NULL);
     // method what execute forks
     ForksInit();
     gettimeofday(&forkEnd, NULL);
 
-    forkTime = (double)(forkEnd.tv_usec - forkBegin.tv_usec);
+    forkTime = (forkEnd.tv_sec - forkBegin.tv_sec);
 
     Fork *forksList = readForkSteps();
     printFork(forkTime, forksList);
 
     // set free matrix cell memory
-    //munmap(game->cell, sizeof(game->cell));
+    munmap(game->cell, sizeof(game->cell));
     // set free threads
-    //munmap(game, sizeof(game));
+    munmap(game, sizeof(game));
 
     
     return 0;
