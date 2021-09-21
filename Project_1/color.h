@@ -24,7 +24,7 @@ void RESETCOLOR () {
 }
 
 void colorHelp() {
-  printf("\nColor direction\n");
+  printf("Color direction\n");
   UPCOLOR();
   printf("UP direction\n");
   DOWNCOLOR();
@@ -34,6 +34,7 @@ void colorHelp() {
   RIGHTCOLOR();
   printf("RIGHT direction\n");
   RESETCOLOR();
+  printf("\n");
 }
 
 #endif
