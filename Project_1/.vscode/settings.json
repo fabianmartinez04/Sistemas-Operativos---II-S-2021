@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+<<<<<<< HEAD
+        "stdlib.h": "c",
+        "wait.h": "c"
+=======
+        "mman.h": "c"
+>>>>>>> ff8b491138486a282e1a25efa08c47803b781f9d
+    }
+}
