@@ -24,6 +24,7 @@ typedef struct Thread
     Step *steps;
     int direction;
     bool printed;
+    bool exitFound;
     struct Thread *next;
 } Thread;
 
@@ -33,6 +34,7 @@ typedef struct Fork {
     pid_t pid;
     int direction;
     Step *steps;
+    bool exitFound;
     struct Fork *next;
 } Fork;
 
@@ -57,5 +59,6 @@ Step *getLastStepFork(Fork *fork);
 // read fork steps from file
 Fork *readForkSteps();
 
+void printSteps(int id, Step *steps, char *type, bool exit);
 
 #endif /*UTIL_H*/

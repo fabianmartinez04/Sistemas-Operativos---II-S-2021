@@ -16,6 +16,7 @@
 #include <sys/time.h>
 
 
+#include "color.h"
 #include "matrix.h"
 #include "util.h"
 
@@ -24,7 +25,7 @@ void checkDirection(int row, int column, int direction);
 void *runThread(void *t);
 void threadsInit();
 void threads_join();
-void exitCell(int row, int column, char *type, int id);
+bool exitCell(int row, int column);
 
 // forks functions
 double ForksInit();
@@ -39,6 +40,7 @@ void printTread(double ttime);
 void printFork(long ttime, Fork *forkList);
 int *updatePrintThread(int n);
 int *updatePrintFork(int n, Fork *forkList);
+void printStep(int d, char s);
 
 
 // global variables
@@ -116,7 +118,6 @@ void checkDirection(int row, int column, int direction)
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
             pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
-            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
     // check below
@@ -135,7 +136,6 @@ void checkDirection(int row, int column, int direction)
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
             pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
-            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
     // check left
@@ -154,7 +154,6 @@ void checkDirection(int row, int column, int direction)
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
             pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
-            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);  
         }
     }
     // check right
@@ -173,7 +172,6 @@ void checkDirection(int row, int column, int direction)
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
             pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
-            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
 }
@@ -329,25 +327,31 @@ void *runThread(void *t)
                 }
                 break;
             }
-            exitCell(next->row,next->column, "Thread", (int)pthread_self());
+            if (thread->exitFound != 1) {
+                thread->exitFound =  exitCell(next->row,next->column);
+            }
             // lock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirection(next->row,next->column,thread->direction);
         }
         if (exit == 1)
         {
-            printf("Thread finish: %d\n", (int)pthread_self());
+            //printf("Thread finish: %d\n", (int)pthread_self());
+            // lock the shared resource
+            pthread_mutex_lock(&lock);
+            printSteps((int)pthread_self(),thread->steps, "Thread", thread->exitFound);
+            pthread_mutex_unlock(&lock);
             // set free memory of the last sept
             free(next);
         }
     }
 }
 
-void exitCell(int row, int column, char *type, int id) {
+bool exitCell(int row, int column) {
     if (game->cell[row * rowsN + column].exit) {
-
-        printf("%s : %d found the exit, row: %d, column: %d\n", type, id, row, column);
+        return true;
     }
+    return false;
 }
 
 // FORKS FUNCTIONS 
@@ -505,8 +509,10 @@ void runForks()
                 }
                 break;
             }
-            //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);    
-            exitCell(next->row,next->column, "Fork", getpid());
+            //printf("Fork: %d -> (%d,%d)\n", getpid(), next->row, next->column);  
+            if (f->exitFound == 1) {
+                f->exitFound = exitCell(next->row,next->column);
+            }  
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirectionFork(next->row,next->column,f->direction);
@@ -516,7 +522,10 @@ void runForks()
             if (getpid != 0) {
                 writeForkStep(f);
             }
-            printf("Fork : %d finish\n", getpid());
+            pthread_mutex_lock(&lock);
+            printSteps(getpid(),f->steps, "Fork", f->exitFound);
+            pthread_mutex_unlock(&lock);
+            //printf("Fork : %d finish\n", getpid());
             // set free memory of the last sept
             munmap(next, sizeof(Step));
         }
@@ -633,8 +642,33 @@ void checkDirectionFork(int row, int column, int direction)
 }
 
 
+// d : direction, s : symbol
+void printStep(int d, char s) {
+    switch (d)
+    {
+    case DOWN:
+        DOWNCOLOR();
+        printf("%c", s);
+        break;
+    case UP:
+        UPCOLOR();
+        printf("%c", s);
+        break;
+    case LEFT:
+        LEFTCOLOR();
+        printf("%c", s);
+        break;
+    case RIGHT:
+        RIGHTCOLOR();
+        printf("%c", s);
+        break;
+    }
+    RESETCOLOR();
+}
+
 // printThread
 void printTread(double ttime) {
+    system("clear");
     int n = 1;
     int *stepsMatrix = NULL;
     bool printFinish = 0;
@@ -642,17 +676,17 @@ void printTread(double ttime) {
     printf("\n");
     while (!printFinish) {
         printf("THREAD EXECUTION\n\n");
+        colorHelp();
         for (int i = 0; i < rowsN * columnsN; i++)
         {
-            
             // get the row and column in the list of cell
-            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            if (stepsMatrix[i] != -1) printStep(stepsMatrix[i], '+');
             else if (game->cell[i].exit) printf("/");
             else if (game->cell[i].isWall) printf("*");
             else if (stepsMatrix[i] == -1) printf(" ");
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
-        printf("\nThread time: %f\n", ttime);
+        printf("\nThread time: %f seconds\n", ttime);
         n = n + 2;
         stepsMatrix = updatePrintThread(n);
         if (stepsMatrix == NULL)printFinish=1;
@@ -691,8 +725,9 @@ int *updatePrintThread(int n) {
     return matrix;
 }
 
-
+// print fork
 void printFork(long ttime, Fork *forkList) {
+    system("clear");
     int n = 1;
     int *stepsMatrix = NULL;
     bool printFinish = 0;
@@ -700,18 +735,19 @@ void printFork(long ttime, Fork *forkList) {
     printf("\n");
     while (!printFinish) {
         printf("FORK EXECUTION\n\n");
+        colorHelp();
         for (int i = 0; i < rowsN * columnsN; i++)
         {
             
             // get the row and column in the list of cell
-            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            if (stepsMatrix[i] != -1) printStep(stepsMatrix[i], '+');
             else if (game->cell[i].exit) printf("/");
             else if (game->cell[i].isWall) printf("*");
             else if (stepsMatrix[i] == -1) printf(" ");
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
-        printf("\nFork time: %ld\n", ttime);
-        n = n + 4;
+        printf("\nFork time: %ld seconds\n", ttime);
+        n = n + 2;
         stepsMatrix = updatePrintFork(n, forkList);
         if (stepsMatrix == NULL)printFinish=1;
         else {
@@ -752,7 +788,7 @@ int main()
 {
     // set memory to game labyrith
     game = mmap(NULL, sizeof(Labyrinth), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-    char filename[20] = "lab1.txt";
+    char filename[20] = "";
     //Read File
     FILE *filePointer;
     char firstLine[100];
@@ -768,11 +804,8 @@ int main()
     struct timeval forkBegin;
     struct timeval forkEnd;
 
-    
-    /*
     printf("File name: ");
     scanf("%s", filename);
-    */
     
     //Name of the file
     filePointer = fopen(filename, "r");
@@ -798,13 +831,13 @@ int main()
     //close the file
     fclose(filePointer);
 
+    printf("Press any key to start thread execution\n");  
+    getchar();
+    getchar();
     // thread execution
     begin = clock();
-
     threadsInit();
-    
     threads_join();
-
     end = clock();
  
     // calculate elapsed time by finding difference (end - begin) and
@@ -812,9 +845,10 @@ int main()
     threadTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
     //printf("\nThe elapsed time is %f seconds \n", threadTime);
-
+    printf("Press any key to show simulation thread\n");  
+    getchar();
     printTread(threadTime);
-    
+
     // forks execution
     // initialise mutex so it works properly in shared memory
     pthread_mutexattr_t attr;
@@ -829,17 +863,24 @@ int main()
     filePointer = fopen("steps.txt", "w");
     fputs("",filePointer);
     fclose(filePointer);
-
+    
+    printf("Press any key to start fork execution\n");  
+    getchar();
     // tim fork execution
     gettimeofday(&forkBegin, NULL);
     // method what execute forks
     ForksInit();
     gettimeofday(&forkEnd, NULL);
-
     forkTime = (forkEnd.tv_sec - forkBegin.tv_sec);
 
     Fork *forksList = readForkSteps();
+
+    printf("Press any key to show fork simulation\n");  
+    getchar();
     printFork(forkTime, forksList);
+
+    printf("Time execution\n");
+    printf("Thread time: %f seconds - Fork time: %ld seconds\n\n", threadTime, forkTime);
 
     // set free matrix cell memory
     munmap(game->cell, sizeof(game->cell));

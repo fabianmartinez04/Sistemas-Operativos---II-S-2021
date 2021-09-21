@@ -164,3 +164,20 @@ Fork *readForkSteps()
     fclose(file);
     return list;
 }
+
+
+void printSteps(int id, Step *steps, char *type, bool exit) {
+    printf("%s : %d ended, exit: ", type, id);
+    if (exit) printf("Found, steps: ");
+    else printf("No found, steps: ");
+    Step *iter = steps;
+    while (iter != NULL)
+    {
+        printf("(%d,%d)", iter->row, iter->column);
+        iter = iter->next;
+        if (iter != NULL) {
+            printf("->");
+        }
+    }
+    printf("\n");
+}
