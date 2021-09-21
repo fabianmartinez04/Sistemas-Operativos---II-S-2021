@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <sys/file.h>
+#include <sys/time.h>
 
 
 #include "matrix.h"
@@ -26,7 +27,7 @@ void threads_join();
 void exitCell(int row, int column, char *type, int id);
 
 // forks functions
-void ForksInit();
+double ForksInit();
 void runForks();
 void checkDirectionFork(int row, int column, int direction);
 
@@ -34,11 +35,10 @@ void checkDirectionFork(int row, int column, int direction);
 void writeForkStep(Fork *fork);
 
 // print thread
-int *updateMatrixStep(Step *lastSteps);
-int *updateMatrixStep(Step *lastSteps);
-Step *checkForThreadToStart(Step *lastSteps);
-Step *getLastStepInit();
-int *updateMatrixPrint(int n);
+void printTread(double ttime);
+void printFork(double ttime, Fork *forkList);
+int *updatePrintThread(int n);
+int *updatePrintFork(int n, Fork *forkList);
 
 
 // global variables
@@ -353,7 +353,7 @@ void exitCell(int row, int column, char *type, int id) {
 // FORKS FUNCTIONS 
 
 // create first forks
-void ForksInit(){
+double ForksInit(){
     int status = 0;
     pid_t wpid;
     // check if the right cell is available
@@ -677,7 +677,7 @@ void printTread(double ttime) {
     int n = 1;
     int *stepsMatrix = NULL;
     bool printFinish = 0;
-    stepsMatrix = updateMatrixPrint(n);
+    stepsMatrix = updatePrintThread(n);
     printf("\n");
     while (!printFinish) {
         printf("THREAD EXECUTION\n\n");
@@ -693,7 +693,7 @@ void printTread(double ttime) {
         }
         printf("\nThread time: %f\n", ttime);
         n = n + 2;
-        stepsMatrix = updateMatrixPrint(n);
+        stepsMatrix = updatePrintThread(n);
         if (stepsMatrix == NULL)printFinish=1;
         else {
             sleep(1);
@@ -749,8 +749,8 @@ void printFork(double ttime, Fork *forkList) {
             if (game->cell[i].exit) printf("/");
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
-        printf("\nThread time: %f\n", ttime);
-        n = n + 2;
+        printf("\nFork time: %f\n", ttime);
+        n = n + 4;
         stepsMatrix = updatePrintFork(n, forkList);
         if (stepsMatrix == NULL)printFinish=1;
         else {
@@ -768,7 +768,7 @@ int *updatePrintFork(int n, Fork *forkList) {
     {
         matrix[i] = -1;
     }
-    Thread *iter = forkList;
+    Fork *iter = forkList;
     while (iter != NULL && count <= n)
     {
         Step *stepIter = iter->steps;
@@ -891,6 +891,11 @@ int main()
     // clocks
     clock_t begin;
     clock_t end;
+
+    // fork time
+    struct timeval forkBegin;
+    struct timeval forkEnd;
+
     
     /*
     printf("File name: ");
@@ -948,52 +953,22 @@ int main()
     // set false all direction in each cell
     // rowsN * columnsN = total cell that were created
     setDefualtCellState(game, rowsN * columnsN);
-
-    begin = clock();
-
+    // tim fork execution
+    gettimeofday(&forkBegin, NULL);
     // method what execute forks
     ForksInit();
+    gettimeofday(&forkEnd, NULL);
 
-    end = clock();
-    
-    // calculate elapsed time by finding difference (end - begin) and
-    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
-    forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
+    forkTime = (double)(forkEnd.tv_usec - forkBegin.tv_usec);
 
-    printf("\nThe elapsed time is %f seconds \n", forkTime);
-
-    
+    Fork *forksList = readForkSteps();
+    printFork(forkTime, forksList);
 
     // set free matrix cell memory
     //munmap(game->cell, sizeof(game->cell));
     // set free threads
     //munmap(game, sizeof(game));
 
-    Fork *forksList = readForkSteps();
+    
     return 0;
 }
-
-// test
-// print labyrith in console
-/*for (int i = 0; i < rowsN * colum 
-        }
-    }*/
-
-// segmentation sault - Sahred Memory created by child forks can't be access from mean fork
-    /*if (forks->pid == getpid()) {
-        
-        Fork *iter = forks;
-        while (iter != NULL) 
-        {
-            printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
-            Step *auxStep = iter->steps;
-            while (auxStep != NULL)
-            {
-                printf("(%d,%d)->", auxStep->row, auxStep->column);
-                auxStep = auxStep->next;
-            }
-            printf("\n\n");
-            iter = iter->next;        
-        }
-        printf("\n\n\n");
-    }*/
