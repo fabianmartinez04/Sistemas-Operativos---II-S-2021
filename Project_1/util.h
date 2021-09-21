@@ -5,6 +5,7 @@
 #include <pthread.h> // thread library
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 // struct: Step
 // save each step of the thread or fork in the labyrith
@@ -22,6 +23,7 @@ typedef struct Thread
     pthread_t *currentThread;
     Step *steps;
     int direction;
+    bool printed;
     struct Thread *next;
 } Thread;
 

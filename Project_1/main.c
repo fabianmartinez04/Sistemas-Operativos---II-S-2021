@@ -33,6 +33,14 @@ void checkDirectionFork(int row, int column, int direction);
 // write fork steps
 void writeForkStep(Fork *fork);
 
+// print thread
+int *updateMatrixStep(Step *lastSteps);
+int *updateMatrixStep(Step *lastSteps);
+Step *checkForThreadToStart(Step *lastSteps);
+Step *getLastStepInit();
+int *updateMatrixPrint(int n);
+
+
 // global variables
 
 //start labyrinth
@@ -107,15 +115,15 @@ void checkDirection(int row, int column, int direction)
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
-            pthread_create((t->currentThread), NULL, runThread, t);
-
+            pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
+            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
     // check below
     if (direction != DOWN && row != rowsN - 1 && direction != UP)
     {
         if (!game->cell[(row + 1) * rowsN + column].down && 
-        !game->cell[row* rowsN + column].down && 
+        !game->cell[row* rowsN + column].down &&
         !game->cell[(row + 1) * rowsN + column].isWall)
         {
             // create a new thread (row,colum, DOWN)
@@ -126,14 +134,15 @@ void checkDirection(int row, int column, int direction)
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
-            pthread_create((t->currentThread), NULL, runThread, t);
+            pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
+            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
     // check left
     if (direction != LEFT && column != 0 && direction != RIGHT)
     {
         if (!game->cell[row*rowsN + column - 1].left && 
-        !game->cell[row*rowsN + column].left && 
+        !game->cell[row*rowsN + column].left &&
         !game->cell[row*rowsN + column - 1].isWall)
         {
             // create a new thread (row,colum, LEFT)
@@ -144,7 +153,8 @@ void checkDirection(int row, int column, int direction)
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
-            pthread_create((t->currentThread), NULL, runThread, t);   
+            pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
+            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);  
         }
     }
     // check right
@@ -162,7 +172,8 @@ void checkDirection(int row, int column, int direction)
             // unlock the shared resource
             pthread_mutex_unlock(&lock);
             addThreadAtEnd(threads, t);
-            pthread_create((t->currentThread), NULL, runThread, t);
+            pthread_t tid = pthread_create((t->currentThread), NULL, runThread, t);
+            printf("Thread created: %d -> direction: %d, row: %d, column: %d\n from direction: %d\n", (int)tid, t->direction, t->steps->row, t->steps->column, direction);
         }
     }
 }
@@ -187,6 +198,7 @@ void threadsInit(){
         s->column = 0;
         s->next = NULL;
         threads->steps = s;
+        threads->printed = 0;
         threads->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
         threads->next = NULL;
         threads->direction = RIGHT;
@@ -203,6 +215,7 @@ void threadsInit(){
         newItem->steps = s;
         newItem->currentThread = (pthread_t *)malloc(sizeof(pthread_t));
         newItem->next = NULL;
+        newItem->printed = 0;
         newItem->direction = DOWN;
         // if a list of thread have element
         if (threads == NULL) {
@@ -316,14 +329,14 @@ void *runThread(void *t)
                 }
                 break;
             }
-            exitCell(next->row,next->column, "Thread", 0);
+            exitCell(next->row,next->column, "Thread", (int)pthread_self());
             // lock the shared resource
             pthread_mutex_unlock(&lock);
             checkDirection(next->row,next->column,thread->direction);
         }
         if (exit == 1)
         {
-            printf("Thread : %d finish\n", 0);
+            printf("Thread finish: %d\n", (int)pthread_self());
             // set free memory of the last sept
             free(next);
         }
@@ -619,6 +632,250 @@ void checkDirectionFork(int row, int column, int direction)
     }
 }
 
+
+// printThread
+/*void printTread(double ttime) {
+    int *stepsMatrix = NULL;
+    bool printFinish = 0;
+    Step *lastSteps = malloc(sizeof(Step));
+    *lastSteps = (Step){
+        .column = 0,
+        .row = 0,
+        .next = NULL
+    };
+    // 
+    stepsMatrix = updateMatrixStep(lastSteps);
+    lastSteps = getLastStepInit();
+    printf("\n");
+    while (!printFinish) {
+        printf("THREAD EXECUTION\n\n");
+        for (int i = 0; i < rowsN * columnsN; i++)
+        {
+            
+            // get the row and column in the list of cell
+            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            else if (game->cell[i].isWall) printf("*");
+            else if (stepsMatrix[i] == -1) printf(" ");
+            if (game->cell[i].exit) printf("/");
+            if (((i + 1) % columnsN == 0)) printf("\n");
+        }
+        printf("\nThread time: %f\n", ttime);
+        lastSteps = checkForThreadToStart(lastSteps);
+        stepsMatrix = updateMatrixStep(lastSteps);
+        if (lastSteps == NULL)printFinish=1;
+        else {
+            sleep(1);
+            system("clear");
+        }
+        
+    }
+    
+}*/
+
+// printThread
+void printTread(double ttime) {
+    int n = 1;
+    int *stepsMatrix = NULL;
+    bool printFinish = 0;
+    stepsMatrix = updateMatrixPrint(n);
+    printf("\n");
+    while (!printFinish) {
+        printf("THREAD EXECUTION\n\n");
+        for (int i = 0; i < rowsN * columnsN; i++)
+        {
+            
+            // get the row and column in the list of cell
+            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            else if (game->cell[i].isWall) printf("*");
+            else if (stepsMatrix[i] == -1) printf(" ");
+            if (game->cell[i].exit) printf("/");
+            if (((i + 1) % columnsN == 0)) printf("\n");
+        }
+        printf("\nThread time: %f\n", ttime);
+        n = n + 2;
+        stepsMatrix = updateMatrixPrint(n);
+        if (stepsMatrix == NULL)printFinish=1;
+        else {
+            sleep(1);
+            system("clear");
+        }
+        
+    }
+    
+}
+
+int *updatePrintThread(int n) {
+    int *matrix = malloc(rowsN * columnsN * sizeof(int));
+    int count = 1;
+    for (int i = 0; i < rowsN * columnsN; i++)
+    {
+        matrix[i] = -1;
+    }
+    
+    Thread *iter = threads;
+    while (iter != NULL && count <= n)
+    {
+        Step *stepIter = iter->steps;
+        while (stepIter != NULL)
+        {
+            matrix[stepIter->row * rowsN + stepIter->column] = iter->direction;
+            stepIter = stepIter->next;
+        }
+        count++;
+        iter = iter->next;
+    }
+    if (iter == NULL && count != n) {
+        return NULL;
+    }
+    return matrix;
+}
+
+
+void printFork(double ttime, Fork *forkList) {
+    int n = 1;
+    int *stepsMatrix = NULL;
+    bool printFinish = 0;
+    stepsMatrix = updatePrintFork(n, forkList);
+    printf("\n");
+    while (!printFinish) {
+        printf("FORK EXECUTION\n\n");
+        for (int i = 0; i < rowsN * columnsN; i++)
+        {
+            
+            // get the row and column in the list of cell
+            if (stepsMatrix[i] != -1) printf("%d",stepsMatrix[i]);
+            else if (game->cell[i].isWall) printf("*");
+            else if (stepsMatrix[i] == -1) printf(" ");
+            if (game->cell[i].exit) printf("/");
+            if (((i + 1) % columnsN == 0)) printf("\n");
+        }
+        printf("\nThread time: %f\n", ttime);
+        n = n + 2;
+        stepsMatrix = updatePrintFork(n, forkList);
+        if (stepsMatrix == NULL)printFinish=1;
+        else {
+            sleep(1);
+            system("clear");
+        }
+    }
+    
+}
+
+int *updatePrintFork(int n, Fork *forkList) {
+    int *matrix = malloc(rowsN * columnsN * sizeof(int));
+    int count = 1;
+    for (int i = 0; i < rowsN * columnsN; i++)
+    {
+        matrix[i] = -1;
+    }
+    Thread *iter = forkList;
+    while (iter != NULL && count <= n)
+    {
+        Step *stepIter = iter->steps;
+        while (stepIter != NULL)
+        {
+            matrix[stepIter->row * rowsN + stepIter->column] = iter->direction;
+            stepIter = stepIter->next;
+        }
+        count++;
+        iter = iter->next;
+    }
+    if (iter == NULL && count != n) {
+        return NULL;
+    }
+    return matrix;
+}
+
+/*int *updateMatrixStep(Step *lastSteps) {
+    int *matrix = malloc(rowsN * columnsN * sizeof(int));
+    for (int i = 0; i < rowsN * columnsN; i++)
+    {
+        matrix[i] = -1;
+    }
+    
+    Thread *iter = threads;
+    while (iter != NULL)
+    {
+        Step *iterS = lastSteps;
+        while (iterS != NULL)
+        {
+            if (iter->steps->row == iterS->row && iter->steps->column == iterS->column && !iter->printed) {
+                Step *stepIter = iter->steps;
+                while (stepIter != NULL)
+                {
+                    matrix[stepIter->row * rowsN + stepIter->column] = iter->direction;
+                    stepIter = stepIter->next;
+                }
+            }
+            iterS = iterS->next;
+        }
+        iter = iter->next;
+    }
+    return matrix;
+}*/
+
+/*Step *checkForThreadToStart(Step *lastSteps) {
+    Step *list = NULL;
+    Step *current = NULL;  
+    Thread *iter = threads;
+    while (iter != NULL)
+    {
+        Step *iterS = lastSteps;
+        while (iterS != NULL)
+        {
+            if (iter->steps->row == iterS->row && iter->steps->column == iterS->column && !iter->printed) {
+                Step *stepIter = getLastStepThread(iter);
+                Step *newStep = malloc(sizeof(Step));
+                *newStep = (Step){
+                    .column = stepIter->column,
+                    .row = stepIter->row,
+                    .next = NULL
+                };
+                
+                if (list == NULL) {
+                    list = newStep;
+                    current = newStep;   
+                } else {
+                    current->next = newStep;
+                }
+                iter->printed = 1;
+            }
+            iterS = iterS->next;
+        }
+        iter = iter->next;
+    }
+    return list;
+}*/
+
+/*Step *getLastStepInit() {
+    Step *list = NULL;
+    Step *current = NULL;  
+    Thread *iter = threads;
+    while (iter != NULL)
+    {
+        if (iter->steps->row == 0 && iter->steps->column == 0 && !iter->printed) {
+            Step *stepIter = getLastStepThread(iter);
+            Step *newStep = malloc(sizeof(Step));
+            *newStep = (Step){
+                .column = stepIter->column,
+                .row = stepIter->row,
+                .next = NULL
+            };
+            
+            if (list == NULL) {
+                list = newStep;
+                current = newStep;   
+            } else {
+                current->next = newStep;
+            }
+        }
+        iter = iter->next;
+    }
+    return list;
+}*/
+
+
+
 int main()
 {
     // set memory to game labyrith
@@ -664,8 +921,6 @@ int main()
     //close the file
     fclose(filePointer);
 
- 
-
     // thread execution
     begin = clock();
 
@@ -679,7 +934,9 @@ int main()
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
     threadTime += (double)(end - begin) / CLOCKS_PER_SEC;
  
-    printf("\nThe elapsed time is %f seconds \n", threadTime);
+    //printf("\nThe elapsed time is %f seconds \n", threadTime);
+
+    printTread(threadTime);
     
     // forks execution
     // initialise mutex so it works properly in shared memory
@@ -704,24 +961,6 @@ int main()
     forkTime += (double)(end - begin) / CLOCKS_PER_SEC;
 
     printf("\nThe elapsed time is %f seconds \n", forkTime);
-    // segmentation sault - Sahred Memory created by child forks can't be access from mean fork
-    /*if (forks->pid == getpid()) {
-        
-        Fork *iter = forks;
-        while (iter != NULL) 
-        {
-            printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
-            Step *auxStep = iter->steps;
-            while (auxStep != NULL)
-            {
-                printf("(%d,%d)->", auxStep->row, auxStep->column);
-                auxStep = auxStep->next;
-            }
-            printf("\n\n");
-            iter = iter->next;        
-        }
-        printf("\n\n\n");
-    }*/
 
     
 
@@ -738,4 +977,23 @@ int main()
 // print labyrith in console
 /*for (int i = 0; i < rowsN * colum 
         }
+    }*/
+
+// segmentation sault - Sahred Memory created by child forks can't be access from mean fork
+    /*if (forks->pid == getpid()) {
+        
+        Fork *iter = forks;
+        while (iter != NULL) 
+        {
+            printf("Fork pid: %d, direction: %d\n", iter->pid, iter->direction);
+            Step *auxStep = iter->steps;
+            while (auxStep != NULL)
+            {
+                printf("(%d,%d)->", auxStep->row, auxStep->column);
+                auxStep = auxStep->next;
+            }
+            printf("\n\n");
+            iter = iter->next;        
+        }
+        printf("\n\n\n");
     }*/

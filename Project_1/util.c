@@ -37,6 +37,7 @@ Thread *createNewThread(int row, int column, int direction)
     *newItem = (Thread){
         .currentThread = malloc(sizeof(pthread_t)),
         .steps = firstStep,
+        .printed = 0,
         .direction = direction,
         .next = NULL};
     return newItem;
