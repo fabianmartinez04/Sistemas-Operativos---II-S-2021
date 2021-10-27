@@ -687,7 +687,7 @@ void printTread(double ttime) {
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
         printf("\nThread time: %f seconds\n", ttime);
-        n = n + 2;
+        n++;
         stepsMatrix = updatePrintThread(n);
         if (stepsMatrix == NULL)printFinish=1;
         else {
@@ -747,7 +747,7 @@ void printFork(long ttime, Fork *forkList) {
             if (((i + 1) % columnsN == 0)) printf("\n");
         }
         printf("\nFork time: %ld seconds\n", ttime);
-        n = n + 2;
+        n++;
         stepsMatrix = updatePrintFork(n, forkList);
         if (stepsMatrix == NULL)printFinish=1;
         else {
