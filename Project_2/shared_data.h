@@ -18,8 +18,7 @@ typedef struct Thread
 typedef struct sharedData
 {
     int linesMemorySize;
-    Thread * list;
-    int listSize;
+    int threadsSize;
 } sharedData;
 
 // init list struct
