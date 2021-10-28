@@ -1,5 +1,5 @@
-#ifndef SHARED_MEMORY_H
-#define SHARED_MEMORY_H
+#ifndef SHARED_DATA_H
+#define SHARED_DATA_H
 
 // libs
 #include <pthread.h>
