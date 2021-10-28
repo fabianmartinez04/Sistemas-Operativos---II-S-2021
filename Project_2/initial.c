@@ -2,15 +2,37 @@
 #include <sys/shm.h> // Share memory with shmget
 #include <sys/ipc.h> // Generate ipc key to use with shmget
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/sem.h> // To implement semaphore
+#include <stdlib.h> 
 #include "memory_line.h"
-#include "shread_data.h"
+#include "shared_data.h"
 #define file "binnacle.txt"
+
+
+// Esta union hay que definirla o no según el valor de los defines aqui
+// indicados.
+//        
+#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+// La union ya está definida en sys/sem.h
+#else
+// Tenemos que definir la union
+union semun 
+{ 
+	int val;
+	struct semid_ds *buf;
+	unsigned short int *array;
+	struct seminfo *__buf;
+};
+#endif
+
+
 //Methods
 void *initialMemory(MemoryLine *lines,int size);
 
 int main() {
 
-  /* Create memory lines */
+  /****************************Create memory lines ****************************/
   int size;
   printf("Ingrese la cantidad de lineas de memoria: ");
   scanf("%d", &size);
@@ -31,10 +53,10 @@ int main() {
   //Update line values
   shmdt(lines);
 
-  /* Create binnacle file */
+  /****************************Create binnacle file***************************/
   FILE* binnacle = fopen(file, "w");    
 
-  /*Create shared data */
+  /*****************************Create shared data****************************/
 
   // Generate unique key to shdid
   key_t shdKey = ftok("shdfile", 21);
@@ -48,9 +70,43 @@ int main() {
   //Set memory size
   data->linesMemorySize = size;
   
+  //Set threads size
+  data->threadsSize = 0;
+
   //Update data values
   shmdt(data);
   
+  /*****************************Create shared threads**************************/
+
+  // Generate unique key to shtid
+  key_t shtKey = ftok("shtfile", 21);
+ 
+  // Identifier for shared threads
+  int shtid = shmget(shtKey,sizeof(Thread),0777|IPC_CREAT);
+
+
+  /******************************Create semaphores ***************************/
+
+  // Generate unique key to shsid
+  key_t shsKey = ftok("shsfile", 21);
+
+// Identifier for semaphores 
+// Create two semaphores 1 for shared memory and 2 for shared binnacle
+  int shsid = semget (shsKey, 2, 0600 | IPC_CREAT);
+	
+  union semun arg;
+
+  // Initial semaphore
+  // 0 is red and 1 is green
+	arg.val = 1;
+
+  // 0 is semaphore for shared memory
+	semctl (shsid, 0, SETVAL, &arg);
+
+  // 1 is semaphore for shared binnacle
+  semctl (shsid, 1, SETVAL, &arg);
+
+
 return 0;
 }
 void *initialMemory(MemoryLine *lines,int size){
