@@ -3,11 +3,14 @@
 #include <sys/ipc.h> // Generate ipc key to use with shmget
 #include <stdio.h>
 #include "memory_line.h"
+#include "shread_data.h"
 #define file "binnacle.txt"
 //Methods
 void *initialMemory(MemoryLine *lines,int size);
 
 int main() {
+
+  /* Create memory lines */
   int size;
   printf("Ingrese la cantidad de lineas de memoria: ");
   scanf("%d", &size);
@@ -21,14 +24,32 @@ int main() {
   // Pointer to shared memory
   MemoryLine *lines = (MemoryLine*) shmat(shmid,0,0);
   
-  // Create binnacle file
-  FILE* binnacle = fopen(file, "w");    
-
+  
   //Initial memory
   initialMemory(lines,size);
   
-  //Update values
+  //Update line values
   shmdt(lines);
+
+  /* Create binnacle file */
+  FILE* binnacle = fopen(file, "w");    
+
+  /*Create shared data */
+
+  // Generate unique key to shdid
+  key_t shdKey = ftok("shdfile", 21);
+ 
+  // Identifier for shared data
+  int shdid = shmget(shdKey,1*sizeof(sharedData),0777|IPC_CREAT);
+
+  // Pointer to shared data
+  sharedData *data = (sharedData*) shmat(shdid,0,0);
+  
+  //Set memory size
+  data->linesMemorySize = size;
+  
+  //Update data values
+  shmdt(data);
   
 return 0;
 }
