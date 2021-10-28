@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include "memory_line.h"
 #define file "binnacle.txt"
+//Methods
+void *initialMemory(MemoryLine *lines,int size);
+
 int main() {
   int size;
   printf("Ingrese la cantidad de lineas de memoria: ");
@@ -20,6 +23,20 @@ int main() {
   
   // Create binnacle file
   FILE* binnacle = fopen(file, "w");    
+
+  //Initial memory
+  initialMemory(lines,size);
+  
+  //Update values
+  shmdt(lines);
   
 return 0;
+}
+void *initialMemory(MemoryLine *lines,int size){
+  for (int i = 0; i < size; i++)
+  {
+    lines[i].lineNumber = i+1;
+    lines[i].available = true;
+    lines[i].pid = NULL;
+  }
 }
