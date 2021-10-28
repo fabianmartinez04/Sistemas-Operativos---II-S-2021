@@ -1,5 +1,5 @@
-#ifndef THREAD_LIST_H
-#define THREAD_LIST_H
+#ifndef SHARED_MEMORY_H
+#define SHARED_MEMORY_H
 
 // libs
 #include <pthread.h>
@@ -15,15 +15,16 @@ typedef struct Thread
 } Thread;
 
 
-typedef struct List
+typedef struct sharedData
 {
+    int linesMemorySize;
     Thread * list;
-    int size;
-} List;
+    int listSize;
+} sharedData;
 
 // init list struct
-void initList(List *);
+void initList(sharedData *);
 //append element at end of the list
-void addThread(List *, Thread*);
+void addThread(sharedData *, Thread*);
 
 #endif
