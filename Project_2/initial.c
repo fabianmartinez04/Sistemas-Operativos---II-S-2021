@@ -27,6 +27,9 @@ int main() {
   //Initial memory
   initialMemory(lines,size);
   
+  //Update values
+  shmdt(lines);
+  
 return 0;
 }
 void *initialMemory(MemoryLine *lines,int size){
