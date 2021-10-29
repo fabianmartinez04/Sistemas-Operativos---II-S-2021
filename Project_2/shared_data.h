@@ -9,6 +9,8 @@
 typedef struct Thread
 {
     bool alive;
+    bool dead;
+    bool blocked;
     pthread_t pid;
     int lines;
     int time;
@@ -19,6 +21,7 @@ typedef struct sharedData
 {
     int linesMemorySize;
     int threadsSize;
+    pthread_t pidExecution;
 } sharedData;
 
 // init list struct
