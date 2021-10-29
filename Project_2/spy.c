@@ -130,10 +130,9 @@ int main() {
     // shmat to attach to memoryLine Shared
     lines = (MemoryLine*) shmat(shmid,0,0);
 
-    printf("%d\n",data->linesMemorySize);
 
     showMenu();
-    
+
     //detach from shared memory 
 
     shmdt(lines);

@@ -2,12 +2,14 @@
 #include <sys/shm.h> // Share memory with shmget
 #include <sys/ipc.h> // Generate ipc key to use with shmget
 #include <stdio.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/sem.h> // To implement semaphore
 #include <stdlib.h> 
 #include "memory_line.h"
 #include "shared_data.h"
 #define file "binnacle.txt"
+#define SHM_SIZE_NP 0x00040000
 
 
 // Esta union hay que definirla o no según el valor de los defines aqui
@@ -82,7 +84,7 @@ int main() {
   key_t shtKey = ftok("/bin/ls", 22);
  
   // Identifier for shared threads
-  int shtid = shmget(shtKey,sizeof(Thread),0777|IPC_CREAT);
+  int shtid = shmget(shtKey,1000000*sizeof(Thread),0777|IPC_CREAT|SHM_REMAP);
 
 
   /******************************Create semaphores ***************************/
