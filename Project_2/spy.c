@@ -3,22 +3,30 @@
 
 
 // libs
-
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/types.h>
+#include <sys/sem.h>
+#include <sys/ipc.h>
+#include <unistd.h>
+
 #include "memory_line.h"
-#include "sharead_data.h"
+#include "shared_data.h"
 
 // defines
 #define WIDTH 20
 
-// global variables
 
-key_t shmKey;
+// global variables
+sharedData *data;
 MemoryLine *lines;
+Thread *threads;
+int *semId;
+struct sembuf operation;
+
+
 int size = 10;
 
 
@@ -44,7 +52,6 @@ void showMenu() {
     case 2:
         ThreadStatus();
         break;
-    
     default:
         break;
     }
@@ -54,66 +61,89 @@ void showMenu() {
 void memoryStatus() {
 
     printf("\t\t\t MEMORY INFORMATION\n\n");
-    // wait semaphore
-
-    for (int i = 0; i <= size; i++)
+    // wait semaphore (decrese)
+	operation.sem_num = 0;
+	operation.sem_op = -1;
+	operation.sem_flg = 0;
+    semop (semId[0], &operation, 1);
+    for (int i = 0; i <= data->linesMemorySize; i++)
     {
         for (int j = 0; j < WIDTH; j++)
         {
             printf("-");
         }
         if (i < size) {
-            printf("\nline %d: %s\n", i+1, 1==1?"empty":"pid");
+            printf("\nline %d: %s\n", i+1, lines[i].available?"":lines[i].pid);
         } else {
             printf("\n");
         }
         
     }
     // signal semaphore
-    
+    operation.sem_num = 0;
+	operation.sem_op = 1;
+	operation.sem_flg = 0;
+    semop (semId[0], &operation, 1);
 }
 
 void ThreadStatus() {
     printf("\t\t\t THREAD INFORMATION\n\n");
     // wait a semaphore
-    printf("Memory Access PID: %d \n\n", 123456);
+    operation.sem_num = 0;
+	operation.sem_op = -1;
+	operation.sem_flg = 0;
+    semop (semId[0], &operation, 1);
+    printf("Memory Access PID: %d \n\n", data->pidExecution);
     printf("PID EXECUTE RIGHT NOW:\n");
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < data->threadsSize; i++)
     {
-        printf("PID: %d \n", 658*(i+1));
+        printf("PID: %d \n", threads[i].pid);
     }
     printf("\nPID BLOCK (wating for looking memory space):\n");
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < data->threadsSize; i++)
     {
-        printf("PID: %d \n", 458*(i+1));
+        if (threads[i]->block) {
+            printf("PID: %d \n", threads[i].pid);
+        }
     }
-
+    operation.sem_num = 0;
+	operation.sem_op = 1;
+	operation.sem_flg = 0;
+    semop (semId[0], &operation, 1);
     // signal a semaphore
     
 }
 
 int main() {
 
-    // ftok to generate unique key
-    shmKey = ftok("shmfile", 21);
-
-
-   // shmget returns an identifier in shmid
-    int shmid = shmget(shmKey,sizeof(MemoryLine),0777|IPC_CREAT);
-  
-    // shmat to attach to shared memory
+    // shmget returns an identifier in shdid (get sharedData memory id)
+    int shdid = shmget(ftok("shdfile", 21), sizeof(sizeof(sharedData)), 0777|IPC_CREAT);
+    // shmat to attach to data shared
+    data = (sharedData*)shmat(shdid,(void*)0,0);
+    //semget returns an identifier in semKey (semaphores)
+    semId = semget(ftok("shsfile", 21), 2, 0600 | IPC_CREAT);
+    // shmget returns an identifier in shtid (get threads memory id)
+    int shtid = shmget(ftok("shtfile",21), data->threadsSize*sizeof(sizeof(Thread)), 0777|IPC_CREAT);
+    // shmat to attach to threads shared
+    threads = (Thread*) shmat(shtid,(void*)0,0);
+    // shmget returns an identifier in shmid (get MemoryLine memory id)
+    int shmid = shmget(ftok("shmfile", 21),data->linesMemorySize*sizeof(MemoryLine), 0777|IPC_CREAT);
+    // shmat to attach to memoryLine Shared
     lines = (MemoryLine*) shmat(shmid,(void*)0,0);
+
   
-
-    //detach from shared memory 
-    shmdt(lines);
-
-    // destroy the shared memory // remove this after
+    // destroy the shared memory // REMOVE THIS
     shmctl(shmid,IPC_RMID,NULL);
 
-    
     showMenu();
     
+    //detach from shared memory 
+
+    shmdt(lines);
+    shmdt(data);
+    shmdt(threads);
+
+
     return 0;
 }
 
