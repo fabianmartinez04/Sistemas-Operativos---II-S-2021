@@ -23,11 +23,9 @@
 sharedData *data;
 MemoryLine *lines;
 Thread *threads;
-int *semId;
+int semId[2];
 struct sembuf operation;
 
-
-int size = 10;
 
 
 // functions definition
@@ -60,20 +58,21 @@ void showMenu() {
 //show information about shared memory
 void memoryStatus() {
 
-    printf("\t\t\t MEMORY INFORMATION\n\n");
+    
     // wait semaphore (decrese)
 	operation.sem_num = 0;
-	operation.sem_op = -1;
+	operation.sem_op = 1;
 	operation.sem_flg = 0;
-    semop (semId[0], &operation, 1);
-    for (int i = 0; i <= data->linesMemorySize; i++)
+    semop(semId[0], &operation, 1);
+    printf("\t\t\t MEMORY INFORMATION\n\n");
+    for (int i = 0; i <= data->linesMemorySize && data->linesMemorySize!=0; i++)
     {
         for (int j = 0; j < WIDTH; j++)
         {
             printf("-");
         }
-        if (i < size) {
-            printf("\nline %d: %s\n", i+1, lines[i].available?"":lines[i].pid);
+        if (i < data->linesMemorySize) {
+            (lines[i].available)?printf("\nline %d: %ld\n", i+1, lines[i].pid):printf("\nline %d\n", i+1);
         } else {
             printf("\n");
         }
@@ -81,33 +80,33 @@ void memoryStatus() {
     }
     // signal semaphore
     operation.sem_num = 0;
-	operation.sem_op = 1;
+	operation.sem_op = -1;
 	operation.sem_flg = 0;
     semop (semId[0], &operation, 1);
 }
 
 void ThreadStatus() {
-    printf("\t\t\t THREAD INFORMATION\n\n");
     // wait a semaphore
     operation.sem_num = 0;
-	operation.sem_op = -1;
+	operation.sem_op = 1;
 	operation.sem_flg = 0;
     semop (semId[0], &operation, 1);
-    printf("Memory Access PID: %d \n\n", data->pidExecution);
+    printf("\t\t\t THREAD INFORMATION\n\n");
+    printf("Memory Access PID: %ld \n\n", data->pidExecution);
     printf("PID EXECUTE RIGHT NOW:\n");
     for (int i = 0; i < data->threadsSize; i++)
     {
-        printf("PID: %d \n", threads[i].pid);
+        printf("PID: %ld \n", threads[i].pid);
     }
     printf("\nPID BLOCK (wating for looking memory space):\n");
     for (int i = 0; i < data->threadsSize; i++)
     {
-        if (threads[i]->block) {
-            printf("PID: %d \n", threads[i].pid);
+        if (threads[i].blocked) {
+            printf("PID: %ld \n", threads[i].pid);
         }
     }
     operation.sem_num = 0;
-	operation.sem_op = 1;
+	operation.sem_op = -1;
 	operation.sem_flg = 0;
     semop (semId[0], &operation, 1);
     // signal a semaphore
@@ -116,24 +115,22 @@ void ThreadStatus() {
 
 int main() {
 
-    // shmget returns an identifier in shdid (get sharedData memory id)
-    int shdid = shmget(ftok("shdfile", 21), sizeof(sizeof(sharedData)), 0777|IPC_CREAT);
+    // shmget returnsan identifier in shdid (get sharedData memory id)
+    int shdid = shmget(ftok("/bin/ls", 21), sizeof(sizeof(sharedData)), 0777);
     // shmat to attach to data shared
-    data = (sharedData*)shmat(shdid,(void*)0,0);
+    data = (sharedData*)shmat(shdid,0,0);
     //semget returns an identifier in semKey (semaphores)
-    semId = semget(ftok("shsfile", 21), 2, 0600 | IPC_CREAT);
+    semId[0] = semget(ftok("/bin/ls", 23), 2, 0600);
     // shmget returns an identifier in shtid (get threads memory id)
-    int shtid = shmget(ftok("shtfile",21), data->threadsSize*sizeof(sizeof(Thread)), 0777|IPC_CREAT);
+    int shtid = shmget(ftok("/bin/ls",22), data->threadsSize*sizeof(sizeof(Thread)), 0777);
     // shmat to attach to threads shared
-    threads = (Thread*) shmat(shtid,(void*)0,0);
+    threads = (Thread*) shmat(shtid,0,0);
     // shmget returns an identifier in shmid (get MemoryLine memory id)
-    int shmid = shmget(ftok("shmfile", 21),data->linesMemorySize*sizeof(MemoryLine), 0777|IPC_CREAT);
+    int shmid = shmget(ftok("/bin/ls", 20),data->linesMemorySize*sizeof(MemoryLine), 0777);
     // shmat to attach to memoryLine Shared
-    lines = (MemoryLine*) shmat(shmid,(void*)0,0);
+    lines = (MemoryLine*) shmat(shmid,0,0);
 
-  
-    // destroy the shared memory // REMOVE THIS
-    shmctl(shmid,IPC_RMID,NULL);
+    printf("%d\n",data->linesMemorySize);
 
     showMenu();
     
@@ -142,7 +139,13 @@ int main() {
     shmdt(lines);
     shmdt(data);
     shmdt(threads);
+    
 
+    // destroy the shared memory // REMOVE THIS
+    shmctl(shmid,IPC_RMID,NULL);
+    shmctl(shdid,IPC_RMID,NULL);
+    shmctl(shtid,IPC_RMID,NULL);
+    
 
     return 0;
 }

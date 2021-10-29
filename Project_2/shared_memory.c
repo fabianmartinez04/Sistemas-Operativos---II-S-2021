@@ -9,7 +9,7 @@ int main()
 {
     int size = 2;
     // ftok to generate unique key
-    key_t key = ftok("shmfile",65);
+    key_t key = ftok("shmfile",21);
   
     // shmget returns an identifier in shmid
     int shmid = shmget(key,size*sizeof(MemoryLine),0666|IPC_CREAT);
