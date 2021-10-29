@@ -23,7 +23,7 @@
 sharedData *data;
 MemoryLine *lines;
 Thread *threads;
-int semId[2];
+int semId;
 struct sembuf operation;
 
 
@@ -63,7 +63,7 @@ void memoryStatus() {
 	operation.sem_num = 0;
 	operation.sem_op = 1;
 	operation.sem_flg = 0;
-    semop(semId[0], &operation, 1);
+    semop(semId, &operation, 1);
     printf("\t\t\t MEMORY INFORMATION\n\n");
     for (int i = 0; i <= data->linesMemorySize && data->linesMemorySize!=0; i++)
     {
@@ -82,7 +82,7 @@ void memoryStatus() {
     operation.sem_num = 0;
 	operation.sem_op = -1;
 	operation.sem_flg = 0;
-    semop (semId[0], &operation, 1);
+    semop (semId, &operation, 1);
 }
 
 void ThreadStatus() {
@@ -90,7 +90,7 @@ void ThreadStatus() {
     operation.sem_num = 0;
 	operation.sem_op = 1;
 	operation.sem_flg = 0;
-    semop (semId[0], &operation, 1);
+    semop (semId, &operation, 1);
     printf("\t\t\t THREAD INFORMATION\n\n");
     printf("Memory Access PID: %ld \n\n", data->pidExecution);
     printf("PID EXECUTE RIGHT NOW:\n");
@@ -108,7 +108,7 @@ void ThreadStatus() {
     operation.sem_num = 0;
 	operation.sem_op = -1;
 	operation.sem_flg = 0;
-    semop (semId[0], &operation, 1);
+    semop (semId, &operation, 1);
     // signal a semaphore
     
 }
@@ -120,7 +120,7 @@ int main() {
     // shmat to attach to data shared
     data = (sharedData*)shmat(shdid,0,0);
     //semget returns an identifier in semKey (semaphores)
-    semId[0] = semget(ftok("/bin/ls", 23), 2, 0600);
+    semId = semget(ftok("/bin/ls", 23), 2, 0600);
     // shmget returns an identifier in shtid (get threads memory id)
     int shtid = shmget(ftok("/bin/ls",22), data->threadsSize*sizeof(sizeof(Thread)), 0777);
     // shmat to attach to threads shared
@@ -144,6 +144,8 @@ int main() {
     shmctl(shmid,IPC_RMID,NULL);
     shmctl(shdid,IPC_RMID,NULL);
     shmctl(shtid,IPC_RMID,NULL);
+    // terminate semaphores
+    semctl(semId,1,IPC_RMID);
     
 
     return 0;

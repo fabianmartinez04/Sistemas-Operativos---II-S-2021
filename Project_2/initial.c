@@ -75,6 +75,9 @@ int main() {
   //Set threads size
   data->threadsSize = 0;
 
+  //set false to finishFlg
+  data->finishFlg = false;
+
   //Update data values
   shmdt(data);
   

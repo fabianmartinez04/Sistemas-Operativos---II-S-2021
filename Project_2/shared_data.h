@@ -28,6 +28,7 @@ typedef struct Thread
 
 typedef struct sharedData
 {
+    bool finishFlg;
     int linesMemorySize;
     int threadsSize;
     pthread_t pidExecution;
