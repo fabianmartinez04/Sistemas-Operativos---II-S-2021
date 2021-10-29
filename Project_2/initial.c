@@ -38,7 +38,7 @@ int main() {
   scanf("%d", &size);
 
   // Generate unique key to shmid
-  key_t shmKey = ftok("shmfile", 21);
+  key_t shmKey = ftok("/bin/ls", 20);
  
   // Identifier for shared memory
   int shmid = shmget(shmKey,size*sizeof(MemoryLine),0777|IPC_CREAT);
@@ -59,7 +59,7 @@ int main() {
   /*****************************Create shared data****************************/
 
   // Generate unique key to shdid
-  key_t shdKey = ftok("shdfile", 21);
+  key_t shdKey = ftok("/bin/ls", 21);
  
   // Identifier for shared data
   int shdid = shmget(shdKey,1*sizeof(sharedData),0777|IPC_CREAT);
@@ -79,7 +79,7 @@ int main() {
   /*****************************Create shared threads**************************/
 
   // Generate unique key to shtid
-  key_t shtKey = ftok("shtfile", 21);
+  key_t shtKey = ftok("/bin/ls", 22);
  
   // Identifier for shared threads
   int shtid = shmget(shtKey,sizeof(Thread),0777|IPC_CREAT);
@@ -88,7 +88,7 @@ int main() {
   /******************************Create semaphores ***************************/
 
   // Generate unique key to shsid
-  key_t shsKey = ftok("shsfile", 21);
+  key_t shsKey = ftok("/bin/ls", 23);
 
 // Identifier for semaphores 
 // Create two semaphores 1 for shared memory and 2 for shared binnacle
@@ -114,6 +114,6 @@ void *initialMemory(MemoryLine *lines,int size){
   {
     lines[i].lineNumber = i+1;
     lines[i].available = true;
-    lines[i].pid = NULL;
+    lines[i].pid = (long unsigned int)NULL;
   }
 }
