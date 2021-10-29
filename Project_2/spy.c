@@ -10,7 +10,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include "memory_line.h"
-#include "sharead_data.h"
+#include "shared_data.h"
 
 // defines
 #define WIDTH 20
