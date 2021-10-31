@@ -12,10 +12,7 @@
 
 #include "memory_line.h"
 #include "shared_data.h"
-
-#define LINE_RANGE 1,10
-#define THREAD_EXECUTE_TIME 20,60
-#define THREAD_TIME 30,60
+#include "defines_values.h"
 
 
 
@@ -31,13 +28,32 @@ struct sembuf operation;
 bool bestFit(Thread*, MemoryBlock*);
 bool worstFit(Thread*, MemoryBlock*);
 bool firstFit(Thread*, MemoryBlock*);
-Thread *createThread();
+Thread *createNewThread();
 void threadGenerate();
 int getRandom(int lower, int upper);
 
 
 bool bestFit(Thread* t, MemoryBlock* blocks) {
-
+    int index = 0;
+    int bestBlockIndex = -1;
+    while (blocks->size != -1) {
+        if(blocks[index].size >= t->lines) {
+            if (bestBlockIndex != -1) {
+                if (blocks[index].size < blocks[bestBlockIndex].size)
+                    bestBlockIndex = index;
+            }
+            else {
+                bestBlockIndex = index;
+            }
+        
+        }
+        index++;
+    }
+    //save thread lines in shared memory
+    if (bestBlockIndex != -1)
+        saveThreadLines(lines,t->pid,t->lines,blocks[bestBlockIndex].startLine);
+    // return true if thread found space in lines memory 
+    return bestBlockIndex != -1;
 }
 
 
@@ -50,7 +66,7 @@ bool firstFit(Thread* t, MemoryBlock* blocks) {
 
 }
 
-Thread *createThread() {
+Thread *createNewThread() {
     int lineSize = getRandom(LINE_RANGE);
     int executeTime = getRandom(THREAD_EXECUTE_TIME);
     threads = addThread(threads,data,lineSize,executeTime);

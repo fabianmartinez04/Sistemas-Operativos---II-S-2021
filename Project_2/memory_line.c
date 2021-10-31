@@ -33,3 +33,13 @@ MemoryBlock* getCurrentMemoryBlocks(MemoryLine* memory, int size) {
     blocks[length].startLine = -1;
     blocks[length].size = -1;
 }
+
+
+// set available = false to thread lines in memory shared
+void saveThreadLines(MemoryLine* memory, pthread_t pid, int lines, int index) {
+    for (size_t i = index; i < index+lines; i++)
+    {
+        memory[i].available = false;
+        memory[i].pid = pid;
+    }
+}
