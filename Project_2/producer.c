@@ -63,6 +63,24 @@ bool worstFit(Thread* t, MemoryBlock* blocks) {
 }
 
 bool firstFit(Thread* t, MemoryBlock* blocks) {
+    int index = 0;
+    int found = 0;
+    
+    while (blocks->size != -1) {
+        if(blocks[index].size >= t->lines) {
+            saveThreadLines(lines,t->pid,t->lines,blocks[index].startLine);
+            found = 1;
+            break;
+        }
+        index++;
+    }
+    
+    if(found == 1){
+        return true;
+
+    }else{
+        return false;
+    }
 
 }
 
