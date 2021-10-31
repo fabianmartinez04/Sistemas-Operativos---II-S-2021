@@ -30,5 +30,7 @@ typedef struct MemoryBlock
 MemoryBlock* getCurrentMemoryBlocks(MemoryLine* memory, int size);
 // save thread lines in shared memory
 void saveThreadLines(MemoryLine* memory, pthread_t pid, int lines, int index);
+// remove thread in shared memory
+void removeThreadLines(MemoryLine* memory, pthread_t pid, int memorySize);
 
 #endif

@@ -43,3 +43,18 @@ void saveThreadLines(MemoryLine* memory, pthread_t pid, int lines, int index) {
         memory[i].pid = pid;
     }
 }
+
+// remove thread in shared memory
+void removeThreadLines(MemoryLine* memory, pthread_t pid, int memorySize) {
+    bool find = false;
+    for (size_t i = 0; i < memorySize; i++)
+    {
+        if (!memory[i].available && memory[i].pid == pid) {
+            find = true;
+            memory[i].pid = (long unsigned int)NULL;
+            memory[i].available = true;
+        }
+        if (find && memory[i].pid != pid)
+            break;
+    }   
+}
