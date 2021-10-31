@@ -19,5 +19,14 @@ typedef struct MemorySpace
     int size;
 } MemorySpace;
 
+typedef struct MemoryBlock
+{
+    int size;
+    int startLine;
+} MemoryBlock;
+
+
+// get blocks of memory from the shared memory space
+MemoryBlock* getCurrentMemoryBlocks(MemoryLine* memory, int size);
 
 #endif

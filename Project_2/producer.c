@@ -1,3 +1,5 @@
+// run gcc -o producer producer.c memory_line.c shared_data.c
+
 // libs
 #include <stdlib.h>
 #include <stdio.h>
@@ -33,6 +35,19 @@ Thread *createThread();
 void threadGenerate();
 int getRandom(int lower, int upper);
 
+
+bool firstFit(Thread* t) {
+}
+
+
+bool worstFit(Thread* t) {
+
+
+}
+
+bool firstFit(Thread* t) {
+
+}
 
 Thread *createThread() {
     int lineSize = getRandom(LINE_RANGE);
