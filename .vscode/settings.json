@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "memory_line.h": "c",
-        "stdio.h": "c",
-        "shared_memory": "c",
-        "file.h": "c",
-        "shared_data.h": "c"
-    }
-}
