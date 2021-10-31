@@ -26,9 +26,9 @@ typedef struct MemoryBlock
 } MemoryBlock;
 
 
-// get blocks of memory from the shared memory space
+// get blocks of memory from the shared memory space (size = memory lines length)
 MemoryBlock* getCurrentMemoryBlocks(MemoryLine* memory, int size);
-// set thread lines in shared memory
+// save thread lines in shared memory
 void saveThreadLines(MemoryLine* memory, pthread_t pid, int lines, int index);
 
 #endif
