@@ -28,24 +28,25 @@ int semId[2];
 struct sembuf operation;
 
 // function definition
-bool bestFit(Thread*);
-bool worstFit(Thread*);
-bool firstFit(Thread*);
+bool bestFit(Thread*, MemoryBlock*);
+bool worstFit(Thread*, MemoryBlock*);
+bool firstFit(Thread*, MemoryBlock*);
 Thread *createThread();
 void threadGenerate();
 int getRandom(int lower, int upper);
 
 
-bool firstFit(Thread* t) {
-}
-
-
-bool worstFit(Thread* t) {
-
+bool bestFit(Thread* t, MemoryBlock* blocks) {
 
 }
 
-bool firstFit(Thread* t) {
+
+bool worstFit(Thread* t, MemoryBlock* blocks) {
+
+
+}
+
+bool firstFit(Thread* t, MemoryBlock* blocks) {
 
 }
 
