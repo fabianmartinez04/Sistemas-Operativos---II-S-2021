@@ -35,6 +35,6 @@ typedef struct sharedData
 } sharedData;
 
 //append element at end of the list
-Thread* addThread(Thread *list, sharedData *data, int lineSize, int executeTime);
+void addThread(Thread *list, sharedData *data, int lineSize, int executeTime);
 
 #endif
