@@ -24,7 +24,7 @@ struct sembuf operation;
 // function definition
 bool bestFit(Thread *);
 bool worstFit(Thread *, MemoryBlock *);
-bool firstFit(Thread *, MemoryBlock *);
+bool firstFit(Thread *);
 Thread *createNewThread();
 void threadGenerate();
 int getRandom(int lower, int upper);
@@ -62,8 +62,26 @@ bool worstFit(Thread *t, MemoryBlock *blocks)
 {
 }
 
-bool firstFit(Thread *t, MemoryBlock *blocks)
-{
+bool firstFit(Thread* t) {
+    int index = 0;
+    int found = 0;
+    MemoryBlock *blocks = getCurrentMemoryBlocks(lines, data->linesMemorySize);
+    while (blocks->size != -1) {
+        if(blocks[index].size >= t->lines) {
+            saveThreadLines(lines,t->pid,t->lines,blocks[index].startLine);
+            found = 1;
+            break;
+        }
+        index++;
+    }
+    
+    if(found == 1){
+        return true;
+
+    }else{
+        return false;
+    }
+    // close binnacle
 }
 
 Thread *createNewThread()
@@ -102,8 +120,6 @@ void threadGenerate()
     }
 
     // pthread_join() to wait for thread in execution
-
-    // close binnacle
 }
 
 void threadFunction(int option, Thread *t)
