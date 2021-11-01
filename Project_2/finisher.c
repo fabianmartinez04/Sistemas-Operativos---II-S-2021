@@ -1,3 +1,5 @@
+// run: gcc -o finisher finisher.c
+
 #include <sys/file.h> // File managment
 #include <sys/shm.h> // Share memory with shmget
 #include <sys/ipc.h> // Generate ipc key to use with shmget
@@ -13,62 +15,56 @@
 sharedData *data;
 MemoryLine *lines;
 Thread *threads;
-int *semId;
-struct sembuf increase;
-struct semuf decrease;
+int semId[2];
+struct sembuf operation;
 
 int main() {
 
-    // Variables
-    int i;
+    /*****************************GET pointers to shared memory****************************/
 
-    // Generate unique key to shmid
-    key_t shmKey = ftok("shmfile", 21);
- 
-
-    /*****************************Get shared data****************************/
-
-    // Generate unique key to shdid
-    key_t shdKey = ftok("shdfile", 21);
- 
-    // Identifier for shared data
-    int shdid = shmget(shdKey,1*sizeof(sharedData),0777|IPC_CREAT);
-
-    // Pointer to shared data
-    data = (sharedData*) shmat(shdid,0,0);
-
-
-    // Identifier for shared memory
-    int shmid = shmget(shmKey,data->linesMemorySize*sizeof(MemoryLine),0777|IPC_CREAT);
-
-    // Destroy memory
-    shmdt ((sharedData *)data);
-	shmctl (shmid, IPC_RMID, (struct shmid_ds *)NULL);
-
+    // shmget returnsan identifier in shdid (get sharedData memory id)
+    int shdid = shmget(ftok("/bin/ls", 21), sizeof(sizeof(sharedData)), 0777);
+    // shmat to attach to data shared
+    data = (sharedData*)shmat(shdid,0,0);
     //semget returns an identifier in semKey (semaphores)
-    semId = semget(ftok("shsfile", 21), 2, 0600 | IPC_CREAT);
-
+    semId[0] = semget(ftok("/bin/ls", 23), 2, 0600);
     // shmget returns an identifier in shtid (get threads memory id)
-    int shtid = shmget(ftok("shtfile",21), data->threadsSize*sizeof(sizeof(Thread)), 0777|IPC_CREAT);
-
+    int shtid = shmget(ftok("/bin/ls",22), data->threadsSize*sizeof(sizeof(Thread)), 0777);
     // shmat to attach to threads shared
-    threads = (Thread*) shmat(shtid,(void*)0,0);
-
+    threads = (Thread*) shmat(shtid,0,0);
     // shmget returns an identifier in shmid (get MemoryLine memory id)
-    int shmid = shmget(ftok("shmfile", 21),data->linesMemorySize*sizeof(MemoryLine), 0777|IPC_CREAT);
-
+    int shmid = shmget(ftok("/bin/ls", 20),data->linesMemorySize*sizeof(MemoryLine), 0777);
     // shmat to attach to memoryLine Shared
-    lines = (MemoryLine*) shmat(shmid,(void*)0,0);
+    lines = (MemoryLine*) shmat(shmid,0,0);
 
 
-    // Finalize each thread
-    /*
-    int totalThreads = data->threadsSize;
-    for (i = 0; i < totalThreads; ++i){
-        if (threads[i].alive){
-            threads[i].pid
-        }
-    
-    }
-    */
+    // send singal to finish to producer program
+    // wait semaphore (decrese)
+	operation.sem_num = 0;
+	operation.sem_op = 1;
+	operation.sem_flg = 0;
+    semop(semId[1], &operation, 1);
+
+    // send singal to finish to producer program
+    data->finishFlg = true;
+
+    // signal semaphore
+    operation.sem_num = 0;
+	operation.sem_op = -1;
+	operation.sem_flg = 0;
+    semop (semId[1], &operation, 1);
+
+    // dettach 
+    shmdt(lines);
+    shmdt(data);
+    shmdt(threads);
+
+    // destroy the shared memory // REMOVE THIS
+    shmctl(shmid,IPC_RMID,NULL);
+    shmctl(shdid,IPC_RMID,NULL);
+    shmctl(shtid,IPC_RMID,NULL);
+    // terminate semaphores
+    semctl(semId[0],1,IPC_RMID);
+
+
 }

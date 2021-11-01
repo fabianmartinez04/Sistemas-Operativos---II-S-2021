@@ -3,6 +3,11 @@
 
 #include <pthread.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include "shared_data.h"
 
 // each line of memory shared
 typedef struct MemoryLine 
@@ -31,6 +36,6 @@ MemoryBlock* getCurrentMemoryBlocks(MemoryLine* memory, int size);
 // save thread lines in shared memory
 void saveThreadLines(MemoryLine* memory, pthread_t pid, int lines, int index);
 // remove thread in shared memory
-void removeThreadLines(MemoryLine* memory, pthread_t pid, int memorySize);
+void removeThreadLines(MemoryLine* memory, Thread* t, int memorySize, FILE* binnacle);
 
 #endif

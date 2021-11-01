@@ -10,6 +10,8 @@
 // range of the time to generate new thread
 #define THREAD_TIME 30,60
 // max thread in thread list
-#define MAX_THREAD 100;
+#define MAX_THREAD 100
+// binnacle name
+#define file "binnacle.txt"
 
 #endif

@@ -1,3 +1,4 @@
+// run : gcc -o initial initial.c
 #include <sys/file.h> // File managment
 #include <sys/shm.h> // Share memory with shmget
 #include <sys/ipc.h> // Generate ipc key to use with shmget
@@ -8,8 +9,7 @@
 #include <stdlib.h> 
 #include "memory_line.h"
 #include "shared_data.h"
-#define file "binnacle.txt"
-#define SHM_SIZE_NP 0x00040000
+#include "defines_values.h"
 
 
 // Esta union hay que definirla o no según el valor de los defines aqui
@@ -56,7 +56,12 @@ int main() {
   shmdt(lines);
 
   /****************************Create binnacle file***************************/
-  FILE* binnacle = fopen(file, "w");    
+  FILE* binnacle = fopen(file, "w");
+  char dWrite[100];
+
+  sprintf(dWrite, "PID\t\t\t\t Tamaño\t\t\t\t Tipo\t\t\t\t Acción\t\t\t\t Hora\t\t\t\t Lineas\n");
+  fputs(dWrite, binnacle);
+  fclose(binnacle);    
 
   /*****************************Create shared data****************************/
 
@@ -87,7 +92,7 @@ int main() {
   key_t shtKey = ftok("/bin/ls", 22);
  
   // Identifier for shared threads
-  int shtid = shmget(shtKey,1000000*sizeof(Thread),0777|IPC_CREAT|SHM_REMAP);
+  int shtid = shmget(shtKey,MAX_THREAD*sizeof(Thread),0777|IPC_CREAT|SHM_REMAP);
 
 
   /******************************Create semaphores ***************************/

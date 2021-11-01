@@ -1,5 +1,5 @@
 // Spy program
-// run command: gcc -o spy spy.c
+// run command: gcc -o spy spy.c 
 
 
 // libs
@@ -72,7 +72,7 @@ void memoryStatus() {
             printf("-");
         }
         if (i < data->linesMemorySize) {
-            (lines[i].available)?printf("\nline %d: %ld\n", i+1, lines[i].pid):printf("\nline %d\n", i+1);
+            (!lines[i].available)?printf("\nline %d: %ld\n", i+1, lines[i].pid):printf("\nline %d\n", i+1);
         } else {
             printf("\n");
         }
@@ -138,14 +138,6 @@ int main() {
     shmdt(lines);
     shmdt(data);
     shmdt(threads);
-    
-
-    // destroy the shared memory // REMOVE THIS
-    shmctl(shmid,IPC_RMID,NULL);
-    shmctl(shdid,IPC_RMID,NULL);
-    shmctl(shtid,IPC_RMID,NULL);
-    // terminate semaphores
-    semctl(semId,1,IPC_RMID);
     
 
     return 0;
