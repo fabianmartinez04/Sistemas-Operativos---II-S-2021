@@ -21,7 +21,7 @@
 sharedData *data;
 MemoryLine *lines;
 Thread *threads;
-int semId[2];
+int semId;
 struct sembuf operation;
 time_t ttime;
 FILE *binnacle;
@@ -147,62 +147,62 @@ int getRandom(int lower, int upper)
     return (rand() % (upper - lower + 1)) + lower;
 }
 
-// function to create thread every (30-60) seconds
+// function to create thread in range of 30-60 seconds
 void threadGenerate()
 {
     int option = memoryOption();
     // if thread found space in memory -> threadInMemory = true
     while (true)
     {
-        //wait semaphore
-        operation.sem_num = 0;
-        operation.sem_op = 1;
-        operation.sem_flg = 0;
-        semop(semId[1], &operation, 1);
-        if (data->finishFlg)
-        {
-            // signal
-            operation.sem_num = 0;
-            operation.sem_op = -1;
-            operation.sem_flg = 0;
-            semop(semId[1], &operation, 1);
-            break;
-        }
-        // signal
-        operation.sem_num = 0;
+        //wait semaphore second semaphore
+        operation.sem_num = 1;
         operation.sem_op = -1;
         operation.sem_flg = 0;
-        semop(semId[1], &operation, 1);
+        semop(semId, &operation, 1);
+        if (data->finishFlg)
+        {
+            // signal second semaphore
+            operation.sem_num = 1;
+            operation.sem_op = 1;
+            operation.sem_flg = 0;
+            semop(semId, &operation, 1);
+            break;
+        }
+        // signal second semaphore
+        operation.sem_num = 1;
+        operation.sem_op = 1;
+        operation.sem_flg = 0;
+        semop(semId, &operation, 1);
 
         //wait
         operation.sem_num = 0;
         operation.sem_op = -1;
         operation.sem_flg = 0;
-        semop(semId[1], &operation, 1);
-        // if threads list contains MAX_THREAD, could not save thread in thread list
+        semop(semId, &operation, 1);
+        // if threads list is full, dont save thread in thread list
         if (MAX_THREAD == data->threadsSize)
         {
+
+            Thread *t = createNewThread();
             // signal
             operation.sem_num = 0;
             operation.sem_op = 1;
             operation.sem_flg = 0;
-            semop(semId[1], &operation, 1);
+            semop(semId, &operation, 1);
 
-            Thread *t = createNewThread();
             struct args *Args = (struct args *)malloc(sizeof(struct args));
             Args->option = option;
             Args->t = t;
-            printf("Thread: %ld size: %d time: %d \n", t->pid, t->lines, t->time);
             // created p_thread
             pthread_create(&t->pid, NULL, (void *)threadFunction, (void *)Args);
         }
         else
         {
-            //signal 
+            //signal
             operation.sem_num = 0;
             operation.sem_op = 1;
             operation.sem_flg = 0;
-            semop(semId[1], &operation, 1);
+            semop(semId, &operation, 1);
         }
         // sleep (30-60) seconds
         int rtime = getRandom(THREAD_TIME);
@@ -211,37 +211,29 @@ void threadGenerate()
     }
 
     // wait for current threds exection
-    // signal
-    operation.sem_num = 0;
-    operation.sem_op = -1;
-    operation.sem_flg = 0;
-    semop(semId[1], &operation, 1);
+    printf("pthread_join...\n");
     for (int i = 0; i < data->threadsSize; i++)
     {
         void *retval;
         pthread_join(threads->pid, &retval); //to wait for thread in execution
-        printf("Thread pid: %ld return %d\n", threads[i].pid, (int)retval);
+        printf("Thread pid: %ld return %ld\n", threads[i].pid, (long int)retval);
     }
-
-    operation.sem_num = 0;
-    operation.sem_op = -1;
-    operation.sem_flg = 0;
-    semop(semId[1], &operation, 1);
 }
 
 void threadFunction(void *params)
 {
     bool threadInMemory = false;
-    ((struct args *)params)->t->pid = (int)pthread_self();
+    ((struct args *)params)->t->pid = (pthread_t)pthread_self();
     Thread *t = ((struct args *)params)->t;
     // run algorithm selected
     // wait semaphore
     operation.sem_num = 0;
-    operation.sem_op = 1;
+    operation.sem_op = -1;
     operation.sem_flg = 0;
     t->blocked = true;
-    semop(semId[0], &operation, 1);
+    semop(semId, &operation, 1);
     t->blocked = false;
+    data->pidExecution = t->pid;
     switch (((struct args *)params)->option)
     {
     case 1: // First fit algorithm
@@ -256,9 +248,9 @@ void threadFunction(void *params)
     }
     //signal sem
     operation.sem_num = 0;
-    operation.sem_op = -1;
+    operation.sem_op = 1;
     operation.sem_flg = 0;
-    semop(semId[0], &operation, 1);
+    semop(semId, &operation, 1);
     // time execution
     if (threadInMemory)
     {
@@ -268,17 +260,18 @@ void threadFunction(void *params)
     // set free shared memory
     // wait semaphore
     operation.sem_num = 0;
-    operation.sem_op = 1;
-    operation.sem_flg = 0;
-    semop(semId[0], &operation, 1);
-    // set free memory lines
-    removeThreadLines(lines, t, data->linesMemorySize, binnacle);
-    removeThread(threads,data,t);
-    //signal sem
-    operation.sem_num = 0;
     operation.sem_op = -1;
     operation.sem_flg = 0;
-    semop(semId[0], &operation, 1);
+    semop(semId, &operation, 1);
+    // set free memory lines
+    removeThreadLines(lines, t, data->linesMemorySize, binnacle);
+    removeThread(threads, data, t);
+    //signal sem
+    operation.sem_num = 0;
+    operation.sem_op = 1;
+    operation.sem_flg = 0;
+    semop(semId, &operation, 1);
+    pthread_exit(0);
 }
 
 int memoryOption()
@@ -304,7 +297,7 @@ int main()
     // shmat to attach to data shared
     data = (sharedData *)shmat(shdid, 0, 0);
     //semget returns an identifier in semKey (semaphores)
-    semId[0] = semget(ftok("/bin/ls", 23), 2, 0600);
+    semId = semget(ftok("/bin/ls", 23), 2, 0600);
     // shmget returns an identifier in shtid (get threads memory id)
     int shtid = shmget(ftok("/bin/ls", 22), data->threadsSize * sizeof(sizeof(Thread)), 0777);
     // shmat to attach to threads shared
@@ -324,5 +317,11 @@ int main()
     shmdt(data);
     shmdt(threads);
 
+    // send signal to indicate that the producer has finished
+    operation.sem_num = 1;
+    operation.sem_op = 1;
+    operation.sem_flg = 0;
+    semop(semId, &operation, 1);
+    printf("producer program has finished\n");
     return 0;
 }

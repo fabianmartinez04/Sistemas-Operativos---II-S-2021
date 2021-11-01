@@ -29,7 +29,7 @@ int removeThread(Thread *list, sharedData *data, Thread *t) {
             list[i].alive = false;
             list[i].blocked = false;
             list[i].lines = 0;
-            list[i].pid = -1;
+            list[i].pid = (pthread_t)NULL;
             list[i].time = 0;
             break;
         }

@@ -113,7 +113,7 @@ int main() {
   // 0 is semaphore for shared memory
 	semctl (shsid, 0, SETVAL, &arg);
 
-  // 1 is semaphore for shared binnacle
+  // 1 is semaphore for ending status
   semctl (shsid, 1, SETVAL, &arg);
 
 
