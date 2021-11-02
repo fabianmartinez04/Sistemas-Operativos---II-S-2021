@@ -147,5 +147,6 @@ void *initThreadList(Thread *list)
     list[i].lines = 0;
     list[i].pid = (unsigned long)-1;
     list[i].time = 0;
+    list[i].idPOSIX = (unsigned long)-1;
   }
 }

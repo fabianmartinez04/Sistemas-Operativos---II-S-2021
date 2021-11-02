@@ -6,12 +6,14 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <sys/sem.h>
 #include <sys/ipc.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
 #include <sys/file.h> // File managment
+
 
 #include "memory_line.h"
 #include "shared_data.h"
@@ -232,7 +234,7 @@ void threadGenerate()
             Args->option = option;
             Args->t = t;
             // created p_thread
-            pthread_create(&(t->pid), NULL, (void *)threadFunction, (void *)Args);
+            pthread_create(&(t->idPOSIX), NULL, (void *)threadFunction, (void *)Args);
         }
         else
         {
@@ -252,9 +254,10 @@ void threadGenerate()
     printf("pthread_join...\n");
     for (int i = 0; i < MAX_THREAD; i++)
     {
-        if (!threads[i].empty && threads[i].pid != 0) {
+        if (!threads[i].empty) {
+            printf("Waiting for thread pid: %ld\n", threads[i].pid);
             void *retval;
-            pthread_join((threads[i].pid), &retval); //to wait for thread in execution
+            pthread_join(threads[i].idPOSIX, &retval); //to wait for thread in execution
         }
     }
 }
@@ -263,7 +266,7 @@ void threadFunction(void *params)
 {
     bool threadInMemory = false;
     Thread *t = ((struct args *)params)->t;
-    t->pid =  gettid();
+    t->pid =  syscall(SYS_gettid); // get thread id
     // run algorithm selected
     // wait semaphore
     operation.sem_num = 0;

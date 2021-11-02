@@ -1,1 +1,11 @@
 PID			Tamaño		Tipo			Acción						Hora						Lineas
+8438		4			Asignación		Asignar espacio en memoria	now: 2021-11-02 14:02:30	0-4
+8526		6			Asignación		Asignar espacio en memoria	now: 2021-11-02 14:02:30	4-10
+8438		4			Desasignacion	Liberar espacio				now: 2021-11-02 14:03:28	0-4
+8526		6			Desasignacion	Liberar espacio				now: 2021-11-02 14:03:32	4-10
+8631		7			Asignación		Asignar espacio en memoria	now: 2021-11-02 14:02:30	0-7
+8735		2			Asignación		Asignar espacio en memoria	now: 2021-11-02 14:02:30	7-9
+8631		7			Desasignacion	Liberar espacio				now: 2021-11-02 14:04:45	0-7
+8839		1			Asignación		Asignar espacio en memoria	now: 2021-11-02 14:02:30	0-1
+8735		2			Desasignacion	Liberar espacio				now: 2021-11-02 14:05:27	7-9
+8839		1			Desasignacion	Liberar espacio				now: 2021-11-02 14:05:49	0-1

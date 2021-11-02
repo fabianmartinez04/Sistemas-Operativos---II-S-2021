@@ -23,6 +23,7 @@ typedef struct Thread
     bool alive;
     bool blocked;
     pthread_t pid;
+    pthread_t idPOSIX;
     int lines;
     int time;
 } Thread;

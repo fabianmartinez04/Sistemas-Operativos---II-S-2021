@@ -6,7 +6,6 @@ int addThread(Thread *list, sharedData *data, int lineSize, int executeTime) {
     int index = 0;
     for (int i = 0; i < MAX_THREAD; i++)
     {
-        printf("Empty: %d -> %d\n", i, list[i].empty);
         if(list[i].empty) {
             index = i;
             break;
