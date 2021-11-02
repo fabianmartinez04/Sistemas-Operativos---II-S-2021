@@ -39,13 +39,9 @@ MemoryBlock *getCurrentMemoryBlocks(MemoryLine *memory, int size)
     if (lastLineBlock)
     {
         length++;
-        printf("bp1\n");
         blocks = realloc(blocks, sizeof(MemoryBlock) * (length));
-        printf("bp2\n");
         blocks[length - 1].size = blockSize;
-        printf("bp3\n");
         blocks[length - 1].startLine = startLine;
-        printf("bp5\n");
     }
     
     // set the end of the  list of block (last block contains size = -1 and startLine = -1)
