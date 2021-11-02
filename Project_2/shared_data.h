@@ -13,14 +13,17 @@
 #include <sys/types.h>
 #include <stdlib.h> 
 
+#include "defines_values.h"
+
 
 // data of each thread
 typedef struct Thread
 {
+    bool empty;
     bool alive;
-    bool dead;
     bool blocked;
     pthread_t pid;
+    pthread_t idPOSIX;
     int lines;
     int time;
 } Thread;
@@ -34,7 +37,9 @@ typedef struct sharedData
     pthread_t pidExecution;
 } sharedData;
 
-//append element at end of the list
-void addThread(Thread *list, sharedData *data, int lineSize, int executeTime);
+//add element to the threads list and return index
+int addThread(Thread *list, sharedData *data, int lineSize, int executeTime);
+// remove element to the threads list
+int removeThread(Thread *list, sharedData *data, Thread *t);
 
 #endif
