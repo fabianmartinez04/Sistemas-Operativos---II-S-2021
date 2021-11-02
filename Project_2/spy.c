@@ -96,23 +96,17 @@ void ThreadStatus()
     printf("PID's EXECUTE RIGHT NOW:\n");
     for (int i = 0; i < MAX_THREAD; i++)
     {
-        if (!threads[i].empty)
+        if (!threads[i].empty && threads[i].alive)
         {
-            if (threads[i].alive)
-            {
-                printf("PID: %ld \n", threads[i].pid);
-            }
+            printf("PID: %ld \n", threads[i].pid);
         }
     }
     printf("\nPID BLOCK (waiting for looking memory space):\n");
     for (int i = 0; i < MAX_THREAD; i++)
     {
-        if (!threads[i].empty)
+        if (!threads[i].empty && threads[i].blocked)
         {
-            if (threads[i].blocked)
-            {
-                printf("PID: %ld \n", threads[i].pid);
-            }
+            printf("PID: %ld \n", threads[i].pid);
         }
     }
     /*operation.sem_num = 0;
