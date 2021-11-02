@@ -57,10 +57,10 @@ void showMenu()
 void memoryStatus()
 {
     // wait semaphore (decrese)
-    operation.sem_num = 0;
+    /*operation.sem_num = 0;
     operation.sem_op = -1;
     operation.sem_flg = 0;
-    semop(semId, &operation, 1);
+    semop(semId, &operation, 1);*/
     printf("\t\t\t MEMORY INFORMATION\n\n");
     for (int i = 0; i <= data->linesMemorySize && data->linesMemorySize != 0; i++)
     {
@@ -78,27 +78,27 @@ void memoryStatus()
         }
     }
     // signal semaphore
-    operation.sem_num = 0;
+    /*operation.sem_num = 0;
     operation.sem_op = 1;
     operation.sem_flg = 0;
-    semop(semId, &operation, 1);
+    semop(semId, &operation, 1);*/
 }
 
 void ThreadStatus()
 {
     // wait a semaphore
-    operation.sem_num = 0;
+    /*operation.sem_num = 0;
     operation.sem_op = -1;
     operation.sem_flg = 0;
-    semop(semId, &operation, 1);
+    semop(semId, &operation, 1);*/
     printf("\t\t\t THREAD INFORMATION\n\n");
     printf("Memory Access PID: %ld \n\n", data->pidExecution);
-    printf("PID EXECUTE RIGHT NOW:\n");
+    printf("PID's EXECUTE RIGHT NOW:\n");
     for (int i = 0; i < MAX_THREAD; i++)
     {
         if (!threads[i].empty)
         {
-            if (threads[i].alive && !threads[i].blocked)
+            if (threads[i].alive)
             {
                 printf("PID: %ld \n", threads[i].pid);
             }
@@ -115,10 +115,10 @@ void ThreadStatus()
             }
         }
     }
-    operation.sem_num = 0;
+    /*operation.sem_num = 0;
     operation.sem_op = 1;
     operation.sem_flg = 0;
-    semop(semId, &operation, 1);
+    semop(semId, &operation, 1);*/
     // signal a semaphore
 }
 

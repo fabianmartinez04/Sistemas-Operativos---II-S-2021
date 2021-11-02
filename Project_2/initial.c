@@ -29,6 +29,7 @@ union semun
 
 //Methods
 void *initialMemory(MemoryLine *lines, int size);
+void *initThreadList(Thread *list);
 struct sembuf operation;
 
 int main()
@@ -58,7 +59,7 @@ int main()
   FILE *binnacle = fopen(file, "w");
   char dWrite[100];
 
-  sprintf(dWrite, "PID\t\t\t\t Tamaño\t\t\t\t Tipo\t\t\t\t Acción\t\t\t\t Hora\t\t\t\t Lineas\n");
+  sprintf(dWrite, "PID\t\t\tTamaño\t\tTipo\t\t\tAcción\t\t\t\t\t\tHora\t\t\t\t\t\tLineas\n");
   fputs(dWrite, binnacle);
   fclose(binnacle);
 
@@ -84,7 +85,6 @@ int main()
 
   //Update data values
   shmdt(data);
-
   /*****************************Create shared threads**************************/
 
   // Generate unique key to shtid
@@ -92,6 +92,13 @@ int main()
 
   // Identifier for shared threads
   int shtid = shmget(shtKey, MAX_THREAD * sizeof(Thread), 0777 | IPC_CREAT | SHM_REMAP);
+
+  Thread *list = (Thread *)shmat(shtid, 0, 0);
+  initThreadList(list);
+  
+  // dettach 
+  shmdt(list);
+
 
   /******************************Create semaphores ***************************/
 
@@ -127,5 +134,18 @@ void *initialMemory(MemoryLine *lines, int size)
     lines[i].lineNumber = i + 1;
     lines[i].available = true;
     lines[i].pid = (long unsigned int)NULL;
+  }
+}
+
+void *initThreadList(Thread *list)
+{
+  for (int i = 0; i < MAX_THREAD; i++)
+  {
+    list[i].empty = true;
+    list[i].alive = false;
+    list[i].blocked = false;
+    list[i].lines = 0;
+    list[i].pid = (unsigned long)-1;
+    list[i].time = 0;
   }
 }

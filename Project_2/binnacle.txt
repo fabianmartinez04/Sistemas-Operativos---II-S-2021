@@ -1,15 +1,1 @@
-PID				 Tamaño				 Tipo				 Acción				 Hora				 Lineas
-140564139951872				 4				 Asignación				 Asginar espacio n memoria				 now: 2021-11-01 21:02:52
-				 0-4
-140564131559168				 6				 Asignación				 Asginar espacio n memoria				 now: 2021-11-01 21:02:52
-				 4-10
-140564131559168				 6				 Desasignacion,				 Liberar espacio				 now: 2021-11-01 21:03:51
-				 4-10
-140564131559168				 6				 Desasignacion,				 Liberar espacio				 now: 2021-11-01 21:03:55
-				 94-100
-140564122965760				 7				 Asignación				 Asginar espacio n memoria				 now: 2021-11-01 21:02:52
-				 4-11
-140564114573056				 2				 Asignación				 Asginar espacio n memoria				 now: 2021-11-01 21:02:52
-				 11-13
-140564114573056				 2				 Desasignacion,				 Liberar espacio				 now: 2021-11-01 21:05:08
-				 11-13
+PID			Tamaño		Tipo			Acción						Hora						Lineas

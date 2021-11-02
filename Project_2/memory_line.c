@@ -82,7 +82,7 @@ void removeThreadLines(MemoryLine *memory, Thread *t, int memorySize, FILE *binn
     char dWrite[150];
     char dateData[50];
     struct tm tm = *localtime(&ttime);
-    sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-    sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %d-%d\n", t->pid, t->lines, "Desasignacion,", "Liberar espacio", dateData, (i - t->lines), i);
+    sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t%s\t\t\t\t%s\t%d-%d\n", t->pid, t->lines, "Desasignacion", "Liberar espacio", dateData, (i - t->lines), i);
     fputs(dWrite, binnacle);
 }

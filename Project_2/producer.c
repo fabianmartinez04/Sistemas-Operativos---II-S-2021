@@ -50,7 +50,6 @@ bool bestFit(Thread *t)
     MemoryBlock *blocks = getCurrentMemoryBlocks(lines, data->linesMemorySize);
     while (blocks[index].size != -1)
     {
-        printf("index: %d \n", index);
         if (blocks[index].size >= t->lines)
         {
             if (bestBlockIndex != -1)
@@ -65,7 +64,6 @@ bool bestFit(Thread *t)
         }
         index++;
     }
-    printf("bestBlockIndex: %d \n", bestBlockIndex);
     //save thread lines in shared memory
     if (bestBlockIndex != -1)
     {
@@ -73,8 +71,8 @@ bool bestFit(Thread *t)
         char dWrite[150];
         char dateData[50];
         struct tm tm = *localtime(&ttime);
-        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %d-%d\n", t->pid, t->lines, "Asignación", "Asginar espacio n memoria", dateData, blocks[index].startLine, (blocks[index].startLine + t->lines));
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t%s\t%s\t%d-%d\n", t->pid, t->lines, "Asignación", "Asignar espacio en memoria", dateData, blocks[bestBlockIndex].startLine, (blocks[bestBlockIndex].startLine + t->lines));
         fputs(dWrite, binnacle);
     }
     else
@@ -82,8 +80,8 @@ bool bestFit(Thread *t)
         char dWrite[150];
         char dateData[50];
         struct tm tm = *localtime(&ttime);
-        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData, "");
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t\t%s\t\t%s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData);
         fputs(dWrite, binnacle);
     }
     // return true if thread found space in lines memory
@@ -97,7 +95,6 @@ bool worstFit(Thread *t)
     MemoryBlock *blocks = getCurrentMemoryBlocks(lines, data->linesMemorySize);
     while (blocks[index].size != -1)
     {
-        printf("index: %d \n", index);
         if (blocks[index].size >= t->lines)
         {
             if (worstBlockIndex != -1)
@@ -112,7 +109,6 @@ bool worstFit(Thread *t)
         }
         index++;
     }
-    printf("worstBlockIndex: %d \n", worstBlockIndex);
     //save thread lines in shared memory
     if (worstBlockIndex != -1)
     {
@@ -120,8 +116,8 @@ bool worstFit(Thread *t)
         char dWrite[150];
         char dateData[50];
         struct tm tm = *localtime(&ttime);
-        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %d-%d\n", t->pid, t->lines, "Asignación", "Asginar espacio n memoria", dateData, blocks[index].startLine, (blocks[index].startLine + t->lines));
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t%s\t%s\t%d-%d\n", t->pid, t->lines, "Asignación", "Asignar espacio en memoria", dateData, blocks[worstBlockIndex].startLine, (blocks[worstBlockIndex].startLine + t->lines));
         fputs(dWrite, binnacle);
     }
     else
@@ -129,8 +125,8 @@ bool worstFit(Thread *t)
         char dWrite[150];
         char dateData[50];
         struct tm tm = *localtime(&ttime);
-        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData, "");
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t\t%s\t\t%s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData);
         fputs(dWrite, binnacle);
     }
     // return true if thread found space in lines memory
@@ -142,7 +138,6 @@ bool firstFit(Thread *t)
     int index = 0;
     int found = 0;
     MemoryBlock *blocks = getCurrentMemoryBlocks(lines, data->linesMemorySize);
-    printf("first block: %d\n", blocks[0].size);
     while (blocks[index].size != -1)
     {
         if (blocks[index].size >= t->lines)
@@ -152,8 +147,8 @@ bool firstFit(Thread *t)
             char dWrite[150];
             char dateData[50];
             struct tm tm = *localtime(&ttime);
-            sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-            sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %d-%d\n", t->pid, t->lines, "Asignación", "Asginar espacio n memoria", dateData, blocks[index].startLine, (blocks[index].startLine + t->lines));
+            sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+            sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t%s\t%s\t%d-%d\n", t->pid, t->lines, "Asignación", "Asignar espacio en memoria", dateData, blocks[index].startLine, (blocks[index].startLine + t->lines));
             fputs(dWrite, binnacle);
             break;
         }
@@ -169,8 +164,8 @@ bool firstFit(Thread *t)
         char dWrite[150];
         char dateData[50];
         struct tm tm = *localtime(&ttime);
-        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData, "");
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t%d\t\t\t%s\t\t\t%s\t\t%s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData);
         fputs(dWrite, binnacle);
         return false;
     }
@@ -237,7 +232,7 @@ void threadGenerate()
             Args->option = option;
             Args->t = t;
             // created p_thread
-            pthread_create(&t->pid, NULL, (void *)threadFunction, (void *)Args);
+            pthread_create(&(t->pid), NULL, (void *)threadFunction, (void *)Args);
         }
         else
         {
@@ -255,19 +250,20 @@ void threadGenerate()
 
     // wait for current threds exection
     printf("pthread_join...\n");
-    for (int i = 0; i < data->threadsSize; i++)
+    for (int i = 0; i < MAX_THREAD; i++)
     {
-        void *retval;
-        pthread_join(threads->pid, &retval); //to wait for thread in execution
-        printf("Thread pid: %ld return %ld\n", threads[i].pid, (long int)retval);
+        if (!threads[i].empty && threads[i].pid != 0) {
+            void *retval;
+            pthread_join((threads[i].pid), &retval); //to wait for thread in execution
+        }
     }
 }
 
 void threadFunction(void *params)
 {
     bool threadInMemory = false;
-    ((struct args *)params)->t->pid = (pthread_t)pthread_self();
     Thread *t = ((struct args *)params)->t;
+    t->pid =  gettid();
     // run algorithm selected
     // wait semaphore
     operation.sem_num = 0;
@@ -289,6 +285,8 @@ void threadFunction(void *params)
         threadInMemory = bestFit(t);
         break;
     }
+     t->alive = threadInMemory;
+    data->pidExecution = (pthread_t)-1;
     //signal sem
     operation.sem_num = 0;
     operation.sem_op = 1;
@@ -297,7 +295,7 @@ void threadFunction(void *params)
     // time execution
     if (threadInMemory)
     {
-        printf("Thread pid: %ld run in memory ,time: %d seconds\n", t->pid, t->time);
+        printf("Thread pid: %ld run in memory ,time: %d seconds, size: %d\n", t->pid, t->time, t->lines);
         sleep(t->time);
     } else{
         printf("Thread pid: %ld dont run in memory\n", t->pid);
@@ -308,8 +306,12 @@ void threadFunction(void *params)
     operation.sem_op = -1;
     operation.sem_flg = 0;
     semop(semId, &operation, 1);
+    // thread leave the shared memory
+    t->alive = false;
     // set free memory lines
-    removeThreadLines(lines, t, data->linesMemorySize, binnacle);
+    if (threadInMemory) {
+        removeThreadLines(lines, t, data->linesMemorySize, binnacle);
+    }
     removeThread(threads, data, t);
     //signal sem
     operation.sem_num = 0;

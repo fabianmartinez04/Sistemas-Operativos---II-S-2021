@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <stdlib.h> 
 
+#include "defines_values.h"
+
 
 // data of each thread
 typedef struct Thread

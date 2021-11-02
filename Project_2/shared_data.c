@@ -3,9 +3,10 @@
 //append element at end of the list
 int addThread(Thread *list, sharedData *data, int lineSize, int executeTime) {
     data->threadsSize = data->threadsSize + 1;
-    int index;
-    for (int i = 0; i < data->threadsSize; i++)
+    int index = 0;
+    for (int i = 0; i < MAX_THREAD; i++)
     {
+        printf("Empty: %d -> %d\n", i, list[i].empty);
         if(list[i].empty) {
             index = i;
             break;
@@ -13,7 +14,7 @@ int addThread(Thread *list, sharedData *data, int lineSize, int executeTime) {
     }
     list[index].time = executeTime;
     list[index].lines = lineSize;
-    list[index].alive = true;
+    list[index].alive = false;
     list[index].blocked = false;
     list[index].empty = false;
     return index;
