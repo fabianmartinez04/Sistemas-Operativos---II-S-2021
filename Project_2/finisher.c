@@ -61,7 +61,7 @@ int main() {
     shmdt(threads);
 
     operation.sem_num = 1;
-	operation.sem_op = -1;
+	operation.sem_op = -2;
 	operation.sem_flg = 0;
     printf("waiting for producer program...\n");
 

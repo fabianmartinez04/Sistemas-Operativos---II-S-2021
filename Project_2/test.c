@@ -83,11 +83,14 @@ int main()
     // send singal to finish to producer program
     // wait semaphore (decrese)
     operation.sem_num = 0;
+    operation.sem_op = -1;
+    operation.sem_flg = 0;
+    semop(semId, &operation, 1);
+    // dettach
+    operation.sem_num = 0;
     operation.sem_op = 1;
     operation.sem_flg = 0;
     semop(semId, &operation, 1);
-
-    // dettach
     shmdt(lines);
     shmdt(data);
     shmdt(threads);

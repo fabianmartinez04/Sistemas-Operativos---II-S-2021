@@ -3,7 +3,7 @@
 // get blocks of memory from the shared memory space
 MemoryBlock *getCurrentMemoryBlocks(MemoryLine *memory, int size)
 {
-    MemoryBlock *blocks;
+    MemoryBlock *blocks = malloc(sizeof(MemoryBlock));
     int length = 0;     // size of the list of blocks
     int blockSize = 0;  // size of the block
     int startLine = -1; // start line memory of the block
@@ -36,14 +36,18 @@ MemoryBlock *getCurrentMemoryBlocks(MemoryLine *memory, int size)
         }
     }
     // save 
-    printf("lastLineBlock: %d\n", lastLineBlock);
     if (lastLineBlock)
     {
         length++;
+        printf("bp1\n");
         blocks = realloc(blocks, sizeof(MemoryBlock) * (length));
+        printf("bp2\n");
         blocks[length - 1].size = blockSize;
+        printf("bp3\n");
         blocks[length - 1].startLine = startLine;
+        printf("bp5\n");
     }
+    
     // set the end of the  list of block (last block contains size = -1 and startLine = -1)
     blocks = realloc(blocks, sizeof(MemoryBlock) * (length + 1));
     blocks[length].startLine = -1;

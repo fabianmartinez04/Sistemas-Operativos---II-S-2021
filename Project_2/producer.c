@@ -92,6 +92,49 @@ bool bestFit(Thread *t)
 
 bool worstFit(Thread *t)
 {
+    int index = 0;
+    int worstBlockIndex = -1;
+    MemoryBlock *blocks = getCurrentMemoryBlocks(lines, data->linesMemorySize);
+    while (blocks[index].size != -1)
+    {
+        printf("index: %d \n", index);
+        if (blocks[index].size >= t->lines)
+        {
+            if (worstBlockIndex != -1)
+            {
+                if (blocks[index].size > blocks[worstBlockIndex].size)
+                    worstBlockIndex = index;
+            }
+            else
+            {
+                worstBlockIndex = index;
+            }
+        }
+        index++;
+    }
+    printf("worstBlockIndex: %d \n", worstBlockIndex);
+    //save thread lines in shared memory
+    if (worstBlockIndex != -1)
+    {
+        saveThreadLines(lines, t->pid, t->lines, blocks[worstBlockIndex].startLine);
+        char dWrite[150];
+        char dateData[50];
+        struct tm tm = *localtime(&ttime);
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %d-%d\n", t->pid, t->lines, "Asignación", "Asginar espacio n memoria", dateData, blocks[index].startLine, (blocks[index].startLine + t->lines));
+        fputs(dWrite, binnacle);
+    }
+    else
+    {
+        char dWrite[150];
+        char dateData[50];
+        struct tm tm = *localtime(&ttime);
+        sprintf(dateData, "now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+        sprintf(dWrite, "%ld\t\t\t\t %d\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\t\t\t\t %s\n", t->pid, t->lines, "Muerte", "Sin espacio en memoria", dateData, "");
+        fputs(dWrite, binnacle);
+    }
+    // return true if thread found space in lines memory
+    return worstBlockIndex != -1;
 }
 
 bool firstFit(Thread *t)
@@ -180,7 +223,7 @@ void threadGenerate()
         operation.sem_flg = 0;
         semop(semId, &operation, 1);
         // if threads list is full, dont save thread in thread list
-        if (MAX_THREAD == data->threadsSize)
+        if (MAX_THREAD >= data->threadsSize)
         {
 
             Thread *t = createNewThread();
@@ -256,6 +299,8 @@ void threadFunction(void *params)
     {
         printf("Thread pid: %ld run in memory ,time: %d seconds\n", t->pid, t->time);
         sleep(t->time);
+    } else{
+        printf("Thread pid: %ld dont run in memory\n", t->pid);
     }
     // set free shared memory
     // wait semaphore
