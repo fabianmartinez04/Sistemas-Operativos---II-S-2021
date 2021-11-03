@@ -184,6 +184,7 @@ Thread *createNewThread()
 // get a random number betwen lower and upper number
 int getRandom(int lower, int upper)
 {
+    srand(time(NULL)); 
     return (rand() % (upper - lower + 1)) + lower;
 }
 
