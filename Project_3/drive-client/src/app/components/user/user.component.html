@@ -1,0 +1,43 @@
+<div>
+    <div class="text-center p-5 mt-5">
+        <form class="validate-form" (ngSubmit)="loadFiles(form)" #form="ngForm">
+
+            <h1 class="display-5 fw-bold text-white">
+                Enter username
+            </h1>
+            
+            <div>
+                <input class="bg-light fs-3" 
+                       type="text" 
+                       name="username" 
+                       [(ngModel)]="user"
+                       required
+                       placeholder="Username"
+                       style="height: 50px;">
+            </div>
+            <span *ngIf="form.submitted && form.controls['username'].errors"
+                    class="text-danger d-block">Please, enter a username</span>
+            <br>
+            <input
+                class="btn btn-outline-primary fw-bolder fs-3"
+                type="submit" 
+                value="Enter">
+        </form>
+        <div class="mt-5 pt-5">
+            <h3 class="fs-6 fw-bold text-white">Are you new?</h3>
+            <a class="btn btn-outline-primary fw-bolder fs-3"
+            href="/new-drive">
+            Create new drive
+        </a>
+        </div>
+        <div class="mt-5 pt-5">
+            <h1 class="fs-6 fw-bold text-primary">
+                File system
+            </h1>
+            <h1 class=" fs-6 fw-bold text-primary">
+                Escuela de Computación | TEC
+            </h1>
+        </div>
+        
+    </div>
+</div>

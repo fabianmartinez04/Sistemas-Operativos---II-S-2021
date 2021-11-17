@@ -1,0 +1,50 @@
+<div>
+    <div class="text-center p-5 mt-5">
+        <form class="validate-form" (ngSubmit)="createDrive(form)" #form="ngForm">
+
+            <h1 class="display-5 fw-bold text-white">
+                Create new drive
+            </h1>
+            
+            <div>
+                <input class="bg-light fs-3" 
+                    type="text" 
+                    name="username" 
+                    [(ngModel)]="user.username"
+                    required
+                    username
+                    placeholder="Username"
+                    style="height: 50px;">
+            </div>
+            <span *ngIf="form.submitted && form.controls['username'].errors"
+                    class="text-danger d-block">Invalid username</span>
+            <br>
+            <div>
+                <input class="bg-light fs-3" 
+                    type="number" 
+                    name="size" 
+                    [(ngModel)]="user.size"
+                    required
+                    size
+                    placeholder="Bytes size"
+                    style="height: 50px;">
+            </div>
+            <span *ngIf="form.submitted && form.controls['size'].errors"
+                    class="text-danger d-block">Please, enter a size </span>
+            <br>
+            <input
+                class="btn btn-outline-primary fw-bolder fs-3"
+                type="submit" 
+                value="Enter">
+        </form>
+        <div class="mt-5 pt-5">
+            <h1 class="fs-6 fw-bold text-primary">
+                File system
+            </h1>
+            <h1 class=" fs-6 fw-bold text-primary">
+                Escuela de Computación | TEC
+            </h1>
+        </div>
+        
+    </div>
+</div>
