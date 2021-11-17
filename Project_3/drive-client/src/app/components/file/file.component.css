@@ -1,0 +1,15 @@
+.card-bg {
+    background-color: #212529 !important;
+}
+
+.card-bg:hover {
+    background-color: #3a3f44 !important;
+}
+
+.folder-bg {
+    color: #DCB400 !important;
+}
+
+.file-selected{
+    background-color: #3a3f44 !important;
+}

@@ -6,7 +6,7 @@ import { UserComponent } from './components/user/user.component';
 
 const routes: Routes = [
   {path: 'user-login', component: UserComponent},
-  {path: 'drive-dashboard', component: DashboardComponent},
+  {path: 'drive-dashboard/:username', component: DashboardComponent},
   {path: 'new-drive', component: CreateDriveComponent},
   {path: '**', redirectTo: 'user-login'}
 

@@ -15,13 +15,13 @@ export class UserComponent implements OnInit {
   constructor( private router: Router) { }
 
   ngOnInit(): void {
+    this.user = new User(); 
   }
 
 
   loadFiles(form: NgForm) {
     if(form.invalid) { return; }
-
-    this.router.navigateByUrl('/drive-dashboard');
+    this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
   }
 
 }

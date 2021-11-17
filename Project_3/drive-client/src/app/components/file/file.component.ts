@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { File } from 'src/app/models/file';
 
 @Component({
   selector: 'app-file',
@@ -6,6 +7,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./file.component.css']
 })
 export class FileComponent implements OnInit {
+
+  @Input() file : File = new File();
+  @Input() selected: boolean = false;
 
   constructor() { }
 

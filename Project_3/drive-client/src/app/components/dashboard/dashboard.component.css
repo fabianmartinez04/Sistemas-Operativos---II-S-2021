@@ -1,0 +1,16 @@
+.left-menu{
+    background-color: #3a3f44;
+}
+
+.item-active {
+    background-color: #212529 !important;
+}
+
+
+.file-selected{
+    background-color: #3a3f44 !important;
+}
+
+.file:hover {
+    background-color: #3a3f44 !important;
+}

@@ -1,1 +1,6 @@
-<p>file works!</p>
+<div class="card card-bg m-2 p-2 border-0"
+    [ngClass]="{'file-selected': selected}">
+    <i *ngIf="file.type == 'file'" class="fas fa-file fa-3x text-center text-white"></i>
+    <i *ngIf="file.type == 'folder'" class="text-center fas fa-folder fa-3x folder-bg"></i>
+    <p class="card-text text-white">{{file.fileName}}</p>
+</div>
