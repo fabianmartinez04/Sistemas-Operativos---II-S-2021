@@ -1,5 +1,5 @@
 <div>
-    <div class="nav justify-content-end px-2 mt-2">
+    <div class="nav justify-content-end px-2 mt-2 navbar-bg py-2">
         <div class="text-white fs-5 fw-bolder my-auto px-3">
             <span class="px-1">{{user.username | uppercase}}</span>
             <i class="far fa-user-circle"></i>
@@ -22,17 +22,40 @@
                 </button>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-10">
-            <div class="input-group mb-3">
-                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    New
-                    <i class="fas fa-plus"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><button class="dropdown-item">Folder</button></li>
-                    <li><button class="dropdown-item">File</button></li>
-                </ul>
+        <div class="col-xs-12 col-sm-10 mt-1">
+            <div class="btn-group" role="group">
+                <div class="input-group mb-3 me-3">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        New
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button class="dropdown-item">Folder</button></li>
+                        <li><button class="dropdown-item">File</button></li>
+                    </ul>
+                </div>
+                <div class="input-group mb-3 me-3">
+                    <button class="btn btn-outline-primary" type="button">
+                        Copy
+                    </button>
+                </div>
+                <div class="input-group mb-3 me-3">
+                    <button class="btn btn-outline-primary" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        Move
+                    </button>
+                </div>
+                <div class="input-group mb-3 me-3">
+                    <button class="btn btn-outline-primary" type="button">
+                        Delete
+                    </button>
+                </div>
+                <div class="input-group mb-3 me-3">
+                    <button class="btn btn-outline-primary" type="button">
+                        Shared
+                    </button>
+                </div>
             </div>
             <div class="row">
                 <span class="text-white fs-5 fw-bolder">{{directory}}</span>
@@ -57,12 +80,14 @@
                     </div>
                     <div class="file" *ngFor="let file of files; let index = index"
                         [ngClass]="{'file-selected': selectedItem == index}" 
-                        (click)="selectedItem = index"
+                        (click)="selectedItem == index?selectedItem = -1:selectedItem = index"
                         (dblclick)="openFile()">
                         <app-file [file]="file" [selected]="index == selectedItem"></app-file>
                     </div>
             </div>
         </div>
     </div>
-
 </div>
+
+
+<app-move id="offcanvasRight" tabindex="-1" class="offcanvas offcanvas-end" aria-labelledby="offcanvasRightLabel"></app-move>

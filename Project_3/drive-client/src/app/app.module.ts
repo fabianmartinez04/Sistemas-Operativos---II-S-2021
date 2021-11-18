@@ -8,6 +8,7 @@ import { FileComponent } from './components/file/file.component';
 import { UserComponent } from './components/user/user.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { CreateDriveComponent } from './components/create-drive/create-drive.component';
+import { MoveComponent } from './components/move/move.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { CreateDriveComponent } from './components/create-drive/create-drive.com
     FileComponent,
     UserComponent,
     DashboardComponent,
-    CreateDriveComponent
+    CreateDriveComponent,
+    MoveComponent
   ],
   imports: [
     BrowserModule,
