@@ -1,6 +1,24 @@
 <div class="card card-bg m-2 p-2 border-0"
     [ngClass]="{'file-selected': selected}">
-    <i *ngIf="file.type == 'file'" class="fas fa-file fa-3x text-center text-white"></i>
-    <i *ngIf="file.type == 'folder'" class="text-center fas fa-folder fa-3x folder-bg"></i>
-    <p class="card-text text-white">{{file.fileName}}</p>
+    <div class="row">
+        <div class="col-4">
+            <div class="row">
+                <div class="col-1">
+                    <i *ngIf="file.type == 'file'" class="fas fa-file fa-2x text-center text-white"></i>
+                    <i *ngIf="file.type == 'folder'" class="text-center fas fa-folder fa-2x folder-bg"></i>
+                </div>
+                <div class="col my-auto">
+                    <p class="ms-1 card-text text-white">{{file.fileName}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-1">
+            
+        </div>
+        <div class="col-1">
+
+        </div>
+    </div>
+
+    
 </div>

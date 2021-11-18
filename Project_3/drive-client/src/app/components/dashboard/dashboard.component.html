@@ -38,14 +38,29 @@
                 <span class="text-white fs-5 fw-bolder">{{directory}}</span>
             </div>
             <div class="row">
-                <div class="card-group">
+                    <div class="row text-white">
+                        <div class="col-4">
+                            <span class="ms-5">Name</span>
+                        </div>
+                        <div class="col-2">
+                            <span>Extension</span>
+                        </div>
+                        <div class="col-2">
+                            <span>Date created</span>
+                        </div>
+                        <div class="col-2">
+                            <span>Date Modified</span>
+                        </div>
+                        <div class="col-2">
+                            <span>Size</span>
+                        </div>     
+                    </div>
                     <div class="file" *ngFor="let file of files; let index = index"
                         [ngClass]="{'file-selected': selectedItem == index}" 
                         (click)="selectedItem = index"
                         (dblclick)="openFile()">
                         <app-file [file]="file" [selected]="index == selectedItem"></app-file>
                     </div>
-                </div>
             </div>
         </div>
     </div>

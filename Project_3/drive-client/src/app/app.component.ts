@@ -27,6 +27,7 @@ export class AppComponent {
   }
 
   handleMessage(message:any){
+    console.log(this.greetings)
     this.greetings.push(message);
   }
 }
