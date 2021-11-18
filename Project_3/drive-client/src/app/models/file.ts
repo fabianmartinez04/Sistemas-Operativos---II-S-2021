@@ -1,6 +1,6 @@
 export class File {
     fileName: string;
-    Fileextension:string;
+    FileExtension:string;
     type:string;
     dateCreated:string;
     dateModified:string;
@@ -8,7 +8,7 @@ export class File {
 
     constructor() {
         this.fileName = '';
-        this.Fileextension = '';
+        this.FileExtension = '';
         this.type = '';
         this.dateCreated = '';
         this.dateModified = '';

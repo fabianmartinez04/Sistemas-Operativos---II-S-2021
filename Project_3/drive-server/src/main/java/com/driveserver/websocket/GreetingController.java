@@ -19,7 +19,7 @@ public class GreetingController {
     @MessageMapping("/new-message")
     @SendTo("/Topic/greetings")
     public Greeting newMessage(String message) throws  InterruptedException {
-        return new Greeting(message);
+            return new Greeting(message);
     }
 
 

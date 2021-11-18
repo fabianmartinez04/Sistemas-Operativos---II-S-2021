@@ -10,7 +10,7 @@ export class AppComponent {
   title = 'drive-client';
 
   webSocketAPI: WebSocketAPI =  new WebSocketAPI(this);;
-  greetings: string[];
+  greetings: string[] = [];
   name: string = '';
 
 

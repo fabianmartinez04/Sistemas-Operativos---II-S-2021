@@ -24,7 +24,6 @@ export class WebSocketAPI {
             _this.stompClient.subscribe(_this.topic, function (sdkEvent: any) {
                 _this.onMessageReceived(sdkEvent);
             });
-            //_this.stompClient.reconnect_delay = 2000;
         }, this.errorCallBack);
     };
 
@@ -49,6 +48,7 @@ export class WebSocketAPI {
   */
     _send(message:string) {
         console.log("calling logout api via web socket");
+        console.log(JSON.stringify(message));
         this.stompClient.send("/app/hello", {}, JSON.stringify(message));
     }
 
