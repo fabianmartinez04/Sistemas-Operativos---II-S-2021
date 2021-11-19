@@ -14,7 +14,7 @@ export class DashboardComponent implements OnInit {
   files: File[] = [];
   personalFiles:boolean = true;
   selectedItem : number = -1;
-  directory:string= 'My files';
+  path:string= 'My files';
 
   constructor(private router: Router, private activatedRouter : ActivatedRoute) { }
 
@@ -42,16 +42,26 @@ export class DashboardComponent implements OnInit {
 
   loadPersoonalFiles() {
     this.personalFiles = true;
-    this.directory = 'My Files';
+    this.path = 'My Files';
   }
 
   loadSharedFiles() {
     this.personalFiles = false;
-    this.directory = 'Shared Files';
+    this.path = 'Shared Files';
   }
 
-  openFile() {
+  openFile(fileIndex: number) {
+    if(this.files[fileIndex].type == "folder") {
+      this.path = this.path + '/'+ this.files[fileIndex].fileName;
+    }
     console.log("this is dobule click");
+  }
+
+  goBack() {
+    let files : string[] = this.path.split('/');
+    if(files.length == 1){return;}
+    files.pop();
+    this.path = files.join('/');
   }
 
 }

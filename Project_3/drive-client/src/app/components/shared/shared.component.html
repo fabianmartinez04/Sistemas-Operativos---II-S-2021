@@ -1,0 +1,29 @@
+<!-- Modal -->
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white body-bg">
+        <div class="modal-header title-bg">
+            <h5 class="modal-title fw-bolder fs-5" id="exampleModalLabel">Shared File</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="validate-form" (ngSubmit)="shared(form)" #form="ngForm">
+        <div class="modal-body body-bg">
+            <div>
+                <label for="user-input" class="fw-bolder fs-5">Username</label>
+                <br>
+                <input id="user-input" 
+                    class="bg-light fs-5" 
+                    type="text" name="username" 
+                    [(ngModel)]="username" 
+                    required
+                    style="height: 50px;">
+                <span *ngIf="form.submitted && form.controls['username'].errors" class="text-danger d-block">
+                    Please, enter a username</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" class="btn btn-outline-primary fw-bolder fs-5" value="Share">
+            <button id="cancel-btn" type="button" class="btn btn-danger fw-bolder fs-5" data-bs-dismiss="modal">Cancel</button>
+        </div>
+        </form>
+    </div>
+</div>

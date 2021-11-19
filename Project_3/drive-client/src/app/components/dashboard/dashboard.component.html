@@ -1,5 +1,5 @@
 <div>
-    <div class="nav justify-content-end px-2 mt-2 navbar-bg py-2">
+    <div class="nav justify-content-end px-2 navbar-bg py-2">
         <div class="text-white fs-5 fw-bolder my-auto px-3">
             <span class="px-1">{{user.username | uppercase}}</span>
             <i class="far fa-user-circle"></i>
@@ -36,29 +36,50 @@
                     </ul>
                 </div>
                 <div class="input-group mb-3 me-3">
-                    <button class="btn btn-outline-primary" type="button">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" [disabled]="selectedItem == -1"
+                    aria-expanded="false">
                         Copy
                     </button>
+                    <ul class="dropdown-menu">
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyRVModal">
+                            Real-Virtual
+                        </button></li>
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyVRModal">
+                            Virtual-Real
+                        </button></li>
+                        <li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCopy">
+                            Virtual-Virtual
+                        </button></li>
+                    </ul>
                 </div>
                 <div class="input-group mb-3 me-3">
-                    <button class="btn btn-outline-primary" type="button"
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                    <button class="btn btn-outline-primary" type="button" [disabled]="selectedItem == -1"
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMove">
                         Move
                     </button>
                 </div>
                 <div class="input-group mb-3 me-3">
-                    <button class="btn btn-outline-primary" type="button">
+                    <button class="btn btn-outline-primary" type="button"
+                        [disabled]="selectedItem == -1">
                         Delete
                     </button>
                 </div>
                 <div class="input-group mb-3 me-3">
-                    <button class="btn btn-outline-primary" type="button">
+                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#SharedModal"
+                        [disabled]="selectedItem == -1">
                         Shared
                     </button>
                 </div>
             </div>
             <div class="row">
-                <span class="text-white fs-5 fw-bolder">{{directory}}</span>
+                <div class="col-1">
+                    <button class="btn text-white" (click)="goBack()">
+                        <i class="fas fa-arrow-circle-left"></i>
+                    </button>
+                </div>
+                <div class="col">
+                    <span class="text-white fs-5 fw-bolder">{{path}}</span>
+                </div>
             </div>
             <div class="row">
                     <div class="row text-white">
@@ -81,7 +102,7 @@
                     <div class="file" *ngFor="let file of files; let index = index"
                         [ngClass]="{'file-selected': selectedItem == index}" 
                         (click)="selectedItem == index?selectedItem = -1:selectedItem = index"
-                        (dblclick)="openFile()">
+                        (dblclick)="openFile(index)">
                         <app-file [file]="file" [selected]="index == selectedItem"></app-file>
                     </div>
             </div>
@@ -90,4 +111,12 @@
 </div>
 
 
-<app-move id="offcanvasRight" tabindex="-1" class="offcanvas offcanvas-end" aria-labelledby="offcanvasRightLabel"></app-move>
+<app-move id="offcanvasMove" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
+
+<app-copy id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
+
+<app-shared id="SharedModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
+
+<app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-vr>
+
+<app-copy-rv id="CopyRVModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-rv>

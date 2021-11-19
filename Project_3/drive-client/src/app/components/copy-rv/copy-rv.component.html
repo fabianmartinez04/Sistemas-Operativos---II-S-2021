@@ -1,0 +1,52 @@
+<!-- Modal -->
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white body-bg">
+        <div class="modal-header title-bg">
+            <h5 class="modal-title fw-bolder fs-5" id="exampleModalLabel">Copy Real to Virtual</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="validate-form" (ngSubmit)="copy(form)" #form="ngForm">
+            <div class="modal-body body-bg">
+
+                <ul class="nav nav-tabs my-3" id="myTab" role="tablist">
+                    <li class="nav-item me-1" role="presentation">
+                        <button class="btn btn-outline-light active fw-bolder fs-5" id="directory-tab"
+                            data-bs-toggle="tab" data-bs-target="#directory" type="button" role="tab"
+                            aria-controls="directory" aria-selected="true">Directory</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="btn btn-outline-light fw-bolder fs-5" id="file-tab" data-bs-toggle="tab"
+                            data-bs-target="#file" type="button" role="tab" aria-controls="file"
+                            aria-selected="false">File</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="directory" role="tabpanel"
+                        aria-labelledby="directory-tab">
+                        <label for="user-input" class="fw-bolder fs-5">Select Directory</label>
+                        <br>
+                        <input id="file-input" class="bg-light fs-5 text-dark" type="file" name="filepath"
+                            webkitdirectory required>
+                        <span *ngIf="form.submitted && form.controls['filepath'].errors" class="text-danger d-block">
+                            Please, select a directory</span>
+                    </div>
+                    <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+                        <label for="user-input" class="fw-bolder fs-5">Select File</label>
+                        <br>
+                        <input id="file-input" class="bg-light fs-5 text-dark" type="file" name="filepath" required>
+                        <span *ngIf="form.submitted && form.controls['filepath'].errors" class="text-danger d-block">
+                            Please, select a file</span>
+                    </div>
+                </div>
+
+                <div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-outline-primary fw-bolder fs-5" value="Copy">
+                <button id="cancel-btn" type="button" class="btn btn-danger fw-bolder fs-5"
+                    data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
