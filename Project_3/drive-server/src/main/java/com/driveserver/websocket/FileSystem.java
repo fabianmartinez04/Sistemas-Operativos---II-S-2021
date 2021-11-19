@@ -190,6 +190,7 @@ public class FileSystem {
                     if (i == foldersName.length-1) {
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
+                        target.replace("route",newRoute);
                         list.add(target);
                         file.replace("children",list);
                     } else {
@@ -213,7 +214,6 @@ public class FileSystem {
         JSONObject target = null;
         JSONObject parent;
         String[] foldersName;
-
         // remove file from old path and return the file
         target = deleteFile(route);
 
@@ -233,6 +233,7 @@ public class FileSystem {
                     if (i == foldersName.length-1) {
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
+                        target.replace("route", newRoute);
                         list.add(target);
                         file.replace("children",list);
                     } else {
