@@ -121,17 +121,16 @@ public class FileSystem {
                 // add file to new children list
                 // if this folder is parent folder of the file to remove
                 if (i == foldersName.length - 1) {
-                    if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]){
+                    if (file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
                         // remove the file target from children
                         children.remove(file);
                         // add children again
                         parent.replace("children", children);
                         return file;
                     }
-                } else {
-                    if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
-                        break;
-                    }
+                }
+                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    break;
                 }
             }
         }
@@ -212,7 +211,6 @@ public class FileSystem {
         Object obj;
         JSONArray children;
         JSONObject target = null;
-        JSONObject parent;
         String[] foldersName;
         // remove file from old path and return the file
         target = deleteFile(route);
