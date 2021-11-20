@@ -246,6 +246,40 @@ public class FileSystem {
 
     // Fabián
     public void moveFolder(String route, String newRoute) {
+        JSONObject file;
+        Object obj;
+        JSONArray children;
+        JSONObject target = null;
+        JSONObject parent;
+        String[] foldersName;
+        // remove file from old path and return the file
+        target = deleteFolder(route);
+
+        // save the file in the new path
+        foldersName = newRoute.split("/");
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        file = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    if (i == foldersName.length-1) {
+                        Object obj2  = file.get("children");
+                        JSONArray list = (JSONArray)obj2;
+                        target.replace("route", newRoute);
+                        list.add(target);
+                        file.replace("children",list);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
 
     };
 }
