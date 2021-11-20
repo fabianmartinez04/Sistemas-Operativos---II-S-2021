@@ -63,26 +63,30 @@ public class FileSystem {
 
     // Liseth
     public JSONObject getFolder(String route){
-        JSONObject file;
+        JSONObject folder;
         Object obj;
         JSONArray children;
 
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
-        file = (JSONObject) obj;
+        folder = (JSONObject) obj;
 
         for (int i = 1; i < foldersName.length; i++) {
 
-            obj = file.get("children");
+            obj = folder.get("children");
             children = (JSONArray) obj;
 
-            for (int j = 0; j < children.size(); j++){
+            for (int j = 0; j < children.size(); j++) {
                 obj = children.get(j);
-                file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
-                    return file;
+                folder = (JSONObject) obj;
+
+                if (folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
+                    return folder;
                 }
+
+
             }
+
         }
         return null;
     };
@@ -139,7 +143,39 @@ public class FileSystem {
     };
 
     // Liseth
-    public void deleteFolder(String route) {
+    public JSONObject deleteFolder(String route) {
+        JSONObject folder;
+        Object obj;
+        JSONArray children;
+        JSONObject parent;
+
+        String[] foldersName = route.split("/");
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        folder = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+
+            obj = folder.get("children");
+            children = (JSONArray) obj;
+            // save the parent of the current children
+            parent = folder;
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                folder = (JSONObject)obj;
+                // add folder to new children list
+                // if this folder is parent folder of the folder to remove
+
+                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
+                    // remove the file target from children
+                    children.remove(folder);
+                    // add children again
+                    parent.replace("children", children);
+                    return folder;
+                }
+
+            }
+        }
+        return  null;
 
     };
 
@@ -201,10 +237,59 @@ public class FileSystem {
         }
     };
 
+
     // Liseth
     public void copyFolder(String route, String newRoute) {
+        JSONObject folder;
+        Object obj;
+        JSONArray children;
+        JSONObject target = null;
 
+        String[] foldersName = route.split("/");
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        folder = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length && target == null; i++) {
+            obj = folder.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                folder = (JSONObject)obj;
+
+                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
+                    target = folder;
+                    break;
+                }
+            }
+        }
+
+        foldersName = newRoute.split("/");
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        folder = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+            obj = folder.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                folder = (JSONObject)obj;
+                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i]) {
+                    if (i == foldersName.length-1) {
+                        Object obj2  = folder.get("children");
+                        JSONArray list = (JSONArray)obj2;
+                        target.replace("route",newRoute);
+                        list.add(target);
+                        folder.replace("children",list);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     };
+
 
     // Pablo
     public void moveFile(String route, String newRoute) {
