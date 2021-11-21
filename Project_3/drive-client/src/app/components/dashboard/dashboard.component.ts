@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'src/app/models/user';
 import { File } from 'src/app/models/file';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,7 +17,7 @@ export class DashboardComponent implements OnInit {
   selectedItem : number = -1;
   path:string= 'My files';
 
-  constructor(private router: Router, private activatedRouter : ActivatedRoute) { }
+  constructor(private router: Router, private activatedRouter : ActivatedRoute, private websocket: WebSocketService) { }
 
   ngOnInit(): void {
     this.user = new User();
@@ -37,7 +38,13 @@ export class DashboardComponent implements OnInit {
 
 
   exit() {
-    this.router.navigateByUrl('/user-login');
+    this.websocket.disconnect()
+      .then((data:any)=>{
+        this.router.navigateByUrl('/user-login');
+      })
+      .catch((data) => {
+        
+      })
   }
 
   loadPersoonalFiles() {

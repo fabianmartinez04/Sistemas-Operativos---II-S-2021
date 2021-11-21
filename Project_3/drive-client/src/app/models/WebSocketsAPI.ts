@@ -24,7 +24,7 @@ export class WebSocketAPI {
             _this.stompClient.subscribe(_this.topic, function (sdkEvent: any) {
                 _this.onMessageReceived(sdkEvent);
             });
-        }, this.errorCallBack);
+        }, this.errorCallBack).get();
     };
 
     _disconnect() {
