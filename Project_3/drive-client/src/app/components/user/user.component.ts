@@ -26,13 +26,18 @@ export class UserComponent implements OnInit {
 
     this.webSocket.connect(this.user.username)
       .then((data: any) => {
-          this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
-          WebSocketService.stompClient.subscribe('/topic/news', (msg:any) => {
-            console.log(msg);
+          
+          WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg:JSON) => {
+            if (msg['status'] == 200) {
+              this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
+              WebSocketService.stompClient.unsubscribe('/queue/login-' + this.user.username);
+            } else {
+              console.log('ERROR');
+            }
           })
       })
       .finally(() => {
-        WebSocketService.stompClient.send('/app/hello', {}, JSON.stringify({name:this.user.username}))
+        WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({username:this.user.username}))
       })
       .catch((msg: any) => {
         console.log(msg);

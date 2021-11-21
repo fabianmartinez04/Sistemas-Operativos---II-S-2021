@@ -18,16 +18,18 @@ import java.util.Date;
 
 @Controller
 public class FileSystemController {
+    @Autowired
+    SimpMessagingTemplate sender;
 
     @MessageMapping("/login")
-    @SendToUser("/queue/login")
-    public String validateUserFileSystem(@Payload String username, Principal user) {
+   // @SendTo()
+    public void validateUserFileSystem(@Payload JSONObject obj) {
         // look for username file system existing
         JSONObject out = new JSONObject();
         out.put("status", 200);
         out.put("data", new JSONObject());
-        System.out.println(user.getName());
-        return out.toJSONString();
+        sender.convertAndSend("/queue/login-" + obj.get("username"), out.toJSONString());
+        //return out.toJSONString();
     }
 
     @MessageMapping("/news")
@@ -36,7 +38,7 @@ public class FileSystemController {
         return message;
     }
 
-    @MessageMapping("/connect")
+    @MessageMapping("/hello")
     @SendTo("/topic/news")
     public Greeting greet(HelloMessage message) throws InterruptedException {
         return new Greeting("Hello, " +
