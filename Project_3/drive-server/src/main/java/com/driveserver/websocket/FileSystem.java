@@ -223,7 +223,39 @@ public class FileSystem {
         }
 
     };
+    public JSONObject editFile(String route, String text) throws Exception{
+        JSONObject file;
+        Object obj;
+        JSONArray children;
 
+        String[] foldersName = route.split("/");
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        file = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if (i == foldersName.length - 1) {
+                    if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
+                        file.replace("text", text);
+                        return file;
+                    }
+                }
+                else {
+                    if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                        break;
+                    }
+                }
+            }
+        }
+        return null;
+
+    };
     // Pablo
     public JSONObject deleteFile(String route) {
         JSONObject file;
