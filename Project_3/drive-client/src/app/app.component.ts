@@ -16,10 +16,15 @@ export class AppComponent {
 
   connect(){
     this.webSocketAPI._connect();
+    document.getElementById("connect-btn").setAttribute('disabled', 'disabled');
+    document.getElementById("disconnect-btn").removeAttribute('disabled');
+    
   }
 
   disconnect(){
     this.webSocketAPI._disconnect();
+    document.getElementById("disconnect-btn").setAttribute('disabled', 'disabled');
+    document.getElementById("connect-btn").removeAttribute('disabled');
   }
 
   sendMessage(){

@@ -25,7 +25,7 @@ import { CopyVrComponent } from './components/copy-vr/copy-vr.component';
     SharedComponent,
     CopyComponent,
     CopyRvComponent,
-    CopyVrComponent
+    CopyVrComponent 
   ],
   imports: [
     BrowserModule,

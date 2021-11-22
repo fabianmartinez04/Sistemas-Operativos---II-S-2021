@@ -1,0 +1,21 @@
+{
+	"size":11,
+	"SharedFiles":{
+		"children":[]
+	},
+	"MyFiles":{
+		"children":[
+			{
+				"type": "file",
+				"extension": "txt",
+				"name": "file 1",
+				"dateCreated": "date()",
+				"modifiedCreated": "data",
+				"size": 0.010
+				"route": "fileSystem/MyFiles"
+				"text": "notas....",
+			},
+		]
+	},
+	"username":"pablo"
+}
