@@ -24,7 +24,7 @@ public class FileSystem {
 
     public FileSystem(){};
 
-    public JSONObject getFileSystem(String username, Integer size,Boolean isNew) throws  Exception{
+    public JSONObject getFileSystem(String username, Integer size, Boolean isNew) throws  Exception{
         JSONObject file;
         if (isNew) {
             this.fileSystem = new JSONObject();

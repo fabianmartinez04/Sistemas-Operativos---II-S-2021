@@ -60,11 +60,13 @@ export class DashboardComponent implements OnInit {
   loadPersonalFiles() {
     this.personalFiles = true;
     this.path = 'MyFiles';
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
   }
 
   loadSharedFiles() {
     this.personalFiles = false;
     this.path = 'SharedFiles';
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
   }
 
   openFile(fileIndex: number) {

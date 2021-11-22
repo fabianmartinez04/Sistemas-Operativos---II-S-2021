@@ -68,6 +68,8 @@ public class FileSystemController {
     public void createNewDrive(@Payload JSONObject obj) {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), Integer.parseInt(obj.get("size").toString()), Boolean.TRUE);
+            fileSystem.setFileSystem(userFileSystem);
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);
@@ -80,6 +82,53 @@ public class FileSystemController {
         }
     }
 
+
+    @MessageMapping("/create-folder")
+    public void createNewFolder(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/create-file")
+    public void createNewFile(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/delete-folder")
+    public void deteleFolder(@Payload JSONObject obj) {
+
+    }
+
+
+    @MessageMapping("/delete-file")
+    public void deleteFile(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/move-folder")
+    public void moveFolder(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/move-file")
+    public void moveFile(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/copy-folder")
+    public void copyFolder(@Payload JSONObject obj) {
+
+    }
+
+    @MessageMapping("/copy-file")
+    public void copyFile(@Payload JSONObject obj) {
+
+    }
+
+
+    @MessageMapping("/edit-file")
+    public void editFile(@Payload JSONObject obj) {
+
+    }
 
 
 
