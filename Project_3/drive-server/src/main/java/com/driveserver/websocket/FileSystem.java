@@ -366,6 +366,9 @@ public class FileSystem {
         }
     };
 
+    public void editFile(String name, String route, String text){
+
+    }
     // Fabián
     public void moveFolder(String route, String newRoute) {
         JSONObject file;
