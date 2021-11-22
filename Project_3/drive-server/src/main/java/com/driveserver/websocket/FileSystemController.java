@@ -242,7 +242,7 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
-            fileSystem.editFile(obj.get("name").toString(),obj.get("path").toString(),obj.get("text").toString());
+            fileSystem.editFile(obj.get("path").toString(),obj.get("text").toString());
             System.out.println("EditFile SUCCESS");
         }catch (Exception e) {
             System.out.println("EditFile ERROR");
