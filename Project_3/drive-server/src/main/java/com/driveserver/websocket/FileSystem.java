@@ -5,7 +5,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FileSystem {
     private JSONObject fileSystem;
@@ -90,11 +92,90 @@ public class FileSystem {
     // Fabián
     // name.txt
     public void createdFile(String name, String route, String text) throws Exception{
+        JSONObject file;
+        Object obj;
+        JSONArray children;
+        int size;
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        String[] fileName = name.split(".");
+        String[] foldersName = route.split("/");
+
+        size = text.length();
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        file = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+
+                    JSONObject newFile = new JSONObject();
+                    newFile.put("type","file");
+                    newFile.put("extension",fileName[1]);
+                    newFile.put("name",fileName[0]);
+                    newFile.put("dateCreated",(formatter.format(date)).toString());
+                    newFile.put("modifiedCreated",(formatter.format(date)).toString());
+                    newFile.put("size",String.valueOf(size));
+                    newFile.put("route",route);
+                    newFile.put("text",text);
+
+                    Object obj2  = file.get("children");
+                    JSONArray list = (JSONArray)obj2;
+                    list.add(newFile);
+                    file.replace("children",list);
+
+                }
+            }
+        }
 
     };
 
     // Fabián
     public void createdFolder(String name, String route) throws Exception{
+        JSONObject file;
+        Object obj;
+        JSONArray children;
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+        String[] foldersName = route.split("/");
+
+        obj = (Object)this.fileSystem.get(foldersName[0]);
+        file = (JSONObject) obj;
+
+        for (int i = 1; i < foldersName.length; i++) {
+
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+
+                    JSONObject newFolder = new JSONObject();
+                    newFolder.put("type","folder");
+                    newFolder.put("name",name);
+                    newFolder.put("dateCreated",(formatter.format(date)).toString());
+                    JSONArray array = new JSONArray();
+                    newFolder.put("children",array);
+                    newFolder.put("route",route);
+
+                    Object obj2  = file.get("children");
+                    JSONArray list = (JSONArray)obj2;
+                    list.add(newFolder);
+                    file.replace("children",list);
+
+                }
+            }
+        }
 
     };
 
