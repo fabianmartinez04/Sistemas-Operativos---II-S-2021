@@ -13,6 +13,8 @@ import { SharedComponent } from './components/shared/shared.component';
 import { CopyComponent } from './components/copy/copy.component';
 import { CopyRvComponent } from './components/copy-rv/copy-rv.component';
 import { CopyVrComponent } from './components/copy-vr/copy-vr.component';
+import { CreateFileComponent } from './components/create-file/create-file.component';
+import { CreateFolderComponent } from './components/create-folder/create-folder.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,9 @@ import { CopyVrComponent } from './components/copy-vr/copy-vr.component';
     SharedComponent,
     CopyComponent,
     CopyRvComponent,
-    CopyVrComponent 
+    CopyVrComponent,
+    CreateFileComponent,
+    CreateFolderComponent 
   ],
   imports: [
     BrowserModule,

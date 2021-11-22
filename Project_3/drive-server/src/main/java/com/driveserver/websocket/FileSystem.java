@@ -195,6 +195,21 @@ public class FileSystem {
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
 
+        if (foldersName.length == 1) {
+            JSONObject newFolder = new JSONObject();
+            newFolder.put("type","folder");
+            newFolder.put("name",name);
+            newFolder.put("dateCreated",(formatter.format(date)).toString());
+            JSONArray array = new JSONArray();
+            newFolder.put("children",array);
+            newFolder.put("route",route);
+
+            Object obj2  = file.get("children");
+            JSONArray list = (JSONArray)obj2;
+            list.add(newFolder);
+            file.replace("children",list);
+        }
+
         for (int i = 1; i < foldersName.length; i++) {
 
             obj = file.get("children");
@@ -204,20 +219,22 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    if(i == foldersName.length - 1) {
+                        JSONObject newFolder = new JSONObject();
+                        newFolder.put("type","folder");
+                        newFolder.put("name",name);
+                        newFolder.put("dateCreated",(formatter.format(date)).toString());
+                        JSONArray array = new JSONArray();
+                        newFolder.put("children",array);
+                        newFolder.put("route",route);
 
-                    JSONObject newFolder = new JSONObject();
-                    newFolder.put("type","folder");
-                    newFolder.put("name",name);
-                    newFolder.put("dateCreated",(formatter.format(date)).toString());
-                    JSONArray array = new JSONArray();
-                    newFolder.put("children",array);
-                    newFolder.put("route",route);
-
-                    Object obj2  = file.get("children");
-                    JSONArray list = (JSONArray)obj2;
-                    list.add(newFolder);
-                    file.replace("children",list);
-
+                        Object obj2  = file.get("children");
+                        JSONArray list = (JSONArray)obj2;
+                        list.add(newFolder);
+                        file.replace("children",list);
+                    } else {
+                        break;
+                    }
                 }
             }
         }

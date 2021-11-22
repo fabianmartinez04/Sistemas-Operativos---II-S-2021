@@ -2,6 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { File } from 'src/app/models/file';
 import { WebSocketService } from 'src/app/services/web-socket.service';
 
+import $ from 'jquery';
+
 @Component({
   selector: 'app-file',
   templateUrl: './file.component.html',
@@ -11,6 +13,7 @@ export class FileComponent implements OnInit {
 
   @Input() file : File = new File();
   @Input() selected: boolean = false;
+  @Input() username: string = '';
 
   isEdit : Boolean = false;
 
@@ -33,7 +36,13 @@ export class FileComponent implements OnInit {
 
   saveChanges() {
     let newText = (<HTMLParagraphElement>document.getElementById("text-id")).innerHTML;
-    console.log(newText);
+
+    if(newText == this.file.text) {
+      // send to edit file
+      let route = this.file.route + '/' + this.file + '.' + this.file.FileExtension;
+      WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.username, path:route, text:newText}));
+    }
+    document.getElementById('btn-close').click();
   }
 
 }

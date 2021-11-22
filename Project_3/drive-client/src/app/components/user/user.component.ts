@@ -23,7 +23,6 @@ export class UserComponent implements OnInit {
 
   login(form: NgForm) {
     if (form.invalid) { return; }
-
     this.webSocket.connect()
       .then((data: any) => {
           
