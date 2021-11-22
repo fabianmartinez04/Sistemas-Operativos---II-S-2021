@@ -85,49 +85,168 @@ public class FileSystemController {
 
     @MessageMapping("/create-folder")
     public void createNewFolder(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.createdFolder(obj.get("name").toString(),obj.get("path").toString());
 
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
     }
 
     @MessageMapping("/create-file")
     public void createNewFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.createdFile(obj.get("name").toString(),obj.get("path").toString(),obj.get("text").toString());
+
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
 
     }
 
     @MessageMapping("/delete-folder")
     public void deteleFolder(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.deleteFolder(obj.get("path").toString());
 
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
     }
-
 
     @MessageMapping("/delete-file")
     public void deleteFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.deleteFile(obj.get("path").toString());
+
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
+
 
     }
 
     @MessageMapping("/move-folder")
     public void moveFolder(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.moveFolder(obj.get("path").toString(),obj.get("newPath").toString());
+
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
 
     }
 
     @MessageMapping("/move-file")
     public void moveFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.moveFile(obj.get("path").toString(),obj.get("newPath").toString());
+
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
 
     }
 
     @MessageMapping("/copy-folder")
     public void copyFolder(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.copyFolder(obj.get("path").toString(),obj.get("newPath").toString());
+            System.out.println("CopyFolder SUCCESS");
+        }catch (Exception e) {
+            System.out.println("CopyFolder ERROR");
+        }
 
     }
 
     @MessageMapping("/copy-file")
     public void copyFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.copyFile(obj.get("path").toString(),obj.get("newPath").toString());
 
+
+            System.out.println("CopyFile SUCCESS");
+
+        }catch (Exception e) {
+            System.out.println("CopyFile ERROR");
+        }
     }
 
 
     @MessageMapping("/edit-file")
     public void editFile(@Payload JSONObject obj) {
-
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.editFile(obj.get("name").toString(),obj.get("path").toString(),obj.get("text").toString());
+            System.out.println("EditFile SUCCESS");
+        }catch (Exception e) {
+            System.out.println("EditFile ERROR");
+        }
     }
 
 
