@@ -9,12 +9,41 @@
 				"type": "file",
 				"extension": "txt",
 				"name": "file 1",
-				"dateCreated": "date()",
-				"modifiedCreated": "data",
+				"dateCreated": "Sunday, ‎November ‎14, ‎2021, ‏‎10:05:26 PM",
+				"dateModified": "Sunday, ‎November ‎14, ‎2021, ‏‎10:10:26 PM",
 				"size": 0.010
 				"route": "fileSystem/MyFiles"
-				"text": "notas....",
+				"text": "archivo dentro del folder raiz"
 			},
+			{
+				"type": "folder",
+				"name": "folder 1",
+				"dateCreated": "Sunday, ‎November ‎14, ‎2021, ‏‎10:05:26 PM",
+				"children" : [
+							{
+								"type": "file",
+								"extension": "txt",
+								"name": "file 1",
+								"dateCreated": "Sunday, ‎November ‎14, ‎2021, ‏‎10:12:26 PM",
+								"dateModified": "Sunday, ‎November ‎14, ‎2021, ‏‎10:07:26 PM",
+								"size": 0.010
+								"route": "fileSystem/MyFiles/folder 1"
+								"text": "archivo dentro del folder 1"
+							},
+							{
+								"type": "file",
+								"extension": "txt",
+								"name": "file 2",
+								"dateCreated": "Sunday, ‎November ‎14, ‎2021, ‏‎10:12:26 PM",
+								"dateModified": "Sunday, ‎November ‎14, ‎2021, ‏‎10:06:26 PM",
+								"size": 0.010
+								"route": "fileSystem/MyFiles/folder 1"
+								"text": "archivo dentro del folder 1"
+							}
+							]
+				"size": "0.010",
+				"route": "fileSystem/MyFiles"
+			}
 		]
 	},
 	"username":"pablo"

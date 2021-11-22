@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'src/app/models/user';
 import { File } from 'src/app/models/file';
 import { WebSocketService } from 'src/app/services/web-socket.service';
+import { Handler } from 'src/app/models/handler';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class DashboardComponent implements OnInit {
   selectedItem : number = -1;
   path:string= 'MyFiles';
   fileSystem: JSON;
+  private handler : Handler = new Handler;
 
   constructor(private router: Router, private activatedRouter : ActivatedRoute, private websocket: WebSocketService) {
   }
@@ -49,31 +51,26 @@ export class DashboardComponent implements OnInit {
 
   loadFiles(msg: any) {
    let data = JSON.parse(msg.body);
-      if (data.code == 200) {
+      if (data.status == 200) {
         this.fileSystem = data.data;
-        console.log(this.fileSystem )
+        this.files = this.handler.loadFileOfPath(this.fileSystem);
       } else {
         console.log(data.data);
       }
   }
 
   loadPersonalFiles() {
+    this.selectedItem = -1;
     this.personalFiles = true;
     this.path = 'MyFiles';
     WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
   }
 
   loadSharedFiles() {
+    this.selectedItem = -1;
     this.personalFiles = false;
     this.path = 'SharedFiles';
     WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
-  }
-
-  openFile(fileIndex: number) {
-    if(this.files[fileIndex].type == "folder") {
-      this.path = this.path + '/'+ this.files[fileIndex].fileName;
-    }
-    console.log("this is dobule click");
   }
 
   goBack() {
