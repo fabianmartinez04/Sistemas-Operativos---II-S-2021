@@ -5,27 +5,67 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 
 public class FileSystem {
     private JSONObject fileSystem;
 
+    public JSONObject getFileSystem() {
+        return fileSystem;
+    }
+
+    public void setFileSystem(JSONObject fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
+    public FileSystem(){};
+
+    public JSONObject getFileSystem(String username, Integer size,Boolean isNew) throws  Exception{
+        JSONObject file;
+        if (isNew) {
+            this.fileSystem = new JSONObject();
+            this.fileSystem.put("My files", new JSONObject());
+            this.fileSystem.put("Shared files", new JSONObject());
+            // create a filesystem
+            file = new JSONObject();
+            file.put("username", username);
+            file.put("size", size);
+
+            JSONObject aux = new JSONObject();
+            aux.put("children", new JSONArray());
+            file.put("MyFiles", aux);
+
+            aux = new JSONObject();
+            aux.put("children", new JSONArray());
+            file.put("SharedFiles", aux);
 
 
-    public FileSystem(){
-        this.fileSystem = new JSONObject();
-        this.fileSystem.put("My files", new JSONObject());
-        this.fileSystem.put("Shared files", new JSONObject());
-    };
+            File f = new File(  "FileSystems",username + ".json");
+            if (f.exists()) {
+                throw new Exception("File already exist, please try again");
+            } else {
+                FileWriter writer = new FileWriter("src/FileSystems/" + username + ".json");
+                writer.write(file.toJSONString());
+                writer.close();
+            }
+        } else {
+            try {
+                JSONParser parser = new JSONParser();
+                FileReader reader = new FileReader("src/FileSystems/" + username + ".json");
+                Object obj = parser.parse(reader);
+                file = (JSONObject) obj;
+                reader.close();
+            } catch (ParseException e) {
+                System.err.println("Error at: " + e.getPosition() + " message: " + e.getMessage());
+                throw new Exception("File system no found");
+            }
 
-    public FileSystem(String fileSystem) {
-        JSONParser parser = new JSONParser();
-        try {
-            Object object = parser.parse(fileSystem);
-            this.fileSystem = (JSONObject)object;
-        } catch (ParseException e) {
-            System.err.println("Error at: " + e.getPosition() + " message: " + e.getMessage());
         }
+        return  file;
     };
 
     //
@@ -70,9 +110,9 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         folder = (JSONObject) obj;
+        System.out.println(folder);
 
         for (int i = 1; i < foldersName.length; i++) {
-
             obj = folder.get("children");
             children = (JSONArray) obj;
 
@@ -84,11 +124,10 @@ public class FileSystem {
                     return folder;
                 }
 
-
             }
 
         }
-        return null;
+        return folder;
     };
 
     // Fabián

@@ -11,13 +11,16 @@ import { WebSocketService } from 'src/app/services/web-socket.service';
 })
 export class DashboardComponent implements OnInit {
 
+
   user:User;
   files: File[] = [];
   personalFiles:boolean = true;
   selectedItem : number = -1;
-  path:string= 'My files';
+  path:string= 'MyFiles';
+  fileSystem: JSON;
 
-  constructor(private router: Router, private activatedRouter : ActivatedRoute, private websocket: WebSocketService) { }
+  constructor(private router: Router, private activatedRouter : ActivatedRoute, private websocket: WebSocketService) {
+  }
 
   ngOnInit(): void {
     this.user = new User();
@@ -25,15 +28,12 @@ export class DashboardComponent implements OnInit {
       this.user.username = params['username'];
 
       // call a service to get files of directory
+      this.websocket.loadFiles(this.user.username, this)
+        .then((data:any) => {
+          WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
+        });
+
     })
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files[0].test("Folder 1","folder");
-    this.files[1].test("File 1","file");
-    this.files[2].test("Folder 2","folder");    
-    this.files[3].test("Folder 3","folder");
   }
 
 
@@ -47,14 +47,24 @@ export class DashboardComponent implements OnInit {
       })
   }
 
-  loadPersoonalFiles() {
+  loadFiles(msg: any) {
+   let data = JSON.parse(msg.body);
+      if (data.code == 200) {
+        this.fileSystem = data.data;
+        console.log(this.fileSystem )
+      } else {
+        console.log(data.data);
+      }
+  }
+
+  loadPersonalFiles() {
     this.personalFiles = true;
-    this.path = 'My Files';
+    this.path = 'MyFiles';
   }
 
   loadSharedFiles() {
     this.personalFiles = false;
-    this.path = 'Shared Files';
+    this.path = 'SharedFiles';
   }
 
   openFile(fileIndex: number) {

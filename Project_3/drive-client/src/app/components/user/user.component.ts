@@ -24,11 +24,12 @@ export class UserComponent implements OnInit {
   login(form: NgForm) {
     if (form.invalid) { return; }
 
-    this.webSocket.connect(this.user.username)
+    this.webSocket.connect()
       .then((data: any) => {
           
-          WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg:JSON) => {
-            if (msg['status'] == 200) {
+          WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg:any) => {
+            let obj = JSON.parse(msg.body)
+            if (obj.status == 200) {
               this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
               WebSocketService.stompClient.unsubscribe('/queue/login-' + this.user.username);
             } else {

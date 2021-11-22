@@ -20,17 +20,72 @@ import java.util.Date;
 public class FileSystemController {
     @Autowired
     SimpMessagingTemplate sender;
+    private FileSystem fileSystem = new FileSystem();
 
     @MessageMapping("/login")
    // @SendTo()
     public void validateUserFileSystem(@Payload JSONObject obj) {
         // look for username file system existing
+        try {
+            fileSystem.getFileSystem(obj.get("username").toString(), 0,false);
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data", new JSONObject());
+            sender.convertAndSend("/queue/login-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", "User no found");
+            sender.convertAndSend("/queue/login-" + obj.get("username"), out.toJSONString());
+        }
+
         JSONObject out = new JSONObject();
         out.put("status", 200);
         out.put("data", new JSONObject());
-        sender.convertAndSend("/queue/login-" + obj.get("username"), out.toJSONString());
-        //return out.toJSONString();
+
     }
+
+    @MessageMapping("/loadFiles")
+    public void sendFilesToClient(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0,Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
+    }
+
+
+    @MessageMapping("/create-drive")
+    public void createNewDrive(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), Integer.parseInt(obj.get("size").toString()), Boolean.TRUE);
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/create-drive-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/create-drive-" + obj.get("username"), out.toJSONString());
+        }
+    }
+
+
+
+
+
+
+
 
     @MessageMapping("/news")
     @SendTo("/topic/news")

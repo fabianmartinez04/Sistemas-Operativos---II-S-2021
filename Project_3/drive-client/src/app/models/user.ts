@@ -6,6 +6,6 @@ export class User {
     constructor(){
         this.id = '';
         this.username = '';
-        this.size = 0;
+        this.size;
     }
 }
