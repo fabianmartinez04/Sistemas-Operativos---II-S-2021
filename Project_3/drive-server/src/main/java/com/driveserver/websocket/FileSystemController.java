@@ -108,7 +108,7 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
-            fileSystem.createdFile(obj.get("name").toString(),obj.get("path").toString(),obj.get("text").toString());
+            fileSystem.createdFile(obj.get("name").toString(), obj.get("extension").toString(),obj.get("path").toString(),obj.get("text").toString());
 
             userFileSystem = fileSystem.getFolder(obj.get("path").toString());
             JSONObject out = new JSONObject();

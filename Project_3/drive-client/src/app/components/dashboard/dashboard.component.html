@@ -107,10 +107,8 @@
             </div>
         </div>
     </div>
-    <app-create-file [username]= "user.username" [route]="path" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
-    <app-create-folder [username]= "user.username" [route]="path" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
-</div>
 
+</div>
 
 <app-move id="offcanvasMove" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
 
@@ -121,6 +119,10 @@
 <app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-vr>
 
 <app-copy-rv id="CopyRVModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-rv>
+
+<app-create-file [username]= "user.username" [route]="path" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
+
+<app-create-folder [username]= "user.username" [route]="path" [files]="files" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
 
 
 

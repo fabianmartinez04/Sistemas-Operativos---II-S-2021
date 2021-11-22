@@ -1,4 +1,4 @@
-<div class="modal-dialog modal-lg modal-dialog-centered">
+<div id="modalFile" class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">Create File</h5>
@@ -8,7 +8,7 @@
             <div class="modal-body">
 
                 <div>
-                    <input class="fs-3" type="text" name="filename" [(ngModel)]="file.fileName" required
+                    <input class="fs-5" type="text" name="filename" [(ngModel)]="file.fileName" required
                         placeholder="Name" style="height: 50px;">
                 </div>
                 <span *ngIf="form.submitted && form.controls['filename'].errors" class="text-danger d-block">Please,
@@ -16,24 +16,23 @@
                 <br>
 
                 <div class="input-group">
-                    <input class="fs-3" type="text" name="extension" [(ngModel)]="file.FileExtension" required
+                    <input class="fs-5" type="text" name="extension" [(ngModel)]="file.FileExtension" required
                         placeholder="Extension" style="height: 50px;">
                 </div>
                 <span *ngIf="form.submitted && form.controls['extension'].errors" class="text-danger d-block">Please,
                     Enter a file extension</span>
                 <br>
-
+                <span class="fw-boder fs-4">Content</span>
                 <div>
-                    <span class="fw-boder fs-4">Content</span>
-                    <p contenteditable="true" id="text-id" style="min-height: 400px;" [(ngModel)]="file.text"></p>
+                    <textarea class="w-100" id="content-id" style="min-height: 300px;"></textarea>
                 </div>
-                <span *ngIf="form.submitted && form.controls['extension'].errors" class="text-danger d-block">Please,
+                <span *ngIf="textTouched" class="text-danger d-block">Please,
                     Enter a file content</span>
                 <br>
 
             </div>
             <div class="modal-footer">
-                <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="btn-close-file-modal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <input type="submit" class="btn btn-primary" value="Save file">
             </div>
         </form>

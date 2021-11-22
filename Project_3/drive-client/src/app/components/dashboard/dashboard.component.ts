@@ -13,26 +13,26 @@ import { Handler } from 'src/app/models/handler';
 export class DashboardComponent implements OnInit {
 
 
-  user:User;
+  user: User;
   files: File[] = [];
-  personalFiles:boolean = true;
-  selectedItem : number = -1;
-  path:string= 'MyFiles';
+  personalFiles: boolean = true;
+  selectedItem: number = -1;
+  path: string = 'MyFiles';
   fileSystem: JSON;
-  private handler : Handler = new Handler;
+  private handler: Handler = new Handler;
 
-  constructor(private router: Router, private activatedRouter : ActivatedRoute, private websocket: WebSocketService) {
+  constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService) {
   }
 
   ngOnInit(): void {
     this.user = new User();
-    this.activatedRouter.params.subscribe((params:any)=> {
+    this.activatedRouter.params.subscribe((params: any) => {
       this.user.username = params['username'];
 
       // call a service to get files of directory
       this.websocket.loadFiles(this.user.username, this)
-        .then((data:any) => {
-          WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
+        .then((data: any) => {
+          WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
         });
 
     })
@@ -40,42 +40,36 @@ export class DashboardComponent implements OnInit {
 
 
   exit() {
-    this.websocket.disconnect()
-      .then((data:any)=>{
-        this.router.navigateByUrl('/user-login');
-      })
-      .catch((data) => {
-        
-      })
+    this.router.navigateByUrl('/user-login');
   }
 
   loadFiles(msg: any) {
-   let data = JSON.parse(msg.body);
-      if (data.status == 200) {
-        this.fileSystem = data.data;
-        this.files = this.handler.loadFileOfPath(this.fileSystem);
-      } else {
-        console.log(data.data);
-      }
+    let data = JSON.parse(msg.body);
+    if (data.status == 200) {
+      this.fileSystem = data.data;
+      this.files = this.handler.loadFileOfPath(this.fileSystem);
+    } else {
+      console.log(data.data);
+    }
   }
 
   loadPersonalFiles() {
     this.selectedItem = -1;
     this.personalFiles = true;
     this.path = 'MyFiles';
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
   }
 
   loadSharedFiles() {
     this.selectedItem = -1;
     this.personalFiles = false;
     this.path = 'SharedFiles';
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:this.path}))
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
   }
 
   goBack() {
-    let files : string[] = this.path.split('/');
-    if(files.length == 1){return;}
+    let files: string[] = this.path.split('/');
+    if (files.length == 1) { return; }
     files.pop();
     this.path = files.join('/');
   }

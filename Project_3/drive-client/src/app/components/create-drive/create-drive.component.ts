@@ -16,8 +16,6 @@ export class CreateDriveComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = new User();
-
-    this.webSocket.connect();
   }
 
 

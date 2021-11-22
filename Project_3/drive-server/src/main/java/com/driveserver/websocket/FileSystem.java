@@ -136,7 +136,7 @@ public class FileSystem {
 
     // Fabián
     // name.txt
-    public void createdFile(String name, String route, String text) throws Exception{
+    public void createdFile(String name, String extension, String route, String text) throws Exception{
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -144,12 +144,32 @@ public class FileSystem {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
-        String[] fileName = name.split(".");
         String[] foldersName = route.split("/");
 
         size = text.length();
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
+
+        if (foldersName.length == 1) {
+            System.out.println("FILE SYSTEM 1: " + fileSystem.toJSONString());
+            JSONObject newFile = new JSONObject();
+            newFile.put("type","file");
+            System.out.println("FILE SYSTEM 2: " + fileSystem.toJSONString());
+            newFile.put("extension", extension);
+            newFile.put("name", name);
+            System.out.println("FILE SYSTEM 3: " + fileSystem.toJSONString());
+            newFile.put("dateCreated",(formatter.format(date)).toString());
+            newFile.put("modifiedCreated",(formatter.format(date)).toString());
+            newFile.put("size",String.valueOf(size));
+            newFile.put("route",route);
+            newFile.put("text",text);
+
+            Object obj2  = file.get("children");
+            JSONArray list = (JSONArray)obj2;
+            list.add(newFile);
+            file.replace("children",list);
+            return;
+        }
 
         for (int i = 1; i < foldersName.length; i++) {
 
@@ -163,8 +183,8 @@ public class FileSystem {
 
                     JSONObject newFile = new JSONObject();
                     newFile.put("type","file");
-                    newFile.put("extension",fileName[1]);
-                    newFile.put("name",fileName[0]);
+                    newFile.put("extension",extension);
+                    newFile.put("name",name);
                     newFile.put("dateCreated",(formatter.format(date)).toString());
                     newFile.put("modifiedCreated",(formatter.format(date)).toString());
                     newFile.put("size",String.valueOf(size));

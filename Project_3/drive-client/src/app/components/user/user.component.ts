@@ -23,25 +23,18 @@ export class UserComponent implements OnInit {
 
   login(form: NgForm) {
     if (form.invalid) { return; }
-    this.webSocket.connect()
-      .then((data: any) => {
-          
-          WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg:any) => {
-            let obj = JSON.parse(msg.body)
-            if (obj.status == 200) {
-              this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
-              WebSocketService.stompClient.unsubscribe('/queue/login-' + this.user.username);
-            } else {
-              console.log('ERROR');
-            }
-          })
-      })
-      .finally(() => {
-        WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({username:this.user.username}))
-      })
-      .catch((msg: any) => {
-        console.log(msg);
-      })
+
+    WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg: any) => {
+      let obj = JSON.parse(msg.body)
+      if (obj.status == 200) {
+        this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
+        WebSocketService.stompClient.unsubscribe('/queue/login-' + this.user.username);
+      } else {
+        console.log('ERROR');
+      }
+    })
+    WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({ username: this.user.username }))
+
   }
 
 }

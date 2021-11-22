@@ -1,12 +1,12 @@
 <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Create folder</h5>
+            <h5 class="modal-title fs-3" id="staticBackdropLabel">Create folder</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <form class="validate-form" (ngSubmit)="createFolder(form)" #form="ngForm">
             <div class="modal-body">
-
+                <span class="text fs-5">Enter a folder name</span>
                 <div>
                     <input class="fs-3" type="text" name="filename" [(ngModel)]="file.fileName" required
                         placeholder="Name" style="height: 50px;">
@@ -18,7 +18,7 @@
             </div>
             <div class="modal-footer">
                 <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-primary" value="Save file" data-bs-dismiss="modal">
+                <input type="submit" class="btn btn-primary" value="Create folder">
             </div>
         </form>
     </div>

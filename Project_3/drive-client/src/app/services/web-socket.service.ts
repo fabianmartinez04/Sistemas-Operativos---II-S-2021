@@ -43,16 +43,16 @@ export class WebSocketService {
 
   loadFiles(username:string, dashboard: DashboardComponent) {
     return new Promise((resolve) => {
-      WebSocketService.stompClient.subscribe(`/queue/files-${username}`, (msg:any)=> {
-        dashboard.loadFiles(msg);
-      });
-      resolve({status:200,data:{}});
-    })
+        WebSocketService.stompClient.subscribe(`/queue/files-${username}`, (msg:any)=> {
+          dashboard.loadFiles(msg);
+        });
+        resolve({status:200,data:{}});
+      })
+
   }
 
 
   createDriveSubscribe(username:string, component:CreateDriveComponent) {
-    console.log(WebSocketService.stompClient)
     WebSocketService.stompClient.subscribe(`/queue/create-drive-${username}`, (msg:any) => {
       component.validateUser(msg);
     })
