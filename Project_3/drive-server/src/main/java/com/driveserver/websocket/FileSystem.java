@@ -672,8 +672,7 @@ public class FileSystem {
     };
     //Liseth
     public JSONObject getSharedFiles(JSONObject actualFileSystem) {
-        // File system used in client
-        JSONObject clientFileSystem = new JSONObject();
+
         //username file system
         JSONObject targetFileSystem;
         JSONObject sharedFiles;
@@ -716,7 +715,9 @@ public class FileSystem {
                 }
                 newChildren.add(sharedFile);
             }
-            clientFileSystem.put("children",newChildren);
+            sharedFiles.replace("children",newChildren);
+            actualFileSystem.replace("SharedFiles",sharedFiles);
+
             this.setFileSystem(actualFileSystem);
 
         }
@@ -724,7 +725,8 @@ public class FileSystem {
             System.out.println("getSharedFiles ERROR");
 
         }
-        return clientFileSystem;
+        System.out.println(actualFileSystem.toJSONString());
+        return actualFileSystem;
     }
 
 }
