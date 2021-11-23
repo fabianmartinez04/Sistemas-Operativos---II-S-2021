@@ -110,19 +110,19 @@
 
 </div>
 
-<app-move id="offcanvasMove" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
+<app-move (click)="selectedItem = -1" id="offcanvasMove" [username]= "user.username" [file]="files[selectedItem]" [fileSystem]="fileSystem" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
 
-<app-copy id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
+<app-copy (click)="selectedItem = -1" id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
 
-<app-shared id="SharedModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
+<app-shared (click)="selectedItem = -1" id="SharedModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-shared>
 
-<app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-vr>
+<app-copy-vr (click)="selectedItem = -1" id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
 
-<app-copy-rv id="CopyRVModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-rv>
+<app-copy-rv (click)="selectedItem = -1" id="CopyRVModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
 
-<app-create-file [username]= "user.username" [route]="pathSelected" [files]="files" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
+<app-create-file (click)="selectedItem = -1" [username]= "user.username" [route]="pathSelected" [files]="files" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
 
-<app-create-folder [username]= "user.username" [route]="pathSelected" [files]="files" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
+<app-create-folder (click)="selectedItem = -1" [username]= "user.username" [route]="pathSelected" [files]="files" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
 
 
 

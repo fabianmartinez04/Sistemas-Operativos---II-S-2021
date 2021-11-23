@@ -7,10 +7,9 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class MoveComponent implements OnInit {
 
-  @Input() route: string = '';
-  @Input() type: string= '';
+  @Input() file: any;
   @Input() username : string = '';
-  @Input() FileSystem: any = null;
+  @Input() fileSystem: any = null;
   
   folders : any[] = [];
 
@@ -18,7 +17,7 @@ export class MoveComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.folders = this.FileSystem.MyFiles.children;
+    // this.folders = this.fileSystem.MyFiles.children;
   }
 
 

@@ -1,58 +1,58 @@
-<div class="card card-bg m-2 p-2 border-0" (dblclick)="openFile()"
-    [ngClass]="{'file-selected': selected}">
-    <div class="row text-white">
-        <div class="col-4">
-            <div class="row">
-                <div class="col-1">
-                    <i *ngIf="file.type == 'file'" class="fas fa-file fa-2x text-center text-white"></i>
-                    <i *ngIf="file.type == 'folder'" class="text-center fas fa-folder fa-2x folder-bg"></i>
-                </div>
-                <div class="col my-auto">
-                    <p class="ms-1 card-text text-white">{{file.fileName}}</p>
-                </div>
-            </div>
+<div class="card card-bg m-2 p-2 border-0" (dblclick)="openFile()" [ngClass]="{'file-selected': selected}">
+  <div class="row text-white">
+    <div class="col-4">
+      <div class="row">
+        <div class="col-1">
+          <i *ngIf="file.type == 'file'" class="fas fa-file fa-2x text-center text-white"></i>
+          <i *ngIf="file.type == 'folder'" class="text-center fas fa-folder fa-2x folder-bg"></i>
         </div>
-        <div class="col-2">
-            <span>{{file.FileExtension}}</span>
-        </div>
-        <div class="col-2">
-            <span>{{file.dateCreated}}</span>
-        </div>
-        <div class="col-2">
-            <span>{{file.dateModified}}</span>
-        </div>
-        <div class="col-2">
-            <span>{{file.size}}</span>
-        </div>  
-    </div>
-</div>
-
-
-<!-- Button trigger modal -->
-<button id='btn-showText' type="button" hidden class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-    Launch static backdrop modal
-  </button>
-  
-  <!-- Modal -->
-  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">{{file.fileName}}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div>
-              <p contenteditable="true" id="text-id" style="min-height: 400px;">
-                  {{file.text}}
-              </p>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" (click)="saveChanges()">Save file</button>
+        <div class="col my-auto">
+          <p class="ms-1 card-text text-white">{{file.fileName}}</p>
         </div>
       </div>
     </div>
+    <div class="col-2">
+      <span>{{file.FileExtension}}</span>
+    </div>
+    <div class="col-2">
+      <span>{{file.dateCreated}}</span>
+    </div>
+    <div class="col-2">
+      <span>{{file.dateModified}}</span>
+    </div>
+    <div class="col-2">
+      <span>{{file.size}}</span>
+    </div>
   </div>
-  
+</div>
+
+
+
+<!-- Button trigger modal -->
+<button  type="button" hidden class="btn btn-primary" data-bs-toggle="modal"
+  data-bs-target="#staticBackdrop">
+</button>
+
+<!-- Modal -->
+<div class="modal-dialog modal fade" id="staticBackdrop" tabindex="-1"
+aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">{{file.fileName}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <p contenteditable="true" id="text-id" style="min-height: 400px;">
+            {{file.text}}
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="saveChanges()">Save file</button>
+      </div>
+    </div>
+  </div>
+</div>

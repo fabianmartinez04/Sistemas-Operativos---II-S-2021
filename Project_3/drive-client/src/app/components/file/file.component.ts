@@ -3,6 +3,7 @@ import { File } from 'src/app/models/file';
 import { WebSocketService } from 'src/app/services/web-socket.service';
 
 import $ from 'jquery';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-file',
@@ -20,6 +21,7 @@ export class FileComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    
   }
 
 
@@ -42,7 +44,6 @@ export class FileComponent implements OnInit {
       let route = this.file.route + '/' + this.file.fileName + '/' + this.file + '.' + this.file.FileExtension;
       WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.username, path:route, text:newText}));
     }
-    document.getElementById('btn-close').click();
   }
 
 }

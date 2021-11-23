@@ -6,6 +6,7 @@ import { WebSocketService } from 'src/app/services/web-socket.service';
 import { Handler } from 'src/app/models/handler';
 
 import $ from 'jquery';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,11 +22,12 @@ export class DashboardComponent implements OnInit {
   selectedItem: number = -1;
   path: string = 'MyFiles';
   fileSystem: any;
-  pathSelected:string = 'MyFiles';
-  
+  pathSelected: string = 'MyFiles';
+  modalShow:boolean = false;
+
   private handler: Handler = new Handler;
 
-  constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService) {
+  constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService, private utilService : UtilService) {
   }
 
   ngOnInit(): void {
@@ -38,7 +40,6 @@ export class DashboardComponent implements OnInit {
         .then((data: any) => {
           WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
         });
-
     })
   }
 
@@ -52,10 +53,12 @@ export class DashboardComponent implements OnInit {
     if (data.status == 200) {
       this.fileSystem = data.data;
       this.files = this.handler.loadFileOfPath(this.fileSystem);
+      this.path = this.fileSystem.route
+      
       if (this.fileSystem.name != null) {
-        this.path = this.path + '/' + this.fileSystem.name
-        this.pathSelected = this.path;
+        this.path = this.path + '/' + this.fileSystem.name;
       }
+      this.pathSelected = this.path;
     } else {
       console.log(data.data);
     }
@@ -91,11 +94,11 @@ export class DashboardComponent implements OnInit {
     var r = confirm(`Are you sure?`);
     if (r == true) {
       let route = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
-      if(this.files[this.selectedItem].type == 'file') {
+      if (this.files[this.selectedItem].type == 'file') {
         route = route + '.' + this.files[this.selectedItem].FileExtension;
-        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({username:this.user.username,  path: route, pathFiles: this.path}));
+        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({ username: this.user.username, path: route, pathFiles: this.path }));
       } else {
-        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({username:this.user.username,  path: route, pathFiles: this.path}));
+        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({ username: this.user.username, path: route, pathFiles: this.path }));
       }
     } else {
       return;
@@ -103,8 +106,9 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  changeFileSelected(index:number) {
-    if($('.modal.in, .modal.show').length) {return;}
+  changeFileSelected(index: number) {
+
+    if($('.modal.show').length){return;}
     if (this.selectedItem == index) {
       this.selectedItem = -1;
       let files: string[] = this.pathSelected.split('/');
@@ -112,7 +116,7 @@ export class DashboardComponent implements OnInit {
       files.pop();
       this.pathSelected = files.join('/');
     }
-    else{
+    else {
       this.selectedItem = index
       if (this.files[this.selectedItem].type == 'folder') {
         this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName
