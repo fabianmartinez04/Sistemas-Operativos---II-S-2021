@@ -250,6 +250,19 @@ public class FileSystemController {
         }
     }
 
+    @MessageMapping("/share-file")
+    public void shareFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.shareFile(obj.get("username").toString(),obj.get("usertoshare").toString(),obj.get("path").toString());
+            System.out.println("shareFile SUCCESS");
+        }catch (Exception e) {
+            System.out.println("shareFile ERROR");
+        }
+    }
+
+
 
 
 

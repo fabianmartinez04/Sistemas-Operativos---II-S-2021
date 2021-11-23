@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   fileSystem: any;
   pathSelected: string = 'MyFiles';
   modalShow:boolean = false;
+  fileToOpen: File = new File();
 
   private handler: Handler = new Handler;
 
@@ -126,6 +127,33 @@ export class DashboardComponent implements OnInit {
     }
     console.log(this.files[this.selectedItem], '\n')
     console.log(this.pathSelected)
+  }
+
+
+  openFile(file:File) {
+    if (file.type == 'folder') {
+      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
+    }
+    // type file
+    else {
+      this.fileToOpen = file;
+      document.getElementById('btn-showText').click();
+    }
+  }
+
+  
+
+  saveChanges() {
+    
+    let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
+    console.log("SE LLAMA")
+
+    if(newText != this.fileToOpen.text) {
+      // send to edit file
+      let route = this.fileToOpen.route + '/' + this.fileToOpen.fileName +'.' + this.fileToOpen.FileExtension;
+      WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.user.username, path:route, text:newText}));
+    }
+    document.getElementById('btn-close').click();
   }
 
 }

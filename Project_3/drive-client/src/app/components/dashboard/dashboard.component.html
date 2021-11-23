@@ -101,7 +101,8 @@
                     </div>
                     <div class="file" *ngFor="let file of files; let index = index"
                         [ngClass]="{'file-selected': selectedItem == index}" 
-                        (click)="changeFileSelected(index)">
+                        (click)="changeFileSelected(index)"
+                        (dblclick)="openFile(file)">
                         <app-file [file]="file" [selected]="index == selectedItem" [username]= "user.username"></app-file>
                     </div>
             </div>
@@ -114,7 +115,7 @@
 
 <app-copy (click)="selectedItem = -1" id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
 
-<app-shared (click)="selectedItem = -1" id="SharedModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-shared>
+<app-shared id="SharedModal" [username]= "user.username" [file]= "files[selectedItem]" class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
 
 <app-copy-vr (click)="selectedItem = -1" id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
 
@@ -126,3 +127,29 @@
 
 
 
+<!-- Button trigger modal -->
+
+<button id='btn-showText' type="button" hidden class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    Launch static backdrop modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">{{fileToOpen.fileName}}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div>
+            <textarea class="w-100" id="text-id" style="min-height: 300px;"> {{fileToOpen.text}}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="saveChanges()">Save file</button>
+        </div>
+      </div>
+    </div>
+  </div>

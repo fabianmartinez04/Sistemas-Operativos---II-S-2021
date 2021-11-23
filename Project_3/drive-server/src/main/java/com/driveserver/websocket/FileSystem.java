@@ -6,6 +6,7 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
 
+import javax.swing.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 
@@ -97,7 +98,9 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
+                    System.out.println(file.toJSONString() + foldersName[i]);
                     if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
+
                         return file;
                     }
                 }
@@ -699,15 +702,17 @@ public class FileSystem {
                 path = sharedFile.get("path").toString().split("/");
 
                 targetFileSystem = getFileSystem(path[0],0,false);
+
                 this.setFileSystem(targetFileSystem);
 
                 //Delete username/myfiles/notas.txt from path
-                route = sharedFile.get("path").toString().substring(sharedFile.get("path").toString().indexOf(path[0]+"/")+1);
+                route = sharedFile.get("path").toString().substring(sharedFile.get("path").toString().indexOf("/")+1);
 
                 route.trim();
 
                 if(path[path.length-1].contains(".")){
                     sharedFile = this.getFile(route);
+
 
                 }
                 else{
@@ -725,8 +730,38 @@ public class FileSystem {
             System.out.println("getSharedFiles ERROR");
 
         }
-        System.out.println(actualFileSystem.toJSONString());
+    //    System.out.println(actualFileSystem.toJSONString());
         return actualFileSystem;
+    }
+    public void shareFile(String username,String usertoshare,String path){
+        JSONObject actualFileSystem = this.fileSystem;
+        JSONObject sharedFiles;
+        JSONArray children;
+        JSONObject newSharedFile= new JSONObject();
+        JSONObject usernameFileSystem;
+        try{
+
+            JSONParser parser = new JSONParser();
+            FileReader reader = new FileReader("src/FileSystems/" + usertoshare + ".json");
+            Object obj = parser.parse(reader);
+            usernameFileSystem = (JSONObject) obj;
+
+            sharedFiles = (JSONObject) usernameFileSystem.get("SharedFiles");
+            children = (JSONArray) sharedFiles.get("children");
+            newSharedFile.put("path",username + "/" + path);
+            children.add(newSharedFile);
+            usernameFileSystem.replace("children",children);
+            this.setFileSystem(usernameFileSystem);
+            this.updateJson();
+            this.setFileSystem(actualFileSystem);
+
+            System.out.println("shareFile SUCCESS");
+
+        }
+        catch (Exception e){
+            System.out.println("shareFile ERROR");
+        }
+
     }
 
 }
