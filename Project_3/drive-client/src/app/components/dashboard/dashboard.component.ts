@@ -5,6 +5,8 @@ import { File } from 'src/app/models/file';
 import { WebSocketService } from 'src/app/services/web-socket.service';
 import { Handler } from 'src/app/models/handler';
 
+import $ from 'jquery';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -19,6 +21,8 @@ export class DashboardComponent implements OnInit {
   selectedItem: number = -1;
   path: string = 'MyFiles';
   fileSystem: any;
+  pathSelected:string = 'MyFiles';
+  
   private handler: Handler = new Handler;
 
   constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService) {
@@ -50,6 +54,7 @@ export class DashboardComponent implements OnInit {
       this.files = this.handler.loadFileOfPath(this.fileSystem);
       if (this.fileSystem.name != null) {
         this.path = this.path + '/' + this.fileSystem.name
+        this.pathSelected = this.path;
       }
     } else {
       console.log(data.data);
@@ -60,6 +65,7 @@ export class DashboardComponent implements OnInit {
     this.selectedItem = -1;
     this.personalFiles = true;
     this.path = 'MyFiles';
+    this.pathSelected = this.path;
     WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
@@ -67,6 +73,7 @@ export class DashboardComponent implements OnInit {
     this.selectedItem = -1;
     this.personalFiles = false;
     this.path = 'SharedFiles';
+    this.pathSelected = this.path;
     WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
@@ -75,13 +82,13 @@ export class DashboardComponent implements OnInit {
     if (files.length == 1) { return; }
     files.pop();
     this.path = files.join('/');
+    this.pathSelected = this.path
     WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
 
   removeFile() {
     var r = confirm(`Are you sure?`);
-    console.log(this.files[this.selectedItem])
     if (r == true) {
       let route = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
       if(this.files[this.selectedItem].type == 'file') {
@@ -93,6 +100,28 @@ export class DashboardComponent implements OnInit {
     } else {
       return;
     }
+  }
+
+
+  changeFileSelected(index:number) {
+    if($('.modal.in, .modal.show').length) {return;}
+    if (this.selectedItem == index) {
+      this.selectedItem = -1;
+      let files: string[] = this.pathSelected.split('/');
+      if (files.length == 1) { return; }
+      files.pop();
+      this.pathSelected = files.join('/');
+    }
+    else{
+      this.selectedItem = index
+      if (this.files[this.selectedItem].type == 'folder') {
+        this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName
+      } else {
+        this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName + '.' + this.files[this.selectedItem].FileExtension
+      }
+    }
+    console.log(this.files[this.selectedItem], '\n')
+    console.log(this.pathSelected)
   }
 
 }
