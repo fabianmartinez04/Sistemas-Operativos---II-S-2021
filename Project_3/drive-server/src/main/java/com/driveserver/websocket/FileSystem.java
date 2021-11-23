@@ -97,12 +97,12 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
-                    if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
+                    if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         return file;
                     }
                 }
                 else {
-                    if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                         break;
                     }
                 }
@@ -161,13 +161,11 @@ public class FileSystem {
         file = (JSONObject) obj;
 
         if (foldersName.length == 1) {
-            System.out.println("FILE SYSTEM 1: " + fileSystem.toJSONString());
+
             JSONObject newFile = new JSONObject();
             newFile.put("type","file");
-            System.out.println("FILE SYSTEM 2: " + fileSystem.toJSONString());
             newFile.put("extension", extension);
             newFile.put("name", name);
-            System.out.println("FILE SYSTEM 3: " + fileSystem.toJSONString());
             newFile.put("dateCreated",(formatter.format(date)).toString());
             newFile.put("modifiedCreated",(formatter.format(date)).toString());
             newFile.put("size",String.valueOf(size));
@@ -190,7 +188,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
 
                     if (i == foldersName.length - 1){
                         JSONObject newFile = new JSONObject();
@@ -208,6 +206,7 @@ public class FileSystem {
                         list.add(newFile);
                         file.replace("children",list);
                         updateJson();
+
                     }else{
                         break;
                     }
@@ -256,7 +255,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                     if(i == foldersName.length - 1) {
                         JSONObject newFolder = new JSONObject();
                         newFolder.put("type","folder");
@@ -295,7 +294,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[1]))) {
                     file.replace("text", text);
                     updateJson();
                     return file;
@@ -312,14 +311,14 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
-                    if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
+                    if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         file.replace("text", text);
                         updateJson();
                         return file;
                     }
                 }
                 else {
-                    if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                         break;
                     }
                 }
@@ -331,6 +330,7 @@ public class FileSystem {
 
     // Pablo
     public JSONObject deleteFile(String route) throws Exception {
+
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -341,6 +341,7 @@ public class FileSystem {
         file = (JSONObject) obj;
 
         if (foldersName.length == 2) {
+
             obj = file.get("children");
             children = (JSONArray) obj;
 
@@ -349,7 +350,9 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+
+                if ((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[1]))) {
+
                     // remove the file target from children
                     children.remove(file);
                     // add children again
@@ -372,7 +375,7 @@ public class FileSystem {
                 // add file to new children list
                 // if this folder is parent folder of the file to remove
                 if (i == foldersName.length - 1) {
-                    if (file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
+                    if ((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         // remove the file target from children
                         children.remove(file);
                         // add children again
@@ -381,7 +384,7 @@ public class FileSystem {
                         return file;
                     }
                 }
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                     break;
                 }
             }
@@ -412,7 +415,7 @@ public class FileSystem {
                 // add folder to new children list
                 // if this folder is parent folder of the folder to remove
 
-                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
+                if((folder.get("type").equals("folder")) && (folder.get("name").equals(foldersName[i])) && (i == foldersName.length - 1)) {
                     // remove the file target from children
                     children.remove(folder);
                     // add children again
@@ -445,7 +448,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[1]))) {
                     target = file;
                 }
             }
@@ -459,13 +462,13 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
-                    if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
+                    if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         target = file;
                         break;
                     }
                 }
                 else {
-                    if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                    if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                         break;
                     }
                 }
@@ -483,7 +486,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[1]))) {
                     Object obj2  = file.get("children");
                     JSONArray list = (JSONArray)obj2;
                     target.replace("route",newRoute);
@@ -501,7 +504,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                     if (i == foldersName.length-1) {
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
@@ -537,7 +540,7 @@ public class FileSystem {
                 obj = children.get(j);
                 folder = (JSONObject)obj;
 
-                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
+                if((folder.get("type").equals("folder")) && (folder.get("name").equals(foldersName[i])) && (i == foldersName.length - 1)) {
                     target = folder;
                     break;
                 }
@@ -555,7 +558,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 folder = (JSONObject)obj;
-                if(folder.get("type") == "folder" && folder.get("name") == foldersName[i]) {
+                if((folder.get("type").equals("folder")) && (folder.get("name").equals(foldersName[i])) && (i == foldersName.length - 1)) {
                     if (i == foldersName.length-1) {
                         Object obj2  = folder.get("children");
                         JSONArray list = (JSONArray)obj2;
@@ -594,7 +597,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[1]))) {
                     Object obj2  = file.get("children");
                     JSONArray list = (JSONArray)obj2;
                     target.replace("route", newRoute);
@@ -612,7 +615,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                     if (i == foldersName.length-1) {
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
@@ -651,7 +654,7 @@ public class FileSystem {
             for (int j = 0; j < children.size(); j++){
                 obj = children.get(j);
                 file = (JSONObject)obj;
-                if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
+                if((file.get("type").equals("folder")) && (file.get("name").equals(foldersName[i]))) {
                     if (i == foldersName.length-1) {
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
