@@ -673,7 +673,7 @@ public class FileSystem {
         JSONObject clientFileSystem = new JSONObject();
         //username file system
         JSONObject targetFileSystem;
-
+        JSONObject sharedFiles;
         JSONArray children;
 
         //All shared files uploaded
@@ -687,7 +687,8 @@ public class FileSystem {
         String route;
 
         try {
-            children = (JSONArray) actualFileSystem.get("children");
+            sharedFiles = (JSONObject) actualFileSystem.get("SharedFiles");
+            children = (JSONArray) sharedFiles.get("children");
 
             for (int i = 0; i < children.size(); i++){
                 //Get each shared file
