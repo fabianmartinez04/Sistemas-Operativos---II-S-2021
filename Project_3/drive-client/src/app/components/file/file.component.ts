@@ -35,11 +35,13 @@ export class FileComponent implements OnInit {
 
 
   saveChanges() {
-    let newText = (<HTMLParagraphElement>document.getElementById("text-id")).innerHTML;
+    
+    let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
+    console.log("SE LLAMA")
 
-    if(newText == this.file.text) {
+    if(newText != this.file.text) {
       // send to edit file
-      let route = this.file.route + '/' + this.file.fileName + '/' + this.file + '.' + this.file.FileExtension;
+      let route = this.file.route + '/' + this.file.fileName +'.' + this.file.FileExtension;
       WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.username, path:route, text:newText}));
     }
     document.getElementById('btn-close').click();
