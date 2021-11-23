@@ -114,7 +114,6 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         folder = (JSONObject) obj;
-        System.out.println(folder);
 
         for (int i = 1; i < foldersName.length; i++) {
             obj = folder.get("children");

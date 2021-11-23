@@ -18,7 +18,7 @@ export class DashboardComponent implements OnInit {
   personalFiles: boolean = true;
   selectedItem: number = -1;
   path: string = 'MyFiles';
-  fileSystem: JSON;
+  fileSystem: any;
   private handler: Handler = new Handler;
 
   constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService) {
@@ -48,6 +48,9 @@ export class DashboardComponent implements OnInit {
     if (data.status == 200) {
       this.fileSystem = data.data;
       this.files = this.handler.loadFileOfPath(this.fileSystem);
+      if (this.fileSystem.name != null) {
+        this.path = this.path + '/' + this.fileSystem.name
+      }
     } else {
       console.log(data.data);
     }
@@ -57,14 +60,14 @@ export class DashboardComponent implements OnInit {
     this.selectedItem = -1;
     this.personalFiles = true;
     this.path = 'MyFiles';
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
   loadSharedFiles() {
     this.selectedItem = -1;
     this.personalFiles = false;
     this.path = 'SharedFiles';
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
   goBack() {
@@ -72,6 +75,23 @@ export class DashboardComponent implements OnInit {
     if (files.length == 1) { return; }
     files.pop();
     this.path = files.join('/');
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+  }
+
+
+  removeFile() {
+    var r = confirm(`Are you sure?`);
+    if (r == true) {
+      let path = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
+      if(this.files[this.selectedItem].type == 'file') {
+        path = path + '.' + this.files[this.selectedItem].FileExtension;
+        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({username:this.user.username,  path: path}));
+      } else {
+        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({username:this.user.username,  path: path}));
+      }
+    } else {
+      return;
+    }
   }
 
 }

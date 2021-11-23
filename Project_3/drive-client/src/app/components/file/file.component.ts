@@ -25,7 +25,7 @@ export class FileComponent implements OnInit {
 
   openFile() {
     if (this.file.type == 'folder') {
-      WebSocketService.stompClient.send();
+      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.username, path:this.file.route + '/'+ this.file.fileName}));
     }
     // type file
     else {
