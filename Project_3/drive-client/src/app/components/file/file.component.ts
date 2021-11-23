@@ -39,7 +39,7 @@ export class FileComponent implements OnInit {
 
     if(newText == this.file.text) {
       // send to edit file
-      let route = this.file.route + '/' + this.file + '.' + this.file.FileExtension;
+      let route = this.file.route + '/' + this.file.fileName + '/' + this.file + '.' + this.file.FileExtension;
       WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.username, path:route, text:newText}));
     }
     document.getElementById('btn-close').click();

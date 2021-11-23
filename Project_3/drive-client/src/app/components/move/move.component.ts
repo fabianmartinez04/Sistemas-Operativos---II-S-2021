@@ -9,6 +9,9 @@ export class MoveComponent implements OnInit {
 
   @Input() route: string = '';
   @Input() type: string= '';
+  @Input() username : string = '';
+  @Input() FileSystem: any = null;
+
   
   constructor() { }
 

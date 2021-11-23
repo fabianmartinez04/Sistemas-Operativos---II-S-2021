@@ -127,13 +127,18 @@ public class FileSystem {
                 obj = children.get(j);
                 folder = (JSONObject) obj;
 
-                if (folder.get("type") == "folder" && folder.get("name") == foldersName[i] && i == foldersName.length - 1) {
-                    return folder;
+                if (folder.get("type").equals("folder") && folder.get("name").equals(foldersName[i])) {
+                    if (i == foldersName.length - 1) {
+                        return folder;
+                    } else {
+                        break;
+                    }
                 }
 
             }
 
         }
+        System.out.println(folder.toJSONString());
         return folder;
     };
 
