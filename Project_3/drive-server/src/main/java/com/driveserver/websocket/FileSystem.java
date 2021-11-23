@@ -6,12 +6,9 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -71,6 +68,13 @@ public class FileSystem {
         }
         return  file;
     };
+
+    private void updateJson() throws Exception {
+        FileWriter writer = new FileWriter("src/FileSystems/" + this.fileSystem.get("username") + ".json");
+        writer.write(this.fileSystem.toJSONString());
+        writer.close();
+    };
+
 
     //
     public JSONObject getFile(String route){
@@ -168,6 +172,7 @@ public class FileSystem {
             JSONArray list = (JSONArray)obj2;
             list.add(newFile);
             file.replace("children",list);
+            updateJson();
             return;
         }
 
@@ -196,6 +201,7 @@ public class FileSystem {
                         JSONArray list = (JSONArray)obj2;
                         list.add(newFile);
                         file.replace("children",list);
+                        updateJson();
                     }else{
                         break;
                     }
@@ -233,6 +239,7 @@ public class FileSystem {
             JSONArray list = (JSONArray)obj2;
             list.add(newFolder);
             file.replace("children",list);
+            updateJson();
         }
 
         for (int i = 1; i < foldersName.length; i++) {
@@ -257,6 +264,7 @@ public class FileSystem {
                         JSONArray list = (JSONArray)obj2;
                         list.add(newFolder);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -283,6 +291,7 @@ public class FileSystem {
                 file = (JSONObject)obj;
                 if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
                     file.replace("text", text);
+                    updateJson();
                     return file;
                 }
             }
@@ -299,6 +308,7 @@ public class FileSystem {
                 if (i == foldersName.length - 1) {
                     if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
                         file.replace("text", text);
+                        updateJson();
                         return file;
                     }
                 }
@@ -314,7 +324,7 @@ public class FileSystem {
     };
 
     // Pablo
-    public JSONObject deleteFile(String route) {
+    public JSONObject deleteFile(String route) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -338,6 +348,7 @@ public class FileSystem {
                     children.remove(file);
                     // add children again
                     parent.replace("children", children);
+                    updateJson();
                     return file;
                 }
             }
@@ -360,6 +371,7 @@ public class FileSystem {
                         children.remove(file);
                         // add children again
                         parent.replace("children", children);
+                        updateJson();
                         return file;
                     }
                 }
@@ -372,7 +384,7 @@ public class FileSystem {
     };
 
     // Liseth
-    public JSONObject deleteFolder(String route) {
+    public JSONObject deleteFolder(String route) throws Exception {
         JSONObject folder;
         Object obj;
         JSONArray children;
@@ -399,6 +411,7 @@ public class FileSystem {
                     children.remove(folder);
                     // add children again
                     parent.replace("children", children);
+                    updateJson();
                     return folder;
                 }
 
@@ -409,7 +422,7 @@ public class FileSystem {
     };
 
     // Pablo
-    public void copyFile(String route, String newRoute) {
+    public void copyFile(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -470,6 +483,7 @@ public class FileSystem {
                     target.replace("route",newRoute);
                     list.add(target);
                     file.replace("children",list);
+                    updateJson();
                 }
             }
         }
@@ -488,6 +502,7 @@ public class FileSystem {
                         target.replace("route",newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -498,7 +513,7 @@ public class FileSystem {
 
 
     // Liseth
-    public void copyFolder(String route, String newRoute) {
+    public void copyFolder(String route, String newRoute) throws Exception {
         JSONObject folder;
         Object obj;
         JSONArray children;
@@ -541,6 +556,7 @@ public class FileSystem {
                         target.replace("route",newRoute);
                         list.add(target);
                         folder.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -551,7 +567,7 @@ public class FileSystem {
 
 
     // Pablo
-    public void moveFile(String route, String newRoute) {
+    public void moveFile(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -578,6 +594,7 @@ public class FileSystem {
                     target.replace("route", newRoute);
                     list.add(target);
                     file.replace("children",list);
+                    updateJson();
                 }
             }
         }
@@ -596,6 +613,7 @@ public class FileSystem {
                         target.replace("route", newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -605,7 +623,7 @@ public class FileSystem {
     };
 
     // Fabián
-    public void moveFolder(String route, String newRoute) {
+    public void moveFolder(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -634,6 +652,7 @@ public class FileSystem {
                         target.replace("route", newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -642,4 +661,5 @@ public class FileSystem {
         }
 
     };
+
 }
