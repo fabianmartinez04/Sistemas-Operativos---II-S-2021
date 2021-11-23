@@ -27,6 +27,7 @@ public class FileSystem {
 
     public JSONObject getFileSystem(String username, Integer size, Boolean isNew) throws  Exception{
         JSONObject file;
+        JSONObject auxFile;
         if (isNew) {
             this.fileSystem = new JSONObject();
             this.fileSystem.put("My files", new JSONObject());
@@ -58,7 +59,8 @@ public class FileSystem {
                 JSONParser parser = new JSONParser();
                 FileReader reader = new FileReader("src/FileSystems/" + username + ".json");
                 Object obj = parser.parse(reader);
-                file = (JSONObject) obj;
+                auxFile = (JSONObject) obj;
+                file = getSharedFiles(auxFile);
                 reader.close();
             } catch (ParseException e) {
                 System.err.println("Error at: " + e.getPosition() + " message: " + e.getMessage());
@@ -665,5 +667,60 @@ public class FileSystem {
         }
 
     };
+    //Liseth
+    public JSONObject getSharedFiles(JSONObject actualFileSystem) {
+        // File system used in client
+        JSONObject clientFileSystem = new JSONObject();
+        //username file system
+        JSONObject targetFileSystem;
+
+        JSONArray children;
+
+        //All shared files uploaded
+        JSONArray newChildren = new JSONArray();
+
+        //Each shared file
+        JSONObject sharedFile;
+        String[] path;
+
+        //Route to get folder or file
+        String route;
+
+        try {
+            children = (JSONArray) actualFileSystem.get("children");
+
+            for (int i = 0; i < children.size(); i++){
+                //Get each shared file
+                sharedFile = (JSONObject) children.get(i);
+
+                path = sharedFile.get("path").toString().split("/");
+
+                targetFileSystem = getFileSystem(path[0],0,false);
+                this.setFileSystem(targetFileSystem);
+
+                //Delete username/myfiles/notas.txt from path
+                route = sharedFile.get("path").toString().substring(sharedFile.get("path").toString().indexOf(path[0]+"/")+1);
+
+                route.trim();
+
+                if(path[path.length-1].contains(".")){
+                    sharedFile = this.getFile(route);
+
+                }
+                else{
+                    sharedFile = this.getFolder(route);
+                }
+                newChildren.add(sharedFile);
+            }
+            clientFileSystem.put("children",newChildren);
+            this.setFileSystem(actualFileSystem);
+
+        }
+        catch (Exception e){
+            System.out.println("getSharedFiles ERROR");
+
+        }
+        return clientFileSystem;
+    }
 
 }
