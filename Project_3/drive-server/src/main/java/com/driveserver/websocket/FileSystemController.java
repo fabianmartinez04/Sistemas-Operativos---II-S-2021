@@ -243,13 +243,25 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
-            System.out.println(obj.get("text").toString() + obj.get("path").toString());
             fileSystem.editFile(obj.get("path").toString(),obj.get("text").toString());
             System.out.println("EditFile SUCCESS");
         }catch (Exception e) {
             System.out.println("EditFile ERROR");
         }
     }
+
+    @MessageMapping("/share-file")
+    public void shareFile(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            fileSystem.shareFile(obj.get("username").toString(),obj.get("usertoshare").toString(),obj.get("path").toString());
+            System.out.println("shareFile SUCCESS");
+        }catch (Exception e) {
+            System.out.println("shareFile ERROR");
+        }
+    }
+
 
 
 

@@ -12,11 +12,11 @@
                 <br>
                 <input id="user-input" 
                     class="bg-light fs-5" 
-                    type="text" name="username" 
-                    [(ngModel)]="username" 
+                    type="text" name="usertoshare" 
+                    [(ngModel)]="usertoshare" 
                     required
                     style="height: 50px;">
-                <span *ngIf="form.submitted && form.controls['username'].errors" class="text-danger d-block">
+                <span *ngIf="form.submitted && form.controls['usertoshare'].errors" class="text-danger d-block">
                     Please, enter a username</span>
             </div>
         </div>

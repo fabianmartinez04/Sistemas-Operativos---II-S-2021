@@ -733,5 +733,35 @@ public class FileSystem {
     //    System.out.println(actualFileSystem.toJSONString());
         return actualFileSystem;
     }
+    public void shareFile(String username,String usertoshare,String path){
+        JSONObject actualFileSystem = this.fileSystem;
+        JSONObject sharedFiles;
+        JSONArray children;
+        JSONObject newSharedFile= new JSONObject();
+        JSONObject usernameFileSystem;
+        try{
+
+            JSONParser parser = new JSONParser();
+            FileReader reader = new FileReader("src/FileSystems/" + usertoshare + ".json");
+            Object obj = parser.parse(reader);
+            usernameFileSystem = (JSONObject) obj;
+
+            sharedFiles = (JSONObject) usernameFileSystem.get("SharedFiles");
+            children = (JSONArray) sharedFiles.get("children");
+            newSharedFile.put("path",username + "/" + path);
+            children.add(newSharedFile);
+            usernameFileSystem.replace("children",children);
+            this.setFileSystem(usernameFileSystem);
+            this.updateJson();
+            this.setFileSystem(actualFileSystem);
+
+            System.out.println("shareFile SUCCESS");
+
+        }
+        catch (Exception e){
+            System.out.println("shareFile ERROR");
+        }
+
+    }
 
 }

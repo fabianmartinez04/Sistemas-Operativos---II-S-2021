@@ -114,7 +114,7 @@
 
 <app-copy id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
 
-<app-shared id="SharedModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
+<app-shared id="SharedModal" [username]= "user.username" [file]= "files[selectedItem]" class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
 
 <app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" aria-hidden="true"></app-copy-vr>
 
