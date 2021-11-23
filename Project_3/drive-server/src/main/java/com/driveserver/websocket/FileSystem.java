@@ -672,11 +672,10 @@ public class FileSystem {
     };
     //Liseth
     public JSONObject getSharedFiles(JSONObject actualFileSystem) {
-        // File system used in client
-        JSONObject clientFileSystem = new JSONObject();
+
         //username file system
         JSONObject targetFileSystem;
-
+        JSONObject sharedFiles;
         JSONArray children;
 
         //All shared files uploaded
@@ -690,7 +689,8 @@ public class FileSystem {
         String route;
 
         try {
-            children = (JSONArray) actualFileSystem.get("children");
+            sharedFiles = (JSONObject) actualFileSystem.get("SharedFiles");
+            children = (JSONArray) sharedFiles.get("children");
 
             for (int i = 0; i < children.size(); i++){
                 //Get each shared file
@@ -715,7 +715,9 @@ public class FileSystem {
                 }
                 newChildren.add(sharedFile);
             }
-            clientFileSystem.put("children",newChildren);
+            sharedFiles.replace("children",newChildren);
+            actualFileSystem.replace("SharedFiles",sharedFiles);
+
             this.setFileSystem(actualFileSystem);
 
         }
@@ -723,7 +725,8 @@ public class FileSystem {
             System.out.println("getSharedFiles ERROR");
 
         }
-        return clientFileSystem;
+        System.out.println(actualFileSystem.toJSONString());
+        return actualFileSystem;
     }
 
 }
