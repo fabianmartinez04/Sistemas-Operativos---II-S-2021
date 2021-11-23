@@ -6,12 +6,9 @@ import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -74,6 +71,13 @@ public class FileSystem {
         return  file;
     };
 
+    private void updateJson() throws Exception {
+        FileWriter writer = new FileWriter("src/FileSystems/" + this.fileSystem.get("username") + ".json");
+        writer.write(this.fileSystem.toJSONString());
+        writer.close();
+    };
+
+
     //
     public JSONObject getFile(String route){
         JSONObject file;
@@ -116,7 +120,6 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         folder = (JSONObject) obj;
-        System.out.println(folder);
 
         for (int i = 1; i < foldersName.length; i++) {
             obj = folder.get("children");
@@ -170,6 +173,7 @@ public class FileSystem {
             JSONArray list = (JSONArray)obj2;
             list.add(newFile);
             file.replace("children",list);
+            updateJson();
             return;
         }
 
@@ -183,20 +187,26 @@ public class FileSystem {
                 file = (JSONObject)obj;
                 if(file.get("type") == "folder" && file.get("name") == foldersName[i]) {
 
-                    JSONObject newFile = new JSONObject();
-                    newFile.put("type","file");
-                    newFile.put("extension",extension);
-                    newFile.put("name",name);
-                    newFile.put("dateCreated",(formatter.format(date)).toString());
-                    newFile.put("modifiedCreated",(formatter.format(date)).toString());
-                    newFile.put("size",String.valueOf(size));
-                    newFile.put("route",route);
-                    newFile.put("text",text);
+                    if (i == foldersName.length - 1){
+                        JSONObject newFile = new JSONObject();
+                        newFile.put("type","file");
+                        newFile.put("extension",extension);
+                        newFile.put("name",name);
+                        newFile.put("dateCreated",(formatter.format(date)).toString());
+                        newFile.put("modifiedCreated",(formatter.format(date)).toString());
+                        newFile.put("size",String.valueOf(size));
+                        newFile.put("route",route);
+                        newFile.put("text",text);
 
-                    Object obj2  = file.get("children");
-                    JSONArray list = (JSONArray)obj2;
-                    list.add(newFile);
-                    file.replace("children",list);
+                        Object obj2  = file.get("children");
+                        JSONArray list = (JSONArray)obj2;
+                        list.add(newFile);
+                        file.replace("children",list);
+                        updateJson();
+                    }else{
+                        break;
+                    }
+
 
                 }
             }
@@ -230,6 +240,7 @@ public class FileSystem {
             JSONArray list = (JSONArray)obj2;
             list.add(newFolder);
             file.replace("children",list);
+            updateJson();
         }
 
         for (int i = 1; i < foldersName.length; i++) {
@@ -254,6 +265,7 @@ public class FileSystem {
                         JSONArray list = (JSONArray)obj2;
                         list.add(newFolder);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -271,6 +283,21 @@ public class FileSystem {
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
 
+        if (foldersName.length == 2) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                    file.replace("text", text);
+                    updateJson();
+                    return file;
+                }
+            }
+        }
+
         for (int i = 1; i < foldersName.length; i++) {
 
             obj = file.get("children");
@@ -282,6 +309,7 @@ public class FileSystem {
                 if (i == foldersName.length - 1) {
                     if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[i]) {
                         file.replace("text", text);
+                        updateJson();
                         return file;
                     }
                 }
@@ -295,8 +323,9 @@ public class FileSystem {
         return null;
 
     };
+
     // Pablo
-    public JSONObject deleteFile(String route) {
+    public JSONObject deleteFile(String route) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -305,6 +334,26 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
+
+        if (foldersName.length == 2) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            // save the parent of the current children
+            parent = file;
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                    // remove the file target from children
+                    children.remove(file);
+                    // add children again
+                    parent.replace("children", children);
+                    updateJson();
+                    return file;
+                }
+            }
+        }
 
         for (int i = 1; i < foldersName.length; i++) {
 
@@ -323,6 +372,7 @@ public class FileSystem {
                         children.remove(file);
                         // add children again
                         parent.replace("children", children);
+                        updateJson();
                         return file;
                     }
                 }
@@ -335,7 +385,7 @@ public class FileSystem {
     };
 
     // Liseth
-    public JSONObject deleteFolder(String route) {
+    public JSONObject deleteFolder(String route) throws Exception {
         JSONObject folder;
         Object obj;
         JSONArray children;
@@ -362,6 +412,7 @@ public class FileSystem {
                     children.remove(folder);
                     // add children again
                     parent.replace("children", children);
+                    updateJson();
                     return folder;
                 }
 
@@ -372,7 +423,7 @@ public class FileSystem {
     };
 
     // Pablo
-    public void copyFile(String route, String newRoute) {
+    public void copyFile(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -381,6 +432,19 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
+
+        if (foldersName.length == 2) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                    target = file;
+                }
+            }
+        }
 
         for (int i = 1; i < foldersName.length && target == null; i++) {
             obj = file.get("children");
@@ -407,6 +471,24 @@ public class FileSystem {
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
 
+        if (foldersName.length == 2) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                    Object obj2  = file.get("children");
+                    JSONArray list = (JSONArray)obj2;
+                    target.replace("route",newRoute);
+                    list.add(target);
+                    file.replace("children",list);
+                    updateJson();
+                }
+            }
+        }
+
         for (int i = 1; i < foldersName.length; i++) {
             obj = file.get("children");
             children = (JSONArray) obj;
@@ -421,6 +503,7 @@ public class FileSystem {
                         target.replace("route",newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -431,7 +514,7 @@ public class FileSystem {
 
 
     // Liseth
-    public void copyFolder(String route, String newRoute) {
+    public void copyFolder(String route, String newRoute) throws Exception {
         JSONObject folder;
         Object obj;
         JSONArray children;
@@ -474,6 +557,7 @@ public class FileSystem {
                         target.replace("route",newRoute);
                         list.add(target);
                         folder.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -484,7 +568,7 @@ public class FileSystem {
 
 
     // Pablo
-    public void moveFile(String route, String newRoute) {
+    public void moveFile(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -497,6 +581,24 @@ public class FileSystem {
         foldersName = newRoute.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
+
+        if (foldersName.length == 2) {
+            obj = file.get("children");
+            children = (JSONArray) obj;
+
+            for (int j = 0; j < children.size(); j++){
+                obj = children.get(j);
+                file = (JSONObject)obj;
+                if(file.get("type") == "file" && (file.get("name") + "." + file.get("extension")) == foldersName[1]) {
+                    Object obj2  = file.get("children");
+                    JSONArray list = (JSONArray)obj2;
+                    target.replace("route", newRoute);
+                    list.add(target);
+                    file.replace("children",list);
+                    updateJson();
+                }
+            }
+        }
 
         for (int i = 1; i < foldersName.length; i++) {
             obj = file.get("children");
@@ -512,6 +614,7 @@ public class FileSystem {
                         target.replace("route", newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -520,11 +623,8 @@ public class FileSystem {
         }
     };
 
-    public void editFile(String name, String route, String text){
-
-    }
     // Fabián
-    public void moveFolder(String route, String newRoute) {
+    public void moveFolder(String route, String newRoute) throws Exception {
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -553,6 +653,7 @@ public class FileSystem {
                         target.replace("route", newRoute);
                         list.add(target);
                         file.replace("children",list);
+                        updateJson();
                     } else {
                         break;
                     }
@@ -616,4 +717,5 @@ public class FileSystem {
         }
         return clientFileSystem;
     }
+
 }
