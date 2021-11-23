@@ -3,5 +3,10 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 </div>
 <div class="offcanvas-body body-bg">
-
+    <div *ngFor="let item of folders">
+        <button class="btn">
+            <i class="text-center fas fa-folder fa-2x folder-bg"></i>
+            <span>{{item.name}}</span>
+        </button>
+    </div>
 </div>

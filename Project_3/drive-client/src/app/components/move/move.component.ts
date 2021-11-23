@@ -11,11 +11,23 @@ export class MoveComponent implements OnInit {
   @Input() type: string= '';
   @Input() username : string = '';
   @Input() FileSystem: any = null;
-
   
+  folders : any[] = [];
+
+
   constructor() { }
 
   ngOnInit(): void {
+    this.folders = this.FileSystem.MyFiles.children;
+  }
+
+
+  openFolders(folder){
+
+  }
+
+  move() {
+    
   }
 
 }
