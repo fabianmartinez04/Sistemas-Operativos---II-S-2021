@@ -14,6 +14,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.security.Principal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 @Controller
@@ -131,7 +132,7 @@ public class FileSystemController {
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.deleteFolder(obj.get("path").toString());
 
-            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            userFileSystem = fileSystem.getFolder(obj.get("pathFiles").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);
@@ -151,7 +152,7 @@ public class FileSystemController {
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.deleteFile(obj.get("path").toString());
 
-            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            userFileSystem = fileSystem.getFolder(obj.get("pathFiles").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);

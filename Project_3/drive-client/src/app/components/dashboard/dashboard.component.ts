@@ -81,13 +81,14 @@ export class DashboardComponent implements OnInit {
 
   removeFile() {
     var r = confirm(`Are you sure?`);
+    console.log(this.files[this.selectedItem])
     if (r == true) {
-      let path = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
+      let route = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
       if(this.files[this.selectedItem].type == 'file') {
-        path = path + '.' + this.files[this.selectedItem].FileExtension;
-        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({username:this.user.username,  path: path}));
+        route = route + '.' + this.files[this.selectedItem].FileExtension;
+        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({username:this.user.username,  path: route, pathFiles: this.path}));
       } else {
-        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({username:this.user.username,  path: path}));
+        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({username:this.user.username,  path: route, pathFiles: this.path}));
       }
     } else {
       return;
