@@ -50,6 +50,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadFiles(msg: any) {
+    this.selectedItem = -1;
     let data = JSON.parse(msg.body);
     if (data.status == 200) {
       this.fileSystem = data.data;
