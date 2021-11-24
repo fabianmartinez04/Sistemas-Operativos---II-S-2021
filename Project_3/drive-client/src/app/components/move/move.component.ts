@@ -54,12 +54,16 @@ export class MoveComponent implements OnInit {
 
   move() {
     let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
+
     if (this.fileCopy.type == 'file') {
+      //let newPath = this.path + '/' +this.fileCopy.fileName +  '.' + this.fileCopy.FileExtension;
+      let newPath = this.path;
       path = path + '.' + this.fileCopy.FileExtension;
-      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
+      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath: newPath, pathUpdate:this.fileCopy.route}));
     } else {
-      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
+      WebSocketService.stompClient.send('/app/move-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path, pathUpdate:this.fileCopy.route}));
     }
+    this.path = 'MyFiles'
   }
 
   goBack() {

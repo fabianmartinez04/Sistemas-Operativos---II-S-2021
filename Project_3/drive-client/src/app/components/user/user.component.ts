@@ -33,7 +33,7 @@ export class UserComponent implements OnInit {
         console.log('ERROR');
       }
     })
-    WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({ username: this.user.username }))
+    WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({ username: this.user.username}))
 
   }
 
