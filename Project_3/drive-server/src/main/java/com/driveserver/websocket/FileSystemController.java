@@ -1,6 +1,7 @@
 package com.driveserver.websocket;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Header;
@@ -67,10 +68,13 @@ public class FileSystemController {
     public void sendShareFilesToClient(@Payload JSONObject obj) {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0,Boolean.FALSE);
-
-            userFileSystem = fileSystem.getSharedFiles(userFileSystem);
-
-            userFileSystem = fileSystem.getSharedFolder(obj.get("path").toString(),obj.get("owner").toString());
+            System.out.println("OBJ \n\n");
+            System.out.println(obj.toJSONString());
+            if(obj.get("owner") != null) {
+                userFileSystem = fileSystem.getSharedFolder(obj.get("path").toString(),obj.get("owner").toString());
+            } else {
+                userFileSystem = (JSONObject) fileSystem.getSharedFiles(userFileSystem).get("SharedFiles");
+            }
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);
@@ -107,16 +111,9 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
-            System.out.println("NO SETEA EL FILE SYSTEM");
-
-            System.out.println("NO SETEA EL FILE SYSTEM");
-
-            System.out.println("NO SETEA EL FILE SYSTEM");
-
-            System.out.println("NO SETEA EL FILE SYSTEM");
             System.out.println(obj.toJSONString());
 
-            fileSystem.createdFolder(obj.get("name").toString(),obj.get("path").toString());
+            fileSystem.createdFolder(obj.get("name").toString(),obj.get("path").toString(), obj.get("username").toString());
 
             userFileSystem = fileSystem.getFolder(obj.get("path").toString());
             JSONObject out = new JSONObject();
@@ -137,7 +134,7 @@ public class FileSystemController {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
 
-            fileSystem.createdFile(obj.get("name").toString(), obj.get("extension").toString(),obj.get("path").toString(),obj.get("text").toString());
+            fileSystem.createdFile(obj.get("name").toString(), obj.get("extension").toString(),obj.get("path").toString(),obj.get("text").toString(), obj.get("username").toString());
 
             userFileSystem = fileSystem.getFolder(obj.get("path").toString());
             JSONObject out = new JSONObject();

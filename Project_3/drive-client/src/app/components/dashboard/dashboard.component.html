@@ -95,9 +95,12 @@
                         <div class="col-2">
                             <span>Date Modified</span>
                         </div>
-                        <div class="col-2">
+                        <div class="col-1">
                             <span>Size</span>
-                        </div>     
+                        </div> 
+                        <div class="col-1">
+                            <span>Owner</span>
+                        </div>        
                     </div>
                     <div class="file" *ngFor="let file of files; let index = index"
                         [ngClass]="{'file-selected': selectedItem == index}" 

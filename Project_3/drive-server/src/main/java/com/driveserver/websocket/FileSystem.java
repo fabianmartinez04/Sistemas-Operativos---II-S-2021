@@ -192,7 +192,7 @@ public class FileSystem {
 
     // Fabián
     // name.txt
-    public void createdFile(String name, String extension, String route, String text) throws Exception{
+    public void createdFile(String name, String extension, String route, String text, String username) throws Exception{
         System.out.println(route + " route in createdfile");
         JSONObject file;
         Object obj;
@@ -218,6 +218,7 @@ public class FileSystem {
             newFile.put("size",String.valueOf(size));
             newFile.put("route",route);
             newFile.put("text",text);
+            newFile.put("owner",username);
 
             Object obj2  = file.get("children");
             JSONArray list = (JSONArray)obj2;
@@ -247,6 +248,7 @@ public class FileSystem {
                         newFile.put("size",String.valueOf(size));
                         newFile.put("route",route);
                         newFile.put("text",text);
+                        newFile.put("owner", username);
 
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
@@ -266,7 +268,7 @@ public class FileSystem {
     };
 
     // Fabián
-    public void createdFolder(String name, String route) throws Exception{
+    public void createdFolder(String name, String route, String username) throws Exception{
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -287,6 +289,7 @@ public class FileSystem {
             JSONArray array = new JSONArray();
             newFolder.put("children",array);
             newFolder.put("route",route);
+            newFolder.put("owner", username);
 
             Object obj2  = file.get("children");
             JSONArray list = (JSONArray)obj2;
@@ -310,8 +313,9 @@ public class FileSystem {
                         newFolder.put("name",name);
                         newFolder.put("dateCreated",(formatter.format(date)).toString());
                         JSONArray array = new JSONArray();
-                        newFolder.put("children",array);
-                        newFolder.put("route",route);
+                        newFolder.put("children", array);
+                        newFolder.put("route", route);
+                        newFolder.put("owner", username);
 
                         Object obj2  = file.get("children");
                         JSONArray list = (JSONArray)obj2;
@@ -776,6 +780,7 @@ public class FileSystem {
     //Liseth
     public JSONObject getSharedFiles(JSONObject fileSystem) {
         JSONObject actualFileSystem = this.fileSystem;
+
         JSONObject sharedFileSystem = fileSystem;
         //username file system
         JSONObject targetFileSystem;
@@ -819,7 +824,6 @@ public class FileSystem {
                 else{
                     sharedFile = this.getFolder(route);
                 }
-                sharedFile.put("owner",path[0]);
                 newChildren.add(sharedFile);
             }
             sharedFiles.replace("children",newChildren);
