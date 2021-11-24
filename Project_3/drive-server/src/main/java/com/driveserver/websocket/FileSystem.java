@@ -146,6 +146,49 @@ public class FileSystem {
 
         return folder;
     };
+    // Liseth
+    public JSONObject getSharedFolder(String route,String owner){
+        JSONObject actualFileSystem = this.fileSystem;
+        JSONObject fileSystem ;
+        JSONObject folder = new JSONObject();
+        Object obj;
+        JSONArray children;
+
+        String[] foldersName = route.split("/");
+        try {
+            fileSystem = (JSONObject) this.getFileSystem(owner, 0, Boolean.FALSE);
+            this.setFileSystem(fileSystem);
+
+            obj = (Object) this.fileSystem.get(foldersName[0]);
+            folder = (JSONObject) obj;
+
+            for (int i = 1; i < foldersName.length; i++) {
+                obj = folder.get("children");
+                children = (JSONArray) obj;
+
+                for (int j = 0; j < children.size(); j++) {
+                    obj = children.get(j);
+                    folder = (JSONObject) obj;
+
+                    if (folder.get("type").equals("folder") && folder.get("name").equals(foldersName[i])) {
+                        if (i == foldersName.length - 1) {
+                            this.setFileSystem(actualFileSystem);
+                            return folder;
+                        } else {
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+        }
+        catch(Exception e){
+
+        }
+
+        return folder;
+    };
 
     // Fabián
     // name.txt
@@ -228,7 +271,7 @@ public class FileSystem {
         Object obj;
         JSONArray children;
         Date date = new Date();
-        System.out.println(" sdadad" + route);
+
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         String[] foldersName = route.split("/");
@@ -676,8 +719,9 @@ public class FileSystem {
 
     };
     //Liseth
-    public JSONObject getSharedFiles() {
+    public JSONObject getSharedFiles(JSONObject fileSystem) {
         JSONObject actualFileSystem = this.fileSystem;
+        JSONObject sharedFileSystem = fileSystem;
         //username file system
         JSONObject targetFileSystem;
         JSONObject sharedFiles;
@@ -694,7 +738,7 @@ public class FileSystem {
         String route;
 
         try {
-            sharedFiles = (JSONObject) actualFileSystem.get("SharedFiles");
+            sharedFiles = (JSONObject) sharedFileSystem.get("SharedFiles");
             children = (JSONArray) sharedFiles.get("children");
 
             for (int i = 0; i < children.size(); i++){
@@ -720,10 +764,11 @@ public class FileSystem {
                 else{
                     sharedFile = this.getFolder(route);
                 }
+                sharedFile.put("owner",path[0]);
                 newChildren.add(sharedFile);
             }
             sharedFiles.replace("children",newChildren);
-            actualFileSystem.replace("SharedFiles",sharedFiles);
+            sharedFileSystem.replace("SharedFiles",sharedFiles);
 
             this.setFileSystem(actualFileSystem);
 
@@ -733,7 +778,7 @@ public class FileSystem {
 
         }
     //    System.out.println(actualFileSystem.toJSONString());
-        return actualFileSystem;
+        return sharedFileSystem;
     }
     public void shareFile(String username,String usertoshare,String path){
         JSONObject actualFileSystem = this.fileSystem;

@@ -67,9 +67,10 @@ public class FileSystemController {
     public void sendShareFilesToClient(@Payload JSONObject obj) {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0,Boolean.FALSE);
-            fileSystem.setFileSystem(userFileSystem);
-            userFileSystem = fileSystem.getSharedFiles();
-            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+
+            userFileSystem = fileSystem.getSharedFiles(userFileSystem);
+
+            userFileSystem = fileSystem.getSharedFolder(obj.get("path").toString(),obj.get("owner").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);

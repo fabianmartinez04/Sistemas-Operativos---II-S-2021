@@ -3,13 +3,15 @@ import { File } from "./file";
 export class Handler {
     // load initial files
     
-    loadFileOfPath(folder: any) : File[] {
+    loadFileOfPath(folder: any,personalFiles:Boolean) : File[] {
         let children : JSON[] = folder.children;
 
         let files : File[] = [];
         children.forEach((element:any) => {
             let file : File = new  File();
-            
+            if(!personalFiles){
+                file.owner = element.owner;
+            }
             file.type = element.type;
             file.fileName = element.name;
             file.route = element.route;

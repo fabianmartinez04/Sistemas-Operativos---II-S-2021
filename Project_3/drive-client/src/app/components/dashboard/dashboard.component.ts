@@ -7,6 +7,7 @@ import { Handler } from 'src/app/models/handler';
 
 import $ from 'jquery';
 import { UtilService } from 'src/app/services/util.service';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',
@@ -53,7 +54,7 @@ export class DashboardComponent implements OnInit {
     let data = JSON.parse(msg.body);
     if (data.status == 200) {
       this.fileSystem = data.data;
-      this.files = this.handler.loadFileOfPath(this.fileSystem);
+      this.files = this.handler.loadFileOfPath(this.fileSystem,this.personalFiles);
       
       if (this.fileSystem.name != null) {
         this.path = this.fileSystem.route + '/' + this.fileSystem.name;
@@ -77,7 +78,7 @@ export class DashboardComponent implements OnInit {
     this.personalFiles = false;
     this.path = 'SharedFiles';
     this.pathSelected = this.path;
-    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path, owner: this.user.username}));
   }
 
   goBack() {
@@ -86,7 +87,7 @@ export class DashboardComponent implements OnInit {
     files.pop();
     this.path = files.join('/');
     this.pathSelected = this.path
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
   }
 
 
@@ -131,8 +132,14 @@ export class DashboardComponent implements OnInit {
 
   openFile(file:File) {
     if (file.type == 'folder') {
-      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
-    }
+      if(this.personalFiles){
+        WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
+      }
+      else{
+        console.log(this.user.username,file.route + '/'+ file.fileName,file.owner)
+        WebSocketService.stompClient.send('/app/loadSharedFiles', {}, JSON.stringify({ username: this.user.username, path: file.route + '/'+ file.fileName,owner:file.owner}));
+      }
+      }
     // type file
     else {
       this.fileToOpen = file;
