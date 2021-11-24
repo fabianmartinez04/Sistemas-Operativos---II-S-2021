@@ -57,9 +57,9 @@ export class CopyComponent implements OnInit {
     let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
     if (this.fileCopy.type == 'file') {
       path = path + '.' + this.fileCopy.FileExtension;
-      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
+      WebSocketService.stompClient.send('/app/copy-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
     } else {
-      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
+      WebSocketService.stompClient.send('/app/copy-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
     }
   }
 

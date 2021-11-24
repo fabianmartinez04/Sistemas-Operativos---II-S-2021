@@ -242,9 +242,9 @@ public class FileSystemController {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.copyFolder(obj.get("path").toString(),obj.get("newPath").toString());
-            System.out.println("CopyFolder SUCCESS");
+
         }catch (Exception e) {
-            System.out.println("CopyFolder ERROR");
+
         }
 
     }
@@ -256,11 +256,8 @@ public class FileSystemController {
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.copyFile(obj.get("path").toString(),obj.get("newPath").toString());
 
-
-            System.out.println("CopyFile SUCCESS");
-
         }catch (Exception e) {
-            System.out.println("CopyFile ERROR");
+
         }
     }
 
