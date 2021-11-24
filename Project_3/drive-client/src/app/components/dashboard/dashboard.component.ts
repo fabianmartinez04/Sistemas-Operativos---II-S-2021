@@ -140,8 +140,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  
-
   saveChanges() {
     
     let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
@@ -154,5 +152,10 @@ export class DashboardComponent implements OnInit {
     }
     document.getElementById('btn-close').click();
   }
+
+  UpdateRootFolder() {
+    WebSocketService.stompClient.send('/app/load-root', {}, JSON.stringify({username:this.user.username, path:'MyFiles'}));
+  }
+
 
 }

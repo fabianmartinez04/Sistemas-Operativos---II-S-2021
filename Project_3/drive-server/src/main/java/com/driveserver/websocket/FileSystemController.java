@@ -262,6 +262,24 @@ public class FileSystemController {
         }
     }
 
+    @MessageMapping("/load-root")
+    public void loadRootFolder(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0,Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/load-root-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/load-root-" + obj.get("username"), out.toJSONString());
+        }
+    }
+
 
 
 

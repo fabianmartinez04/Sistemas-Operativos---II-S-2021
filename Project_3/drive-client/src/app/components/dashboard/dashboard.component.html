@@ -54,7 +54,7 @@
                 </div>
                 <div class="input-group mb-3 me-3">
                     <button class="btn btn-outline-primary" type="button" [disabled]="selectedItem == -1 || !personalFiles" 
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMove">
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMove" (click)="UpdateRootFolder()">
                         Move
                     </button>
                 </div>
@@ -111,7 +111,7 @@
 
 </div>
 
-<app-move (click)="selectedItem = -1" id="offcanvasMove" [username]= "user.username" [file]="files[selectedItem]" [fileSystem]="fileSystem" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
+<app-move (click)="selectedItem = -1" id="offcanvasMove" [username]= "user.username" [file]="files[selectedItem]" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
 
 <app-copy (click)="selectedItem = -1" id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
 
