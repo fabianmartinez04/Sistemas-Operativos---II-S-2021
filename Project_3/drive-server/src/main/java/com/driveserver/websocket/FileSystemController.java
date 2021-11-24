@@ -63,7 +63,24 @@ public class FileSystemController {
             sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
         }
     }
-
+    @MessageMapping("/loadShareFiles")
+    public void sendShareFilesToClient(@Payload JSONObject obj) {
+        try {
+            JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0,Boolean.FALSE);
+            fileSystem.setFileSystem(userFileSystem);
+            userFileSystem = fileSystem.getSharedFiles();
+            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            JSONObject out = new JSONObject();
+            out.put("status", 200);
+            out.put("data",userFileSystem);
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/files-" + obj.get("username"), out.toJSONString());
+        }
+    }
 
     @MessageMapping("/create-drive")
     public void createNewDrive(@Payload JSONObject obj) {
@@ -89,6 +106,15 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
+            System.out.println("NO SETEA EL FILE SYSTEM");
+
+            System.out.println("NO SETEA EL FILE SYSTEM");
+
+            System.out.println("NO SETEA EL FILE SYSTEM");
+
+            System.out.println("NO SETEA EL FILE SYSTEM");
+            System.out.println(obj.toJSONString());
+
             fileSystem.createdFolder(obj.get("name").toString(),obj.get("path").toString());
 
             userFileSystem = fileSystem.getFolder(obj.get("path").toString());
@@ -109,6 +135,7 @@ public class FileSystemController {
         try {
             JSONObject userFileSystem = fileSystem.getFileSystem(obj.get("username").toString(), 0, Boolean.FALSE);
             fileSystem.setFileSystem(userFileSystem);
+
             fileSystem.createdFile(obj.get("name").toString(), obj.get("extension").toString(),obj.get("path").toString(),obj.get("text").toString());
 
             userFileSystem = fileSystem.getFolder(obj.get("path").toString());

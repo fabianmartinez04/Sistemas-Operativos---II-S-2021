@@ -22,6 +22,7 @@ public class FileSystem {
 
     public void setFileSystem(JSONObject fileSystem) {
         this.fileSystem = fileSystem;
+        System.out.println(this.fileSystem);
     }
 
     public FileSystem(){};
@@ -60,8 +61,7 @@ public class FileSystem {
                 JSONParser parser = new JSONParser();
                 FileReader reader = new FileReader("src/FileSystems/" + username + ".json");
                 Object obj = parser.parse(reader);
-                auxFile = (JSONObject) obj;
-                file = getSharedFiles(auxFile);
+                file = (JSONObject) obj;
                 reader.close();
             } catch (ParseException e) {
                 System.err.println("Error at: " + e.getPosition() + " message: " + e.getMessage());
@@ -69,6 +69,7 @@ public class FileSystem {
             }
 
         }
+        this.fileSystem = file;
         return  file;
     };
 
@@ -98,7 +99,6 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
-                    System.out.println(file.toJSONString() + foldersName[i]);
                     if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
 
                         return file;
@@ -143,13 +143,14 @@ public class FileSystem {
             }
 
         }
-        System.out.println(folder.toJSONString());
+
         return folder;
     };
 
     // Fabián
     // name.txt
     public void createdFile(String name, String extension, String route, String text) throws Exception{
+        System.out.println(route + " route in createdfile");
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -227,6 +228,7 @@ public class FileSystem {
         Object obj;
         JSONArray children;
         Date date = new Date();
+        System.out.println(" sdadad" + route);
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         String[] foldersName = route.split("/");
@@ -674,8 +676,8 @@ public class FileSystem {
 
     };
     //Liseth
-    public JSONObject getSharedFiles(JSONObject actualFileSystem) {
-
+    public JSONObject getSharedFiles() {
+        JSONObject actualFileSystem = this.fileSystem;
         //username file system
         JSONObject targetFileSystem;
         JSONObject sharedFiles;
