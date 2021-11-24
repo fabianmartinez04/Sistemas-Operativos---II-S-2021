@@ -23,6 +23,8 @@ export class CopyComponent implements OnInit {
 
   ngOnInit(): void {
     WebSocketService.stompClient.subscribe(`/queue/load-root-${this.username}`, (data:any) => {
+      this.fileCopy = this.file;
+      this.path = 'MyFiles';
       let body = JSON.parse(data.body);
       this.fileSystem = body.data;
       this.foldersQueue = [];
@@ -39,12 +41,10 @@ export class CopyComponent implements OnInit {
 
 
   loadFolders(file) {
-    this.path = 'MyFiles';
-    this.fileCopy = this.file;
+    
     let children : [] = file.children;
     this.folders = [];
     children.forEach((element:any) => {
-      console.log(element.route + '/' + element.name, this.fileCopy.route + '/' + this.fileCopy.fileName);
       if(element.type == 'folder' &&
         element.route + '/' + element.name != this.fileCopy.route + '/' + this.fileCopy.fileName) {
         this.folders.push(element);

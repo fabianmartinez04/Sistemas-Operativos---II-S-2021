@@ -24,6 +24,8 @@ export class MoveComponent implements OnInit {
 
   ngOnInit(): void {
     WebSocketService.stompClient.subscribe(`/queue/load-root-${this.username}`, (data:any) => {
+      this.path = 'MyFiles';
+      this.fileCopy = this.file;
       let body = JSON.parse(data.body);
       this.fileSystem = body.data;
       this.foldersQueue = [];
@@ -33,8 +35,6 @@ export class MoveComponent implements OnInit {
   }
 
   loadFolders(file) {
-    this.fileCopy = this.file;
-    console.log(this.foldersQueue);
     let children : [] = file.children;
     this.folders = [];
     children.forEach((element:any) => {
@@ -48,22 +48,19 @@ export class MoveComponent implements OnInit {
   openFolders(folder:any){
     this.foldersQueue.push(folder);
     this.path = this.path + '/' + folder.name;
-    console.log(this.foldersQueue)
     this.loadFolders(folder);
   }
 
   move() {
     let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
-
+    
     if (this.fileCopy.type == 'file') {
-      //let newPath = this.path + '/' +this.fileCopy.fileName +  '.' + this.fileCopy.FileExtension;
       let newPath = this.path;
       path = path + '.' + this.fileCopy.FileExtension;
       WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath: newPath, pathUpdate:this.fileCopy.route}));
     } else {
       WebSocketService.stompClient.send('/app/move-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path, pathUpdate:this.fileCopy.route}));
     }
-    this.path = 'MyFiles'
   }
 
   goBack() {
@@ -72,7 +69,6 @@ export class MoveComponent implements OnInit {
     names.pop();
     this.path = names.join('/');
     this.foldersQueue.pop();
-    console.log(this.foldersQueue)
     this.loadFolders(this.foldersQueue[this.foldersQueue.length - 1]);
     
   }

@@ -344,7 +344,6 @@ public class FileSystem {
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
-
         if (foldersName.length == 2) {
 
             obj = file.get("children");
@@ -380,6 +379,8 @@ public class FileSystem {
                 // add file to new children list
                 // if this folder is parent folder of the file to remove
                 if (i == foldersName.length - 1) {
+                    System.out.println("FILE \n");
+                    System.out.println(file.toJSONString() + '\n');
                     if ((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         // remove the file target from children
                         children.remove(file);
@@ -602,6 +603,8 @@ public class FileSystem {
         JSONObject target = null;
         String[] foldersName;
         // remove file from old path and return the file
+        System.out.println("RUTA \n");
+        System.out.println(route + '\n');
         target = deleteFile(route);
 
         // save the file in the new path
@@ -609,7 +612,7 @@ public class FileSystem {
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
 
-        if (foldersName.length == 2) {
+        if (foldersName.length == 1) {
             Object obj2  = file.get("children");
             JSONArray list = (JSONArray)obj2;
             target.replace("route", newRoute);
