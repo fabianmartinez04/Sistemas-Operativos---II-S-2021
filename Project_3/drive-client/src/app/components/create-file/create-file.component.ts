@@ -44,8 +44,8 @@ export class CreateFileComponent implements OnInit {
       }
     });
     if (createdFile) {
+      //WebSocketService.stompClient.send('/app/create-file',{}, JSON.stringify({username:this.username, path:this.file.route, name: this.file.fileName, extension: this.file.FileExtension, text:this.file.text}))
 
-      console.log(this.route)
       WebSocketService.stompClient.send('/app/create-file',{}, JSON.stringify({username:this.username, path:this.route, name: this.file.fileName, extension: this.file.FileExtension, text:this.file.text}))
       this.file = new File();
       this.file.type = 'file';

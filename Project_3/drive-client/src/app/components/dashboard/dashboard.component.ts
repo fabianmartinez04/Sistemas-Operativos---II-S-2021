@@ -51,6 +51,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadFiles(msg: any) {
+    this.selectedItem = -1;
     let data = JSON.parse(msg.body);
     if (data.status == 200) {
       this.fileSystem = data.data;
@@ -147,8 +148,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  
-
   saveChanges() {
     
     let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
@@ -161,5 +160,10 @@ export class DashboardComponent implements OnInit {
     }
     document.getElementById('btn-close').click();
   }
+
+  UpdateRootFolder() {
+    WebSocketService.stompClient.send('/app/load-root', {}, JSON.stringify({username:this.user.username, path:'MyFiles'}));
+  }
+
 
 }

@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { File } from 'src/app/models/file';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-move',
@@ -7,9 +9,13 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class MoveComponent implements OnInit {
 
-  @Input() file: any;
+  @Input() file: File;
   @Input() username : string = '';
-  @Input() fileSystem: any = null;
+  
+  fileCopy : File;
+  fileSystem: any = null;
+  path : string = 'MyFiles';
+  foldersQueue: any[] = [];
   
   folders : any[] = [];
 
@@ -17,15 +23,53 @@ export class MoveComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    // this.folders = this.fileSystem.MyFiles.children;
+    WebSocketService.stompClient.subscribe(`/queue/load-root-${this.username}`, (data:any) => {
+      this.path = 'MyFiles';
+      this.fileCopy = this.file;
+      let body = JSON.parse(data.body);
+      this.fileSystem = body.data;
+      this.foldersQueue = [];
+      this.foldersQueue.push(this.fileSystem);
+      this.loadFolders(this.fileSystem);
+    });
   }
 
+  loadFolders(file) {
+    let children : [] = file.children;
+    this.folders = [];
+    children.forEach((element:any) => {
+      if(element.type == 'folder') {
+        this.folders.push(element);
+      }
+    });
+    
+  }
 
-  openFolders(folder){
-
+  openFolders(folder:any){
+    this.foldersQueue.push(folder);
+    this.path = this.path + '/' + folder.name;
+    this.loadFolders(folder);
   }
 
   move() {
+    let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
+    
+    if (this.fileCopy.type == 'file') {
+      let newPath = this.path;
+      path = path + '.' + this.fileCopy.FileExtension;
+      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath: newPath, pathUpdate:this.fileCopy.route}));
+    } else {
+      WebSocketService.stompClient.send('/app/move-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path, pathUpdate:this.fileCopy.route}));
+    }
+  }
+
+  goBack() {
+    if(this.foldersQueue.length == 1) { return; }
+    let names: string[] = this.path.split('/');
+    names.pop();
+    this.path = names.join('/');
+    this.foldersQueue.pop();
+    this.loadFolders(this.foldersQueue[this.foldersQueue.length - 1]);
     
   }
 

@@ -3,10 +3,27 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 </div>
 <div class="offcanvas-body body-bg">
+    <div class="row px-2 mt-2">
+        <div class="col-1 me-2">
+            <button class="btn text-white" (click)="goBack()">
+                <i class="fas fa-arrow-circle-left"></i>
+            </button>
+        </div>
+        <div class="col my-auto">
+            <span class="text-white fw-bolder">{{path}}</span>
+        </div>
+    </div>
     <div *ngFor="let item of folders">
-        <button class="btn">
+        <button class="btn item" (click) = openFolders(item)>
             <i class="text-center fas fa-folder fa-2x folder-bg"></i>
-            <span>{{item.name}}</span>
+            <div class="my-auto">
+                <span class="text-white">{{item.name}}</span>
+            </div>
+        </button>
+    </div>
+    <div>
+        <button class="btn btn-outline-primary" type="button" (click)='move()'>
+            Move
         </button>
     </div>
 </div>

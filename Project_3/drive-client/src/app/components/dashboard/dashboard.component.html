@@ -47,14 +47,14 @@
                         <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyVRModal" [disabled]="selectedItem == -1">
                             Virtual-Real
                         </button></li>
-                        <li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCopy" [disabled]="selectedItem == -1">
+                        <li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCopy" [disabled]="selectedItem == -1" (click)="UpdateRootFolder()">
                             Virtual-Virtual
                         </button></li>
                     </ul>
                 </div>
                 <div class="input-group mb-3 me-3">
                     <button class="btn btn-outline-primary" type="button" [disabled]="selectedItem == -1 || !personalFiles" 
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMove">
+                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMove" (click)="UpdateRootFolder()">
                         Move
                     </button>
                 </div>
@@ -111,19 +111,19 @@
 
 </div>
 
-<app-move (click)="selectedItem = -1" id="offcanvasMove" [username]= "user.username" [file]="files[selectedItem]" [fileSystem]="fileSystem" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
+<app-move  id="offcanvasMove" [username]= "user.username" [file]="files[selectedItem]" tabindex="-1" class="offcanvas offcanvas-end"></app-move>
 
-<app-copy (click)="selectedItem = -1" id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
+<app-copy [username]= "user.username" [file]="files[selectedItem]" id="offcanvasCopy" tabindex="-1" class="offcanvas offcanvas-end"></app-copy>
 
 <app-shared id="SharedModal" [username]= "user.username" [file]= "files[selectedItem]" class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
 
-<app-copy-vr (click)="selectedItem = -1" id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
+<app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
 
-<app-copy-rv (click)="selectedItem = -1" id="CopyRVModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
+<app-copy-rv  id="CopyRVModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
 
-<app-create-file (click)="selectedItem = -1" [username]= "user.username" [route]="path" [files]="files" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
+<app-create-file  [username]= "user.username" [route]="path" [files]="files" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
 
-<app-create-folder (click)="selectedItem = -1" [username]= "user.username" [route]="path" [files]="files" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
+<app-create-folder [username]= "user.username" [route]="path" [files]="files" id="CreateFolder" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-folder>
 
 
 
