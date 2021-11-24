@@ -201,7 +201,7 @@ public class FileSystemController {
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.moveFolder(obj.get("path").toString(),obj.get("newPath").toString());
 
-            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            userFileSystem = fileSystem.getFolder(obj.get("pathUpdate").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);
@@ -222,7 +222,7 @@ public class FileSystemController {
             fileSystem.setFileSystem(userFileSystem);
             fileSystem.moveFile(obj.get("path").toString(),obj.get("newPath").toString());
 
-            userFileSystem = fileSystem.getFolder(obj.get("path").toString());
+            userFileSystem = fileSystem.getFolder(obj.get("pathUpdate").toString());
             JSONObject out = new JSONObject();
             out.put("status", 200);
             out.put("data",userFileSystem);
