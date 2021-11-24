@@ -54,10 +54,9 @@ export class DashboardComponent implements OnInit {
     if (data.status == 200) {
       this.fileSystem = data.data;
       this.files = this.handler.loadFileOfPath(this.fileSystem);
-      this.path = this.fileSystem.route
       
       if (this.fileSystem.name != null) {
-        this.path = this.path + '/' + this.fileSystem.name;
+        this.path = this.fileSystem.route + '/' + this.fileSystem.name;
       }
       this.pathSelected = this.path;
     } else {
@@ -125,7 +124,7 @@ export class DashboardComponent implements OnInit {
         this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName + '.' + this.files[this.selectedItem].FileExtension
       }
     }
-    console.log(this.files[this.selectedItem], '\n')
+    console.log(this.path)
     console.log(this.pathSelected)
   }
 
