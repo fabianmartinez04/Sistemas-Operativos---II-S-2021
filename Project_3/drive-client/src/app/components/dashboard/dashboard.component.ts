@@ -77,7 +77,7 @@ export class DashboardComponent implements OnInit {
     this.personalFiles = false;
     this.path = 'SharedFiles';
     this.pathSelected = this.path;
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
   goBack() {

@@ -26,6 +26,7 @@ export class CreateFolderComponent implements OnInit {
 
 
   createFolder(form : NgForm) {
+   
     if(form.invalid){return;}
     let createdFolder = true;
 
