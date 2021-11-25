@@ -1,7 +1,9 @@
+import { stringify } from '@angular/compiler/src/util';
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { User } from 'src/app/models/user';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-user',
@@ -10,18 +12,29 @@ import { User } from 'src/app/models/user';
 })
 export class UserComponent implements OnInit {
 
-  user:User;
+  user: User;
 
-  constructor( private router: Router) { }
+  constructor(private router: Router, private webSocket: WebSocketService) { }
 
   ngOnInit(): void {
-    this.user = new User(); 
+    this.user = new User();
   }
 
 
-  loadFiles(form: NgForm) {
-    if(form.invalid) { return; }
-    this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
+  login(form: NgForm) {
+    if (form.invalid) { return; }
+
+    WebSocketService.stompClient.subscribe('/queue/login-' + this.user.username, (msg: any) => {
+      let obj = JSON.parse(msg.body)
+      if (obj.status == 200) {
+        this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
+        WebSocketService.stompClient.unsubscribe('/queue/login-' + this.user.username);
+      } else {
+        console.log('ERROR');
+      }
+    })
+    WebSocketService.stompClient.send('/app/login', {}, JSON.stringify({ username: this.user.username}))
+
   }
 
 }

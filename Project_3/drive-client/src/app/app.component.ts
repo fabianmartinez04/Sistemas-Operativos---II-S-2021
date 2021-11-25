@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { WebSocketAPI } from './models/WebSocketsAPI';
+import { WebSocketService } from './services/web-socket.service';
+
 
 @Component({
   selector: 'app-root',
@@ -9,25 +10,16 @@ import { WebSocketAPI } from './models/WebSocketsAPI';
 export class AppComponent {
   title = 'drive-client';
 
-  webSocketAPI: WebSocketAPI =  new WebSocketAPI(this);;
   greetings: string[] = [];
   name: string = '';
 
 
-  connect(){
-    this.webSocketAPI._connect();
+  constructor(private webSocket : WebSocketService) {
+    this.webSocket.connect();
   }
 
-  disconnect(){
-    this.webSocketAPI._disconnect();
-  }
 
-  sendMessage(){
-    this.webSocketAPI._send(this.name);
-  }
+  
 
-  handleMessage(message:any){
-    console.log(this.greetings)
-    this.greetings.push(message);
-  }
+
 }

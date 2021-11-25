@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'src/app/models/user';
 import { File } from 'src/app/models/file';
+import { WebSocketService } from 'src/app/services/web-socket.service';
+import { Handler } from 'src/app/models/handler';
+
+import $ from 'jquery';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,29 +15,33 @@ import { File } from 'src/app/models/file';
 })
 export class DashboardComponent implements OnInit {
 
-  user:User;
-  files: File[] = [];
-  personalFiles:boolean = true;
-  selectedItem : number = -1;
-  directory:string= 'My files';
 
-  constructor(private router: Router, private activatedRouter : ActivatedRoute) { }
+  user: User;
+  files: File[] = [];
+  personalFiles: boolean = true;
+  selectedItem: number = -1;
+  path: string = 'MyFiles';
+  fileSystem: any;
+  pathSelected: string = 'MyFiles';
+  modalShow:boolean = false;
+  fileToOpen: File = new File();
+
+  private handler: Handler = new Handler;
+
+  constructor(private router: Router, private activatedRouter: ActivatedRoute, private websocket: WebSocketService, private utilService : UtilService) {
+  }
 
   ngOnInit(): void {
     this.user = new User();
-    this.activatedRouter.params.subscribe((params:any)=> {
+    this.activatedRouter.params.subscribe((params: any) => {
       this.user.username = params['username'];
 
       // call a service to get files of directory
+      this.websocket.loadFiles(this.user.username, this)
+        .then((data: any) => {
+          WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }))
+        });
     })
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files.push(new File());
-    this.files[0].test("Folder 1","folder");
-    this.files[1].test("File 1","file");
-    this.files[2].test("Folder 2","folder");    
-    this.files[3].test("Folder 3","folder");
   }
 
 
@@ -40,18 +49,129 @@ export class DashboardComponent implements OnInit {
     this.router.navigateByUrl('/user-login');
   }
 
-  loadPersoonalFiles() {
+  loadFiles(msg: any) {
+    this.selectedItem = -1;
+    let data = JSON.parse(msg.body);
+    if (data.status == 200) {
+      this.fileSystem = data.data;
+      this.files = this.handler.loadFileOfPath(this.fileSystem);
+      
+      if (this.fileSystem.name != null) {
+        this.path = this.fileSystem.route + '/' + this.fileSystem.name;
+        if(!this.personalFiles) {
+          let replace = this.path.split('/');
+          replace[0] = 'SharedFiles';
+          this.path = replace.join('/');
+        }
+      }
+      this.pathSelected = this.path;
+    } else {
+      console.log(data.data);
+    }
+  }
+
+  loadPersonalFiles() {
+    this.selectedItem = -1;
     this.personalFiles = true;
-    this.directory = 'My Files';
+    this.path = 'MyFiles';
+    this.pathSelected = this.path;
+    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
   }
 
   loadSharedFiles() {
+    this.selectedItem = -1;
     this.personalFiles = false;
-    this.directory = 'Shared Files';
+    this.path = 'SharedFiles';
+    this.pathSelected = this.path;
+    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
   }
 
-  openFile() {
-    console.log("this is dobule click");
+  goBack() {
+    let files: string[] = this.path.split('/');
+    if (files.length == 1) { return; }
+    files.pop();
+    this.path = files.join('/');
+    this.pathSelected = this.path
+    if(this.personalFiles) {
+      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
+    } else {
+      if (this.path == 'SharedFiles') {
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
+      } else {
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.fileToOpen.route, owner:this.fileToOpen.owner}));
+      }
+    }
   }
+
+
+  removeFile() {
+    var r = confirm(`Are you sure?`);
+    if (r == true) {
+      let route = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName;
+      if (this.files[this.selectedItem].type == 'file') {
+        route = route + '.' + this.files[this.selectedItem].FileExtension;
+        WebSocketService.stompClient.send('/app/delete-file', {}, JSON.stringify({ username: this.user.username, path: route, pathFiles: this.path }));
+      } else {
+        WebSocketService.stompClient.send('/app/delete-folder', {}, JSON.stringify({ username: this.user.username, path: route, pathFiles: this.path }));
+      }
+    } else {
+      return;
+    }
+  }
+
+
+  changeFileSelected(index: number) {
+
+    if($('.modal.show').length){return;}
+    if (this.selectedItem == index) {
+      this.selectedItem = -1;
+      let files: string[] = this.pathSelected.split('/');
+      if (files.length == 1) { return; }
+      files.pop();
+      this.pathSelected = files.join('/');
+    }
+    else {
+      this.selectedItem = index
+      if (this.files[this.selectedItem].type == 'folder') {
+        this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName
+      } else {
+        this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName + '.' + this.files[this.selectedItem].FileExtension
+      }
+    }
+  }
+
+
+  openFile(file:File) {
+    this.fileToOpen = file;
+    if (file.type == 'folder') {
+      if(this.personalFiles){
+        WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
+      }
+      else{
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: file.route + '/'+ file.fileName, owner:file.owner}));
+      }
+      }
+    // type file
+    else {
+      document.getElementById('btn-showText').click();
+    }
+  }
+
+  saveChanges() {
+    
+    let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
+
+    if(newText != this.fileToOpen.text) {
+      // send to edit file
+      let route = this.fileToOpen.route + '/' + this.fileToOpen.fileName +'.' + this.fileToOpen.FileExtension;
+      WebSocketService.stompClient.send('/app/edit-file', {}, JSON.stringify({username:this.user.username, path:route, text:newText}));
+    }
+    document.getElementById('btn-close').click();
+  }
+
+  UpdateRootFolder() {
+    WebSocketService.stompClient.send('/app/load-root', {}, JSON.stringify({username:this.user.username, path:'MyFiles'}));
+  }
+
 
 }

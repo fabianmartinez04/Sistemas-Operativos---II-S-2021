@@ -1,0 +1,29 @@
+<!-- Modal -->
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white body-bg">
+        <div class="modal-header title-bg">
+            <h5 class="modal-title fw-bolder fs-5" id="exampleModalLabel">Copy Virtual to Real</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="validate-form" (ngSubmit)="copy(form)" #form="ngForm">
+        <div class="modal-body body-bg">
+            <div>
+                <label for="file-input" class="fw-bolder fs-5">Select directory</label>
+                <br>
+                <input id="file-input" 
+                    class="bg-light fs-5 text-dark" 
+                    type="text" 
+                    [(ngModel)]="path"
+                    name="path"
+                    required>
+                    <span *ngIf="form.submitted && form.controls['path'].errors" class="text-danger d-block">
+                        Please, enter the folder path</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <input type="submit" class="btn btn-outline-primary fw-bolder fs-5" value="Copy">
+            <button id="cancel-btn-vr" type="button" class="btn btn-danger fw-bolder fs-5" data-bs-dismiss="modal">Cancel</button>
+        </div>
+        </form>
+    </div>
+</div>

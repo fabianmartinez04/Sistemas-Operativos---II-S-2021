@@ -5,6 +5,9 @@ export class File {
     dateCreated:string;
     dateModified:string;
     size:number;
+    text:string;
+    route:string;
+    owner:string;
 
     constructor() {
         this.fileName = '';
@@ -13,10 +16,8 @@ export class File {
         this.dateCreated = '';
         this.dateModified = '';
         this.size = 0;
-    }
-
-    test(name:string,type:string){
-        this.fileName = name;
-        this.type= type;
+        this.text = '';
+        this.route = '';
+        this.owner= '';
     }
 }

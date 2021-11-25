@@ -3,29 +3,28 @@ import { File } from 'src/app/models/file';
 import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
-  selector: 'app-move',
-  templateUrl: './move.component.html',
-  styleUrls: ['./move.component.css']
+  selector: 'app-copy',
+  templateUrl: './copy.component.html',
+  styleUrls: ['./copy.component.css']
 })
-export class MoveComponent implements OnInit {
+export class CopyComponent implements OnInit {
 
   @Input() file: File;
   @Input() username : string = '';
-  
+
   fileCopy : File;
   fileSystem: any = null;
   path : string = 'MyFiles';
   foldersQueue: any[] = [];
-  
-  folders : any[] = [];
 
+  folders : any[] = [];
 
   constructor() { }
 
   ngOnInit(): void {
     WebSocketService.stompClient.subscribe(`/queue/load-root-${this.username}`, (data:any) => {
-      this.path = 'MyFiles';
       this.fileCopy = this.file;
+      this.path = 'MyFiles';
       let body = JSON.parse(data.body);
       this.fileSystem = body.data;
       this.foldersQueue = [];
@@ -34,32 +33,33 @@ export class MoveComponent implements OnInit {
     });
   }
 
-  loadFolders(file) {
-    let children : [] = file.children;
-    this.folders = [];
-    children.forEach((element:any) => {
-      if(element.type == 'folder') {
-        this.folders.push(element);
-      }
-    });
-    
-  }
-
   openFolders(folder:any){
     this.foldersQueue.push(folder);
     this.path = this.path + '/' + folder.name;
     this.loadFolders(folder);
   }
 
-  move() {
-    let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
+
+  loadFolders(file) {
     
+    let children : [] = file.children;
+    this.folders = [];
+    children.forEach((element:any) => {
+      if(element.type == 'folder' &&
+        element.route + '/' + element.name != this.fileCopy.route + '/' + this.fileCopy.fileName) {
+        this.folders.push(element);
+      }
+    });
+    
+  }
+
+  copy() {
+    let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
     if (this.fileCopy.type == 'file') {
-      let newPath = this.path;
       path = path + '.' + this.fileCopy.FileExtension;
-      WebSocketService.stompClient.send('/app/move-file', {}, JSON.stringify({username:this.username, path:path, newPath: newPath, pathUpdate:this.fileCopy.route}));
+      WebSocketService.stompClient.send('/app/copy-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
     } else {
-      WebSocketService.stompClient.send('/app/move-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path, pathUpdate:this.fileCopy.route}));
+      WebSocketService.stompClient.send('/app/copy-folder', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
     }
   }
 
