@@ -44,7 +44,7 @@ export class CopyRvComponent implements OnInit {
         WebSocketService.stompClient.send('/app/create-file', {},JSON.stringify({username:this.username, text: this.file.text, name:this.file.fileName, path:this.file.route, extension:this.file.FileExtension}))
       };
     } else {
-  
+    
     }
 
 

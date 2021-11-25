@@ -33,7 +33,7 @@
                     <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
                         <label for="user-input" class="fw-bolder fs-5">Select File</label>
                         <br>
-                        <input id="file-input-rv" class="bg-light fs-5 text-dark" type="file" name="filepath" required>
+                        <input id="file-input-rv" class="bg-light fs-5 text-dark" accept=".txt" type="file" name="filepath" required>
                         <span *ngIf="form.submitted && form.controls['filepath'].errors" class="text-danger d-block">
                             Please, select a file</span>
                     </div>
