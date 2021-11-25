@@ -7,7 +7,6 @@ import { Handler } from 'src/app/models/handler';
 
 import $ from 'jquery';
 import { UtilService } from 'src/app/services/util.service';
-import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',

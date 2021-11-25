@@ -25,10 +25,12 @@ export class CopyVrComponent implements OnInit {
   copy(form: NgForm) {
     if(form.invalid) { return; }
 
-    let path = this.path + '/' + this.file.fileName + '.' + this.file.FileExtension;
+    if(this.file.type == 'file') {
+      let path = this.path + '/' + this.file.fileName + '.' + this.file.FileExtension;
 
-    WebSocketService.stompClient.send('/app/copyVirtualToReal', {}, JSON.stringify({text:this.file.text, username:this.username, path: path}))
-    form.resetForm();
-    $('#cancel-btn-vr').click();
+      WebSocketService.stompClient.send('/app/copyVirtualToReal', {}, JSON.stringify({text:this.file.text, username:this.username, path: path}))
+      form.resetForm();
+      $('#cancel-btn-vr').click();
+    }
   }
 }

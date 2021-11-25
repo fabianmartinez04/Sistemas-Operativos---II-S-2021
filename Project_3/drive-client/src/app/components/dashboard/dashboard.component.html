@@ -60,7 +60,7 @@
                 </div>
                 <div class="input-group mb-3 me-3">
                     <button class="btn btn-outline-primary" type="button"
-                        [disabled]="selectedItem == -1" (click)="removeFile()">
+                        [disabled]="selectedItem == -1 || !personalFiles" (click)="removeFile()">
                         Delete
                     </button>
                 </div>
@@ -146,12 +146,12 @@
         </div>
         <div class="modal-body">
           <div>
-            <textarea class="w-100" id="text-id" style="min-height: 300px;"> {{fileToOpen.text}}</textarea>
+            <textarea [disabled]="!personalFiles" class="w-100" id="text-id" style="min-height: 300px;"> {{fileToOpen.text}}</textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button id="btn-close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" (click)="saveChanges()">Save file</button>
+          <button type="button" [disabled]="!personalFiles" class="btn btn-primary" (click)="saveChanges()">Save file</button>
         </div>
       </div>
     </div>

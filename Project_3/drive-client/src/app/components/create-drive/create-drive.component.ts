@@ -11,6 +11,7 @@ import { WebSocketService } from 'src/app/services/web-socket.service';
 })
 export class CreateDriveComponent implements OnInit {
   user:User;
+  username : string = '';
 
   constructor(private router: Router, private webSocket : WebSocketService) { }
 
@@ -25,13 +26,14 @@ export class CreateDriveComponent implements OnInit {
     this.webSocket.createDriveSubscribe(this.user.username, this);
 
     WebSocketService.stompClient.send('/app/create-drive', {}, JSON.stringify({'username':this.user.username, 'size': this.user.size, 'path': 'MyFiles'}));
+    this.username = this.user.username;
     form.resetForm();
   }
 
   validateUser(msg: any) {
     let body = JSON.parse(msg.body);
     if(body.status == 200) {
-      this.router.navigateByUrl(`/drive-dashboard/${this.user.username}`);
+      this.router.navigateByUrl(`/drive-dashboard/${this.username}`);
       
     } else {
       console.log(body.data);
