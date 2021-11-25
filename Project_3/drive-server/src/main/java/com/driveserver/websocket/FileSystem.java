@@ -150,7 +150,6 @@ public class FileSystem {
     // Fabián
     // name.txt
     public void createdFile(String name, String extension, String route, String text) throws Exception{
-        System.out.println(route + " route in createdfile");
         JSONObject file;
         Object obj;
         JSONArray children;
@@ -288,6 +287,9 @@ public class FileSystem {
         Object obj;
         JSONArray children;
 
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
@@ -318,6 +320,7 @@ public class FileSystem {
                 if (i == foldersName.length - 1) {
                     if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
                         file.replace("text", text);
+                        file.replace("modifiedCreated", (formatter.format(date)).toString());
                         updateJson();
                         return file;
                     }
