@@ -54,7 +54,10 @@ export class CopyComponent implements OnInit {
   }
 
   copy() {
-    let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
+    if(this.checkFilesToDestination()){return;}
+
+    let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName;
+
     if (this.fileCopy.type == 'file') {
       path = path + '.' + this.fileCopy.FileExtension;
       WebSocketService.stompClient.send('/app/copy-file', {}, JSON.stringify({username:this.username, path:path, newPath:this.path}));
@@ -71,6 +74,27 @@ export class CopyComponent implements OnInit {
     this.foldersQueue.pop();
     this.loadFolders(this.foldersQueue[this.foldersQueue.length - 1]);
     
+  }
+
+  checkFilesToDestination() {
+    let children : [] = this.foldersQueue[this.foldersQueue.length - 1].children;
+    
+    children.forEach((element:any) => {
+      if (this.fileCopy.type == 'folder' && element.type == 'folder') {
+        if (element.name == this.fileCopy.fileName) {
+          alert('The folder to copy exist in destination path');
+          return false;
+        }
+      } else if (this.fileCopy.type == 'file' && element.type == 'file') {
+        if (element.name + '.' + element.extension == this.fileCopy.fileName + '.' + this.fileCopy.FileExtension) {
+          alert('The file to copy exist in destinatioon path');
+          return false;
+        }
+      }
+
+    });
+    
+    return true;
   }
 
 }
