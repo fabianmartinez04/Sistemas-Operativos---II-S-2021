@@ -7,6 +7,7 @@ import { Handler } from 'src/app/models/handler';
 
 import $ from 'jquery';
 import { UtilService } from 'src/app/services/util.service';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',
@@ -58,6 +59,11 @@ export class DashboardComponent implements OnInit {
       
       if (this.fileSystem.name != null) {
         this.path = this.fileSystem.route + '/' + this.fileSystem.name;
+        if(!this.personalFiles) {
+          let replace = this.path.split('/');
+          replace[0] = 'SharedFiles';
+          this.path = replace.join('/');
+        }
       }
       this.pathSelected = this.path;
     } else {
@@ -78,7 +84,7 @@ export class DashboardComponent implements OnInit {
     this.personalFiles = false;
     this.path = 'SharedFiles';
     this.pathSelected = this.path;
-    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+    WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
   }
 
   goBack() {
@@ -87,7 +93,15 @@ export class DashboardComponent implements OnInit {
     files.pop();
     this.path = files.join('/');
     this.pathSelected = this.path
-    WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path }));
+    if(this.personalFiles) {
+      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
+    } else {
+      if (this.path == 'SharedFiles') {
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.path}));
+      } else {
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: this.fileToOpen.route, owner:this.fileToOpen.owner}));
+      }
+    }
   }
 
 
@@ -131,12 +145,17 @@ export class DashboardComponent implements OnInit {
 
 
   openFile(file:File) {
+    this.fileToOpen = file;
     if (file.type == 'folder') {
-      WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
-    }
+      if(this.personalFiles){
+        WebSocketService.stompClient.send('/app/loadFiles', {}, JSON.stringify({username:this.user.username, path:file.route + '/'+ file.fileName}));
+      }
+      else{
+        WebSocketService.stompClient.send('/app/loadShareFiles', {}, JSON.stringify({ username: this.user.username, path: file.route + '/'+ file.fileName, owner:file.owner}));
+      }
+      }
     // type file
     else {
-      this.fileToOpen = file;
       document.getElementById('btn-showText').click();
     }
   }

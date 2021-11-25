@@ -9,7 +9,7 @@ export class Handler {
         let files : File[] = [];
         children.forEach((element:any) => {
             let file : File = new  File();
-            
+            file.owner = element.owner;
             file.type = element.type;
             file.fileName = element.name;
             file.route = element.route;
