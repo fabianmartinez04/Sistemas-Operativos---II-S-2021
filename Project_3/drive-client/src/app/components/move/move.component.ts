@@ -38,7 +38,8 @@ export class MoveComponent implements OnInit {
     let children : [] = file.children;
     this.folders = [];
     children.forEach((element:any) => {
-      if(element.type == 'folder') {
+      if(element.type == 'folder'&&
+      element.route + '/' + element.name != this.fileCopy.route + '/' + this.fileCopy.fileName) {
         this.folders.push(element);
       }
     });
@@ -52,6 +53,9 @@ export class MoveComponent implements OnInit {
   }
 
   move() {
+
+    if(this.checkFilesToDestination()){return;}
+
     let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
     
     if (this.fileCopy.type == 'file') {
@@ -71,6 +75,27 @@ export class MoveComponent implements OnInit {
     this.foldersQueue.pop();
     this.loadFolders(this.foldersQueue[this.foldersQueue.length - 1]);
     
+  }
+
+  checkFilesToDestination() {
+    let children : [] = this.foldersQueue[this.foldersQueue.length - 1].children;
+    
+    children.forEach((element:any) => {
+      if (this.fileCopy.type == 'folder' && element.type == 'folder') {
+        if (element.name == this.fileCopy.fileName) {
+          alert('The folder to copy exist in destination path');
+          return false;
+        }
+      } else if (this.fileCopy.type == 'file' && element.type == 'file') {
+        if (element.name + '.' + element.extension == this.fileCopy.fileName + '.' + this.fileCopy.FileExtension) {
+          alert('The file to copy exist in destinatioon path');
+          return false;
+        }
+      }
+
+    });
+    
+    return true;
   }
 
 }
