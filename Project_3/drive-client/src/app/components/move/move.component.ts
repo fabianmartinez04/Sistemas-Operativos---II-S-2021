@@ -54,7 +54,7 @@ export class MoveComponent implements OnInit {
 
   move() {
 
-    if(this.checkFilesToDestination()){return;}
+    if(!this.checkFilesToDestination()){return;}
 
     let path: string = this.fileCopy.route + '/'+ this.fileCopy.fileName
     
