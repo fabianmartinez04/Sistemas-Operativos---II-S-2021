@@ -122,7 +122,7 @@
 
 <app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
 
-<app-copy-rv  id="CopyRVModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
+<app-copy-rv  id="CopyRVModal"  class="modal fade" [path]="path" [username]= "user.username" tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
 
 <app-create-file  [username]= "user.username" [route]="path" [files]="files" id="CreateFile" class="modal fade" tabindex="-1" aria-hidden="true"></app-create-file>
 

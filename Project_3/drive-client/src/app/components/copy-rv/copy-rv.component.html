@@ -12,12 +12,12 @@
                     <li class="nav-item me-1" role="presentation">
                         <button class="btn btn-outline-light active fw-bolder fs-5" id="directory-tab"
                             data-bs-toggle="tab" data-bs-target="#directory" type="button" role="tab"
-                            aria-controls="directory" aria-selected="true">Directory</button>
+                            aria-controls="directory" aria-selected="true" (click)="file.type = 'folder'">Directory</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="btn btn-outline-light fw-bolder fs-5" id="file-tab" data-bs-toggle="tab"
                             data-bs-target="#file" type="button" role="tab" aria-controls="file"
-                            aria-selected="false">File</button>
+                            aria-selected="false" (click)="file.type = 'file'">File</button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -33,7 +33,7 @@
                     <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
                         <label for="user-input" class="fw-bolder fs-5">Select File</label>
                         <br>
-                        <input id="file-input" class="bg-light fs-5 text-dark" type="file" name="filepath" required>
+                        <input id="file-input-rv" class="bg-light fs-5 text-dark" type="file" name="filepath" required>
                         <span *ngIf="form.submitted && form.controls['filepath'].errors" class="text-danger d-block">
                             Please, select a file</span>
                     </div>
@@ -44,7 +44,7 @@
             </div>
             <div class="modal-footer">
                 <input type="submit" class="btn btn-outline-primary fw-bolder fs-5" value="Copy">
-                <button id="cancel-btn" type="button" class="btn btn-danger fw-bolder fs-5"
+                <button id="cancel-btn-modal" type="button" class="btn btn-danger fw-bolder fs-5"
                     data-bs-dismiss="modal">Cancel</button>
             </div>
         </form>

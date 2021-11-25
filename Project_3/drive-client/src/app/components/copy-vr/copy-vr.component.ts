@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
+import $ from 'jquery'
+
 @Component({
   selector: 'app-copy-vr',
   templateUrl: './copy-vr.component.html',
@@ -18,9 +20,10 @@ export class CopyVrComponent implements OnInit {
   
   copy(form: NgForm) {
     if(form.invalid) { return; }
-    document.getElementById("cancel-btn").click();
 
     //call service
     console.log(this.file)
+    form.resetForm();
+    $('#cancel-btn').click();
   }
 }

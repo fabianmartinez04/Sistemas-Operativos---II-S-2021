@@ -25,6 +25,7 @@ export class CreateDriveComponent implements OnInit {
     this.webSocket.createDriveSubscribe(this.user.username, this);
 
     WebSocketService.stompClient.send('/app/create-drive', {}, JSON.stringify({'username':this.user.username, 'size': this.user.size, 'path': 'MyFiles'}));
+    form.resetForm();
   }
 
   validateUser(msg: any) {

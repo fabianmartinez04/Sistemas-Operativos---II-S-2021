@@ -214,7 +214,7 @@ public class FileSystem {
             newFile.put("extension", extension);
             newFile.put("name", name);
             newFile.put("dateCreated",(formatter.format(date)).toString());
-            newFile.put("modifiedCreated",(formatter.format(date)).toString());
+            newFile.put("dateModified",(formatter.format(date)).toString());
             newFile.put("size",String.valueOf(size));
             newFile.put("route",route);
             newFile.put("text",text);
@@ -244,7 +244,7 @@ public class FileSystem {
                         newFile.put("extension",extension);
                         newFile.put("name",name);
                         newFile.put("dateCreated",(formatter.format(date)).toString());
-                        newFile.put("modifiedCreated",(formatter.format(date)).toString());
+                        newFile.put("dateModified",(formatter.format(date)).toString());
                         newFile.put("size",String.valueOf(size));
                         newFile.put("route",route);
                         newFile.put("text",text);

@@ -51,6 +51,8 @@ export class CreateFileComponent implements OnInit {
       this.file.type = 'file';
       this.file.route = '';
       form.resetForm();
+      (<HTMLTextAreaElement>document.getElementById('content-id')).value = '';
+      $('#btn-close-file-modal').click();
     }
     
   }
