@@ -12,15 +12,17 @@
                 <br>
                 <input id="file-input" 
                     class="bg-light fs-5 text-dark" 
-                    type="file" 
-                    name="filpath"
-                    webkitdirectory
+                    type="text" 
+                    [(ngModel)]="path"
+                    name="path"
                     required>
+                    <span *ngIf="form.submitted && form.controls['path'].errors" class="text-danger d-block">
+                        Please, enter the folder path</span>
             </div>
         </div>
         <div class="modal-footer">
             <input type="submit" class="btn btn-outline-primary fw-bolder fs-5" value="Copy">
-            <button id="cancel-btn" type="button" class="btn btn-danger fw-bolder fs-5" data-bs-dismiss="modal">Cancel</button>
+            <button id="cancel-btn-vr" type="button" class="btn btn-danger fw-bolder fs-5" data-bs-dismiss="modal">Cancel</button>
         </div>
         </form>
     </div>

@@ -41,10 +41,10 @@
                         Copy
                     </button>
                     <ul class="dropdown-menu">
-                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyRVModal">
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyRVModal"  (click)="UpdateRootFolder()" >
                             Real-Virtual
                         </button></li>
-                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyVRModal" [disabled]="selectedItem == -1">
+                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyVRModal" [disabled]="selectedItem == -1"  (click)="UpdateRootFolder()">
                             Virtual-Real
                         </button></li>
                         <li><button class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCopy" [disabled]="selectedItem == -1" (click)="UpdateRootFolder()">
@@ -120,7 +120,7 @@
 
 <app-shared id="SharedModal" [username]= "user.username" [file]= "files[selectedItem]" class="modal fade"  tabindex="-1" aria-hidden="true"></app-shared>
 
-<app-copy-vr id="CopyVRModal"  class="modal fade"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
+<app-copy-vr id="CopyVRModal"  class="modal fade" [file]="files[selectedItem]" [username]= "user.username"  tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-vr>
 
 <app-copy-rv  id="CopyRVModal"  class="modal fade" [path]="path" [username]= "user.username" tabindex="-1" class="modal fade" tabindex="-1" aria-hidden="true"></app-copy-rv>
 

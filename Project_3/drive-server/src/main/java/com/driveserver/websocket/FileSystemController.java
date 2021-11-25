@@ -303,6 +303,20 @@ public class FileSystemController {
     }
 
 
+    @MessageMapping("/copyVirtualToReal")
+    public void copyVirtualToReal(@Payload JSONObject obj) {
+        try {
+            this.fileSystem.copyVirtualToReal(obj.get("text").toString(), obj.get("path").toString());
+        } catch (Exception e) {
+            JSONObject out = new JSONObject();
+            out.put("status", 400);
+            out.put("data", e.getMessage());
+            sender.convertAndSend("/queue/load-root-" + obj.get("username"), out.toJSONString());
+        }
+
+    }
+
+
 
 
 

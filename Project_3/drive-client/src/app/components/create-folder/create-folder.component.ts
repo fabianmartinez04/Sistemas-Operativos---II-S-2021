@@ -40,8 +40,9 @@ export class CreateFolderComponent implements OnInit {
     if (createdFolder) {
       WebSocketService.stompClient.send('/app/create-folder', {}, JSON.stringify({name:this.file.fileName, username: this.username, path : this.route}));
       $('#btn-close').click();
+      form.resetForm();
     }
-    form.resetForm();
+    
   } 
 
 }

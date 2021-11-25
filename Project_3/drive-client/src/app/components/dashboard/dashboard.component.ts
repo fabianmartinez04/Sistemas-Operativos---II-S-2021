@@ -139,8 +139,6 @@ export class DashboardComponent implements OnInit {
         this.pathSelected = this.files[this.selectedItem].route + '/' + this.files[this.selectedItem].fileName + '.' + this.files[this.selectedItem].FileExtension
       }
     }
-    console.log(this.path)
-    console.log(this.pathSelected)
   }
 
 
@@ -163,7 +161,6 @@ export class DashboardComponent implements OnInit {
   saveChanges() {
     
     let newText = (<HTMLTextAreaElement>document.getElementById('text-id')).value;
-    console.log("SE LLAMA")
 
     if(newText != this.fileToOpen.text) {
       // send to edit file

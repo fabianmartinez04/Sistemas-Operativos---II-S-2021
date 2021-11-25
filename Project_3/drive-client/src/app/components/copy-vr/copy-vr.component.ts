@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 
 import $ from 'jquery'
+import { File } from 'src/app/models/file';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-copy-vr',
@@ -10,7 +12,9 @@ import $ from 'jquery'
 })
 export class CopyVrComponent implements OnInit {
 
-  file : string = '';
+  @Input() file : File;
+  path : string = '';
+  @Input() username : string = '';
 
   constructor() { }
 
@@ -21,9 +25,10 @@ export class CopyVrComponent implements OnInit {
   copy(form: NgForm) {
     if(form.invalid) { return; }
 
-    //call service
-    console.log(this.file)
+    let path = this.path + '/' + this.file.fileName + '.' + this.file.FileExtension;
+
+    WebSocketService.stompClient.send('/app/copyVirtualToReal', {}, JSON.stringify({text:this.file.text, username:this.username, path: path}))
     form.resetForm();
-    $('#cancel-btn').click();
+    $('#cancel-btn-vr').click();
   }
 }

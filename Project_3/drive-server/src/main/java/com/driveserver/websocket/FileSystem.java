@@ -335,6 +335,9 @@ public class FileSystem {
         Object obj;
         JSONArray children;
 
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
         String[] foldersName = route.split("/");
         obj = (Object)this.fileSystem.get(foldersName[0]);
         file = (JSONObject) obj;
@@ -347,6 +350,7 @@ public class FileSystem {
                 obj = children.get(j);
                 file = (JSONObject)obj;
                 if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[1]))) {
+                    file.replace("dateModified", (formatter.format(date)).toString());
                     file.replace("text", text);
                     updateJson();
                     return file;
@@ -364,6 +368,7 @@ public class FileSystem {
                 file = (JSONObject)obj;
                 if (i == foldersName.length - 1) {
                     if((file.get("type").equals("file")) && ((file.get("name") + "." + file.get("extension")).equals(foldersName[i]))) {
+                        file.replace("dateModified", (formatter.format(date)).toString());
                         file.replace("text", text);
                         updateJson();
                         return file;
@@ -868,6 +873,18 @@ public class FileSystem {
             System.out.println("shareFile ERROR");
         }
 
+    }
+
+    public void copyVirtualToReal(String text, String path) throws Exception{
+        try {
+            FileWriter writer = new FileWriter(path);
+            writer.write(text);
+            writer.close();
+        } catch (IOException e) {
+            System.err.println(e.toString());
+            throw new Exception("Path no found");
+
+        }
     }
 
 }

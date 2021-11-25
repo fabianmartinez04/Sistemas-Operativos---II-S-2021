@@ -21,13 +21,13 @@ export class CopyRvComponent implements OnInit {
 
   ngOnInit(): void {
     this.file = new File();
-    this.file.route = this.path;
     this.file.owner = this.username;
   }
 
   copy(form: NgForm) {
     if(form.invalid) { return; }
-
+    this.file.route = this.path;
+    
     var file = (<HTMLInputElement>document.getElementById('file-input-rv')).files[0];
     this.file.fileName = file.name;
     var Reader = new FileReader();
@@ -44,7 +44,7 @@ export class CopyRvComponent implements OnInit {
         WebSocketService.stompClient.send('/app/create-file', {},JSON.stringify({username:this.username, text: this.file.text, name:this.file.fileName, path:this.file.route, extension:this.file.FileExtension}))
       };
     } else {
-    
+      console.log(file);
     }
 
 
